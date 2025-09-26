@@ -1,0 +1,7 @@
+// 1. Override Bootstrap variables BEFORE importing
+$primary: #4CAF50; // Example: change primary color (green)
+$table-cell-padding-y: 0.5rem;
+$table-cell-padding-x: 0.75rem;
+
+// 2. Import all Bootstrap
+@import "bootstrap/scss/bootstrap";
