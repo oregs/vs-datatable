@@ -452,6 +452,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- 📧 Email: [your-email@example.com]
+- 📧 Email: [oregunwasegun@gmail.com]
 - 🐛 Issues: [GitHub Issues](https://github.com/oregs/vs-datatable/issues)
 - 📖 Documentation: [GitHub Wiki](https://github.com/oregs/vs-datatable/wiki)
