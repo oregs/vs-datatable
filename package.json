@@ -67,8 +67,5 @@
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.4"
   },
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.0.1",
-    "bootstrap": "^5.3.8"
-  }
+  "dependencies": {}
 }

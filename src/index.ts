@@ -1,7 +1,7 @@
 import type { App } from 'vue'
 import VsDataTable from '@/components/VsDataTable.vue'
 
-import './styles/vs-datatable.scss'
+import './styles/index.scss'
 
 // Named export
 export { VsDataTable }

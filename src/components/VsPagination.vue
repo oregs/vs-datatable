@@ -1,47 +1,60 @@
 <template>
-    <div ref="vsPagination">
-      <ul class="pagination pagination-sm mb-0 justify-content-center text-center" :id="tablename + '-paginate-parent'">
-        <li class="page-item">
-          <button
-            @click="prevRecord"
-            type="button"
-            :class="[tablename + '-paginate-navigators page-link', { disabled: currentPage === 1 }]"
-            :disabled="currentPage === 1"
-          >
-            &lt;&lt;
-          </button>
-        </li>
-        <li v-if="startPage > 1" class="page-item d-flex">
-          <button type="button" class="page-link me-2" @click="navigateTable(1)">1</button>
-          <span v-if="startPage > 2" class="page-link disabled">...</span>
-        </li>
-        <li v-for="page in visiblePages" :key="page" class="page-item">
-          <button
-            type="button"
-            :class="[currentPage === page ? 'active' : '', 'page-link', tablename + '-paginate-button']"
-            :id="tablename + '-navigateButton-' + page"
-            @click="navigateTable(page)"
-          >
-            {{ page }}
-          </button>
-        </li>
-        <li v-if="endPage < totalPages" class="page-item d-flex">
-          <span v-if="endPage < totalPages - 1" class="page-link me-2 disabled">...</span>
-          <button type="button" class="page-link" @click="navigateTable(totalPages)">{{ totalPages }}</button>
-        </li>
-        <li class="page-item">
-          <button
-            @click="nextRecord"
-            type="button"
-            :class="[tablename + '-paginate-navigators page-link', { disabled: currentPage === totalPages }]"
-            :disabled="currentPage === totalPages"
-          >
-            &gt;&gt;
-          </button>
-        </li>
-      </ul>
-    </div>
-  </template>
+  <div class="vs-pagination" :id="tablename + '-pagination'">
+    <button
+      @click="prevRecord"
+      type="button"
+      class="vs-pagination-button vs-pagination-nav"
+      :disabled="currentPage === 1"
+    >
+      ‹‹
+    </button>
+    
+    <button 
+      v-if="startPage > 1" 
+      type="button" 
+      class="vs-pagination-button" 
+      @click="navigateTable(1)"
+    >
+      1
+    </button>
+    
+    <span v-if="startPage > 2" class="vs-pagination-ellipsis">...</span>
+    
+    <button
+      v-for="page in visiblePages"
+      :key="page"
+      type="button"
+      :class="[
+        'vs-pagination-button',
+        { 'vs-active': currentPage === page }
+      ]"
+      :id="tablename + '-page-' + page"
+      @click="navigateTable(page)"
+    >
+      {{ page }}
+    </button>
+    
+    <span v-if="endPage < totalPages - 1" class="vs-pagination-ellipsis">...</span>
+    
+    <button 
+      v-if="endPage < totalPages" 
+      type="button" 
+      class="vs-pagination-button" 
+      @click="navigateTable(totalPages)"
+    >
+      {{ totalPages }}
+    </button>
+    
+    <button
+      @click="nextRecord"
+      type="button"
+      class="vs-pagination-button vs-pagination-nav"
+      :disabled="currentPage === totalPages"
+    >
+      ››
+    </button>
+  </div>
+</template>
   
   <script setup lang="ts">
   import { computed, defineProps, defineEmits } from 'vue';
@@ -108,20 +121,63 @@
 </script>
   
 <style scoped>
- @media only screen and (min-width: 1199px) {
-  .pagination .page-item .page-link {
-    padding: 4px 8px !important;  /* smaller height & width */
-    font-size: 12px !important;   /* smaller text */
-    line-height: 1 !important;    /* keeps button compact */
+  .vs-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--vs-spacing-sm);
+    flex-wrap: wrap;
   }
-}
-
-@media only screen and (max-width: 768px) {
-  .pagination .page-item .page-link {
-    padding: 4px 8px !important;  /* very compact for small screens */
-    font-size: 10px !important;
-    line-height: 1 !important;
+  
+  .vs-pagination-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 var(--vs-spacing-sm);
+    border: 1px solid var(--vs-table-border);
+    background-color: var(--vs-table-bg);
+    color: var(--vs-dark);
+    text-decoration: none;
+    border-radius: var(--vs-border-radius);
+    font-size: var(--vs-font-size-sm);
+    transition: var(--vs-transition-fast);
+    cursor: pointer;
   }
-}
+  
+  .vs-pagination-button:hover:not(:disabled) {
+    background-color: var(--vs-table-hover-bg);
+    border-color: var(--vs-primary);
+  }
+  
+  .vs-pagination-button.vs-active {
+    background-color: var(--vs-primary);
+    border-color: var(--vs-primary);
+    color: white;
+  }
+  
+  .vs-pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .vs-pagination-nav {
+    font-weight: var(--vs-font-weight-bold);
+  }
+  
+  .vs-pagination-ellipsis {
+    color: var(--vs-secondary);
+    padding: 0 var(--vs-spacing-sm);
+    font-size: var(--vs-font-size-sm);
+  }
+  
+  @media (max-width: 768px) {
+    .vs-pagination-button {
+      min-width: 28px;
+      height: 28px;
+      font-size: 12px;
+    }
+  }
 </style>
   

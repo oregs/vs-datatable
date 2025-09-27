@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding: 20px;">
     <h1>Playground</h1>
     
   <!-- VSBody -->
@@ -7,9 +7,8 @@
         header-text="Pre-auction Approval (5)"
         :rows="rows" 
         :columns="columns"
+        v-model:sort="sort"
         v-model:item-selected="itemSelected"
-        v-model:server-items-length="serverItemsLength" 
-        v-model:server-options="serverOptions"
         @input-typed="handleInputTyped"
         @page-updated="onPageUpdated"
         @sort-changed="fetchSortedData"
@@ -47,15 +46,9 @@ import { VsDataTable } from './index'
  * VSTable
  * ----------------------------------------------------------------
  */
- const loading = ref<boolean>(false)
+const loading = ref<boolean>(false)
+const sort = ref<any[]>([{ field: 'date', order: 'asc' }])
 const itemSelected = ref<any[]>([])
-const serverItemsLength = ref<number>(5)
-const serverOptions = ref<any>({
-    page: 1,
-    rowPerPage: 10,
-    sortOrder: ['asc'],
-    sortField: ['date'],
-})
 const pendingAuctions = ref<any>([])
 const columns = ref<any[]>([
   { label: 'Order', field: 'id', width: '10', sortable: true },
@@ -66,8 +59,8 @@ const columns = ref<any[]>([
 
 const rows = ref<any[]>([
   { id: 1, date: 'Fri 26 Nov, 10:11pm', customer: 'Rwanda Lee', total: 391.0 },
-  { id: 2, date: 'Thu 27 Nov, 09:23pm', customer: 'Bolu', total: 398.0 },
-  { id: 3, date: 'Sat 28 Nov, 13:23pm', customer: 'Temilade', total: 393.0 },
+  { id: 2, date: 'Sat 27 Nov, 09:23pm', customer: 'Bolu', total: 398.0 },
+  { id: 3, date: 'Sun 28 Nov, 13:23pm', customer: 'Temilade', total: 393.0 },
 ]);
 
 const handleInputTyped = (value: string) => {
