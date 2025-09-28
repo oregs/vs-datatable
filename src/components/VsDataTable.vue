@@ -24,7 +24,8 @@
                     type="checkbox"
                     :id="tablename + '-main-checkbox'"
                     :checked="isAllChecked"
-                    @change="toggleAll"
+                    :indeterminate="isSomeChecked"
+                    @change="toggleAll($event)"
                   />
                   <label :for="tablename + '-main-checkbox'"></label>
                 </div>
@@ -131,12 +132,18 @@
                       type="checkbox"
                       :id="tablename + '-checkbox-' + getRowKey(item, index)"
                       :value="item"
-                      v-model="selectedItems"
+                      :checked="selectedItems.some((r: Record<string, any>, i: number) => getRowKey(r, i) === getRowKey(item, index))"
+                      @change="toggleRow(item, index)"
                     />
                     <label :for="tablename + '-checkbox-' + getRowKey(item, index)"></label>
                   </div>
                 </td>
-                <td v-for="column in columns" :key="column.field" :class="cellClass">
+                <td
+                  v-for="(column, colIndex) in columns"
+                  :key="colIndex"
+                  :class="cellClass"
+                  @click.stop="emit('cell-click', row, column, index)"
+                >
                   <slot
                     :name="`cell-${column.field}`"
                     :item="item"
@@ -156,8 +163,8 @@
 
     <!-- Pagination and Info -->
     <div class="vs-table-footer">
-      <div v-if="showRowEntries" class="vs-table-info">showing
-        {{ recordRange.start < 1 ? 0 : recordRange.start }} - {{ recordRange.end }} of
+      <div v-if="showRowEntries" class="vs-table-info">
+        showing {{ recordRange.start < 1 ? 0 : recordRange.start }} - {{ recordRange.end }} of
         {{ totalRecords }} {{ entriesText }}
       </div>
       <div v-else class="vs-table-info"></div>
@@ -175,11 +182,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits, withDefaults, useAttrs, watch } from 'vue'
+import {
+  ref,
+  computed,
+  defineProps,
+  defineEmits,
+  withDefaults,
+  useAttrs,
+  watch,
+  onBeforeMount,
+  onMounted,
+  onUnmounted,
+} from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
 
-interface Column {
+export interface Column {
   label: string
   field: string
   width?: string
@@ -187,91 +205,135 @@ interface Column {
   isKey?: boolean
 }
 
-interface Sort {
+export interface Sort {
   field: string
   order: 'asc' | 'desc'
   priority?: number
 }
 
-interface ServerOptions {
+export interface ServerOptions {
   page: number
   rowsPerPage: number
   sort?: Sort[]
+  [key: string]: any
 }
 
-const props = withDefaults(
-  defineProps<{
-    rows?: any[]
-    itemSelected?: any[] | null
-    tablename?: string
-    sort?: Sort[]
-    serverItemsLength?: number
-    serverOptions?: ServerOptions | null
-    showHeader?: boolean
-    headerText?: string
-    loading?: boolean
-    columns: Column[]
-    showSearch?: boolean
-    tableClass?: string | string[] | Record<string, any>
-    rowClass?: string | string[] | Record<string, any>
-    showRowEntries?: boolean
-    // New customization props
-    containerClass?: string | string[] | Record<string, any>
-    headerClass?: string | string[] | Record<string, any>
-    cellClass?: string | string[] | Record<string, any>
-    searchClass?: string | string[] | Record<string, any>
-    paginationClass?: string | string[] | Record<string, any>
-    searchPlaceholder?: string
-    loadingText?: string
-    noDataText?: string
-    noDataDescription?: string
-    entriesText?: string
-    maxVisiblePages?: number
-    rowKey?: string | ((item: any, index: number) => string | number)
-  }>(),
-  {
-    rows: () => [],
-    itemSelected: null,
-    tablename: 'default-table',
-    serverOptions: null,
-    showHeader: true,
-    headerText: '',
-    loading: false,
-    showSearch: true,
-    showRowEntries: true,
-    searchPlaceholder: 'Search...',
-    loadingText: 'Loading...',
-    noDataText: 'No data available',
-    noDataDescription: 'Try adjusting your search criteria',
-    entriesText: 'entries',
-    maxVisiblePages: 5,
-    rowKey: 'id',
-  }
-)
+/* ---------------------------- */
+/* Props Types  + Emits
+/* ---------------------------- */
+
+/* Client-side props + emits */
+type ClientProps = {
+  rows: any[]
+  sort?: Sort[]
+  serverOptions?: never
+}
+
+/* Server-side props + emits */
+type ServerProps = {
+  rows: any[]
+  sort?: never
+  serverOptions: ServerOptions
+}
+
+type SharedProps = {
+  rows?: any[]
+  columns: Column[]
+  itemSelected?: any[] | null
+  tablename?: string
+  serverItemsLength?: number
+  showHeader?: boolean
+  headerText?: string
+  loading?: boolean
+  showSearch?: boolean
+  tableClass?: string | string[] | Record<string, any>
+  rowClass?: string | string[] | Record<string, any>
+  showRowEntries?: boolean
+  containerClass?: string | string[] | Record<string, any>
+  headerClass?: string | string[] | Record<string, any>
+  cellClass?: string | string[] | Record<string, any>
+  searchClass?: string | string[] | Record<string, any>
+  paginationClass?: string | string[] | Record<string, any>
+  searchPlaceholder?: string
+  loadingText?: string
+  noDataText?: string
+  noDataDescription?: string
+  entriesText?: string
+  maxVisiblePages?: number
+  rowKey?: string | ((item: any, index: number) => string | number)
+}
+
+/* Full types */
+type Props = SharedProps & (ClientProps | ServerProps)
+
+/* ---------------------------- */
+/* Define Props with Defaults */
+/* ---------------------------- */
+const props = withDefaults(defineProps<Props>(), {
+  itemSelected: null,
+  tablename: 'default-table',
+  showHeader: true,
+  headerText: '',
+  loading: false,
+  showSearch: true,
+  showRowEntries: true,
+  searchPlaceholder: 'Search...',
+  loadingText: 'Loading...',
+  noDataText: 'No data available',
+  noDataDescription: 'Try adjusting your search criteria',
+  entriesText: 'entries',
+  maxVisiblePages: 5,
+  rowKey: 'id',
+})
 
 const emit = defineEmits<{
+  // Lifecycle
+  (event: 'table:before-mount'): void
+  (event: 'table:mounted'): void
+  (event: 'table:unmounted'): void
+
+  // Data
+  (event: 'data-loaded', rows: any[]): void
+  (event: 'data-error', error: unknown): void
+
+  // Interaction
+  (event: 'row-selected', row: any, index: number): void
+  (event: 'row-deselected', row: any, index: number): void
+  (event: 'row-toggled', row: any, index: number, selected: boolean): void
+  (event: 'rows-toggled', rows: any[], selected: boolean): void
+  (event: 'all-rows-selected', rows: any[]): void
+  (event: 'cell-click', row: any, column: Column, index: number): void
+
+  // Shared
   (event: 'update:itemSelected', value: any[]): void
   (event: 'update:serverItemsLength', value: number | undefined): void
-  (event: 'update:serverOptions', value: ServerOptions): void
-  (event: 'update:sort', value: Sort[]): void 
   (event: 'input-typed', value: string): void
   (event: 'page-updated', value: number): void
-  (event: 'update:sort',  sort: Sort[]): void
-  (event: 'sort-changed', payload: { sort: Sort[] }): void
   (event: 'row-click', row: any, index: number): void
+
+  // Sorting
+  (event: 'sort-changed', payload: { sort: Sort[] }): void
+  (event: 'update:sort', value: Sort[]): void
+  (event: 'update:serverOptions', value: ServerOptions): void
 }>()
 
 const attrs = useAttrs()
-const hasRowClick = computed(() => !!attrs['onRowClick'])
 
 // New computed properties
 const totalColumns = computed(() => {
   return props.columns.length + (isItemSelectedControlled.value ? 1 : 0)
 })
 
-const getRowKey = (item: any, index: number) => {
+/**
+ * --------------------
+ * ROW SELECTION
+ * --------------------
+ */
+const hasRowClick = computed(() => !!attrs['onRowClick'])
+
+const getRowKey = (item: any, index?: number) => {
   if (typeof props.rowKey === 'function') {
-    return props.rowKey(item, index)
+    return props.rowKey(item, index ?? -1)
   }
   return item[props.rowKey] || index
 }
@@ -319,26 +381,41 @@ watch(
 const activeSort = computed(() => props.serverOptions?.sort ?? localSort.value ?? [])
 
 const sortedRows = computed(() => {
-  if (!activeSort.value.length) return props.rows
+  // If server mode is active → do not sort locally
+  if (props.serverOptions) {
+    return props.rows
+  }
+
+  // Client-side mode
+  const sort = props.sort ?? []
+  if (!sort.length) return props.rows
 
   const getNested = (obj: any, path: string) =>
     path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
 
   return [...props.rows].sort((a, b) => {
-    for (const { field, order } of activeSort.value) {
+    for (const { field, order } of sort) {
       const aValue = getNested(a, field)
       const bValue = getNested(b, field)
 
       if (aValue === bValue) continue
       if (order === 'asc') return aValue > bValue ? 1 : -1
-      else return aValue < bValue ? 1 : -1
+      return aValue < bValue ? 1 : -1
     }
     return 0
   })
 })
 
 const handleSort = (field: string, event: MouseEvent) => {
-  let sort = [...activeSort.value]
+  // Use whichever sort array exists (server or client)
+  let sort: Sort[] = []
+
+  if (props.serverOptions) {
+    sort = [...(props.serverOptions.sort ?? [])]
+  } else if (props.sort) {
+    sort = [...props.sort]
+  }
+
   const index = sort.findIndex((s) => s.field === field)
 
   if (!event.shiftKey) {
@@ -362,16 +439,15 @@ const handleSort = (field: string, event: MouseEvent) => {
   sort = sort.map((s, i) => ({ ...s, priority: i + 1 }))
 
   if (props.serverOptions) {
-    // Server-side sorting
+    // ✅ Server mode
     emit('update:serverOptions', { ...props.serverOptions, sort })
   } else {
-    // Client-side sorting
-    localSort.value = sort
-    emit('update:sort', sort)      //v-model:sort support
-    emit('sort-changed', { sort })
+    // ✅ Client mode
+    emit('update:sort', sort)
   }
-}
 
+  emit('sort-changed', { sort })
+}
 
 /* ---------------------------- */
 /* Search */
@@ -432,18 +508,84 @@ const recordRange = computed(() => {
 /* ---------------------------- */
 /* Checkbox Handling */
 /* ---------------------------- */
+const localSelected = ref<any[]>(props.itemSelected || [])
+
+watch(
+  () => props.itemSelected,
+  (newVal) => {
+    if (newVal) localSelected.value = [...newVal]
+    else localSelected.value = []
+  },
+  { immediate: true, deep: true }
+)
+
 const selectedItems = computed<any[]>({
-  get: () => props.itemSelected || [],
-  set: (newValue) => emit('update:itemSelected', newValue),
+  get: () => localSelected.value,
+  set: (newValue) => {
+    localSelected.value = newValue
+    emit('update:itemSelected', newValue)
+  },
 })
 
 const isItemSelectedControlled = computed(() => props.itemSelected !== null)
 const isAllChecked = computed(
   () => props.rows.length > 0 && selectedItems.value.length === props.rows.length
 )
-const toggleAll = () => {
-  selectedItems.value = isAllChecked.value ? [] : [...props.rows]
+const isSomeChecked = computed(() => {
+  if (!props.rows.length) return false
+  if (!selectedItems.value.length) return false
+
+  return (
+    !isAllChecked.value &&
+    props.rows.some((row, index) =>
+      selectedItems.value.some(
+        (r, i) => getRowKey(r, i) === getRowKey(row, index)
+      )
+    )
+  )
+})
+
+const toggleRow = (row: any, index: number) => {
+  const rowKey = getRowKey(row, index)
+  const exists = selectedItems.value.some(
+    (r, i) => getRowKey(r, i) === rowKey
+  )
+
+  if (exists) {
+    selectedItems.value = selectedItems.value.filter(
+      (r, i) => getRowKey(r, i) !== rowKey
+    )
+    emit('row-deselected', row, index)
+  } else {
+    selectedItems.value = [...selectedItems.value, row]
+    emit('row-selected', row, index)
+  }
 }
+
+const toggleAll = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  selectedItems.value = target.checked ? [...props.rows] : [];
+  console.log('Data: ', selectedItems.value)
+  emit('all-rows-selected', selectedItems.value)
+}
+
+onMounted(() => {
+  emit('table:mounted')
+
+  try {
+    emit('data-loaded', props.rows)
+  } catch (err) {
+    emit('data-error', err)
+  }
+})
+
+onUnmounted(() => {
+  emit('table:unmounted')
+})
+
+onBeforeMount(() => {
+  emit('table:before-mount')
+})
 </script>
 
 <style scoped>

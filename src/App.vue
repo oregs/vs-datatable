@@ -12,7 +12,10 @@
         @input-typed="handleInputTyped"
         @page-updated="onPageUpdated"
         @sort-changed="fetchSortedData"
+        @row-selected="rowSelected"
+        @all-rows-selected="allRowsSelected"
         :loading="false"
+        class="vs-theme-rounded"
     >
         <template #cell-id="{ item }">
             <RouterLink :to="`/page/order-details/${item.id}`">
@@ -76,6 +79,14 @@ const onPageUpdated = (newPage: number) => {
 async function getPendingAuctionOrBid() {
     loading.value = true;
 
+}
+
+const rowSelected = (row: any, index: number) => {
+  console.log('RowSelected:', row, index);
+}
+
+const allRowsSelected = (rows: any) => {
+  console.log('AllRowSelected:', rows);
 }
 
 function fetchSortedData(payload: { sort: { field: string; order: 'asc' | 'desc'; priority?: number }[] }) {
