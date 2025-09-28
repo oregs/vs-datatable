@@ -38,7 +38,9 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run type-check && pnpm run build-only",
+    "clean": "rimraf dist",
+    "build": "pnpm run clean && pnpm run type-check && pnpm run build-only && pnpm run build:types",
+    "build:types": "vue-tsc --project tsconfig.build.json",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
@@ -60,12 +62,12 @@
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.36.0",
     "eslint-plugin-vue": "^10.5.0",
+    "rimraf": "^6.0.1",
     "sass-embedded": "^1.93.2",
     "typescript": "~5.8.0",
     "vite": "^7.0.6",
     "vite-plugin-lib-inject-css": "^2.2.2",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.4"
-  },
-  "dependencies": {}
+  }
 }

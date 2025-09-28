@@ -1,12 +1,12 @@
 import type { App } from 'vue'
 import VsDataTable from '@/components/VsDataTable.vue'
 
+export * from "./types"
+
 import './styles/index.scss'
 
-// Named export
 export { VsDataTable }
 
-// Default export (Vue plugin install)
 export default {
   install(app: App) {
     app.component('VsDataTable', VsDataTable)
