@@ -190,3 +190,13 @@ export function deepClone<T>(obj: T): T {
   }
   return obj
 }
+
+/**
+ * Calculate total pages
+ * @param totalRecords - total records
+ * @param rowsPerPage - rows per page
+ * @returns total number of pages
+ */
+export function calcTotalPages(totalRecords: number, rowsPerPage: number): number {
+  return Math.ceil(totalRecords / rowsPerPage)
+}

@@ -11,8 +11,10 @@ export function useDataTableSort<
 >(
   props: { sort?: Sort[]; serverOptions?: any; rows: any[], rowsPerPage: number },
   emit: T,
-  page: Ref<number>
+  page: Ref<number>,
+  rowsPerPage: Ref<number>
 ) {
+  const vsInitialPage = ref<number>(1)
   const localSort = ref<Sort[]>(props.sort ?? [])
 
   // Watch for external sort changes
@@ -31,14 +33,19 @@ export function useDataTableSort<
 
   // Sorted rows computed
   const sortedRows = computed(() => {
-    if (!activeSort.value.length) return props.rows
-    let sortedRowsData = sortArray(props.rows, activeSort.value)
-
-    if (props.rowsPerPage) {
-      sortedRowsData = paginateRows(sortedRowsData, page.value, props.rowsPerPage)
+    let resultRows = props.rows
+    
+    // Apply sorting if active sort exists
+    if (activeSort.value.length) {
+      resultRows = sortArray(props.rows, activeSort.value)
     }
-
-    return sortedRowsData
+    
+    // Apply pagination if rowsPerPage is set
+    if (props.rowsPerPage) {
+      resultRows = paginateRows(resultRows, page.value, rowsPerPage.value)
+    }
+  
+    return resultRows
   })
 
   // Sort helpers
@@ -94,6 +101,7 @@ export function useDataTableSort<
       emit('update:sort', sort)
     }
 
+    page.value = vsInitialPage.value
     emit('sort-changed', { sort })
   }
 

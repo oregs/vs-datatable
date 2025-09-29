@@ -58,6 +58,7 @@
   
   <script setup lang="ts">
   import { computed, defineProps, defineEmits } from 'vue';
+  import { calcTotalPages } from '@/utils/datatable'
   
   interface Props {
     modelValue: number;
@@ -66,7 +67,6 @@
     tablename: string;
     maxVisible?: number;
     paginationClass?: string | string[] | Record<string, any>;
-
   }
   
   const props = defineProps<Props>();
@@ -91,7 +91,7 @@
   
   const endPage = computed(() => Math.min(startPage.value + maxVisible - 1, totalPages.value));
 
-  const totalPages = computed(() => Math.ceil(props.totalRecords / props.rowsPerPage))
+  const totalPages = computed(() => calcTotalPages(props.totalRecords, props.rowsPerPage))
   
   const visiblePages = computed(() => {
     const pages = [];

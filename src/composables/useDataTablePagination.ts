@@ -2,7 +2,7 @@
  * DataTable Pagination Composable
  */
 
-import { ref, computed } from 'vue'
+import { type Ref, ref, computed } from 'vue'
 import type { PaginationHelpers, RecordRange } from '@/types/datatable'
 import { calculateRecordRange } from '@/utils/datatable'
 
@@ -14,23 +14,12 @@ export function useDataTablePagination<
     serverItemsLength?: number; 
     rows: any[] 
   },
-  emit: T
+  emit: T,
+  page: Ref<number>,
+  rowsPerPage: Ref<number>
 ) {
   // Client-side pagination state
-  const csRowPerPage = ref<number>(10)
-  const csPage = ref<number>(1)
-
-  // Computed properties
-  const rowsPerPage = computed<number>({
-    get: () => props.serverOptions?.rowsPerPage ?? csRowPerPage.value,
-    set: (newValue: number) => {
-      if (props.serverOptions) {
-        emit('update:serverOptions', { ...props.serverOptions, rowsPerPage: newValue })
-      } else {
-        csRowPerPage.value = newValue
-      }
-    },
-  })
+  // const csPage = ref<number>(1)
 
   const totalRecords = computed<number>({
     get: () => (props.serverItemsLength !== undefined ? props.serverItemsLength : props.rows.length),
@@ -41,19 +30,19 @@ export function useDataTablePagination<
     },
   })
 
-  const page = computed<number>({
-    get: () => props.serverOptions?.page ?? csPage.value,
+  const currentPage = computed<number>({
+    get: () => props.serverOptions?.page ?? page.value,
     set: (newValue: number) => {
       if (props.serverOptions) {
         emit('update:serverOptions', { ...props.serverOptions, page: newValue })
       } else {
-        csPage.value = newValue
+        page.value = newValue
       }
     },
   })
 
   const recordRange = computed<RecordRange>(() => {
-    const rowsPerPageValue = props.serverOptions?.rowsPerPage ?? 10
+    const rowsPerPageValue = rowsPerPage.value
     return calculateRecordRange(page.value, rowsPerPageValue, totalRecords.value)
   })
 
@@ -66,15 +55,13 @@ export function useDataTablePagination<
 
   const paginationHelpers: PaginationHelpers = {
     page,
-    rowsPerPage,
     totalRecords,
     recordRange,
     handlePageChange
   }
 
   return {
-    page,
-    rowsPerPage,
+    currentPage,
     totalRecords,
     recordRange,
     handlePageChange,

@@ -38,7 +38,7 @@ export interface DataTableProps {
   showSearch?: boolean
   tableClass?: string | string[] | Record<string, any>
   rowClass?: string | string[] | Record<string, any>
-  showRowEntries?: boolean
+  showFooter?: boolean
   containerClass?: string | string[] | Record<string, any>
   headerClass?: string | string[] | Record<string, any>
   cellClass?: string | string[] | Record<string, any>
@@ -87,7 +87,6 @@ export interface SortHelpers {
 
 export interface PaginationHelpers {
   page: Ref<number>
-  rowsPerPage: Ref<number>
   totalRecords: Ref<number>
   recordRange: ComputedRef<RecordRange>
   handlePageChange: (newPage: number) => void

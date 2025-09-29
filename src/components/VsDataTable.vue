@@ -49,7 +49,7 @@
                         class="vs-sort-icon vs-sort-asc"
                         :class="{
                           'vs-active':
-                            sortHelpers.isColumnSorted(column.field) && 
+                            sortHelpers.isColumnSorted(column.field) &&
                             sortHelpers.getSortOrder(column.field) === 'asc',
                         }"
                       >
@@ -67,7 +67,7 @@
                         class="vs-sort-icon vs-sort-desc"
                         :class="{
                           'vs-active':
-                            sortHelpers.isColumnSorted(column.field) && 
+                            sortHelpers.isColumnSorted(column.field) &&
                             sortHelpers.getSortOrder(column.field) === 'desc',
                         }"
                       >
@@ -83,7 +83,10 @@
                     </div>
 
                     <!-- Priority Badge -->
-                    <span v-if="sortHelpers.getSortPriority(column.field) !== null" class="vs-sort-priority">
+                    <span
+                      v-if="sortHelpers.getSortPriority(column.field) !== null"
+                      class="vs-sort-priority"
+                    >
                       {{ sortHelpers.getSortPriority(column.field) }}
                     </span>
                   </div>
@@ -159,12 +162,18 @@
     </div>
 
     <!-- Pagination and Info -->
-    <div class="vs-table-footer">
-      <div v-if="showRowEntries" class="vs-table-info">
-        showing {{ recordRange.start < 1 ? 0 : recordRange.start }} - {{ recordRange.end }} of
-        {{ totalRecords }} {{ entriesText }}
+    <div v-if="showFooter" class="vs-table-footer">
+      <div class="vs-footer-left">
+        <!-- Rows per page -->
+        <VsRowsPerPage v-model="rowsPerPage" @rows-per-page-changed="handleRowsPerPage" />
+        <!-- Divider -->
+        <div class="vs-divider"></div>
+        <!-- Info -->
+        <div class="vs-table-info">
+          {{ recordRange.start < 1 ? 0 : recordRange.start }} - {{ recordRange.end }} of
+          {{ totalRecords }} {{ entriesText }}
+        </div>
       </div>
-      <div v-else class="vs-table-info"></div>
       <VsPagination
         v-model="page"
         :totalRecords="totalRecords"
@@ -192,11 +201,11 @@ import {
 } from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
+import VsRowsPerPage from './VsRowsPerPage.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
-import { useDataTableSort } from '@/composables/useDataTableSort'
-import { useDataTablePagination } from '@/composables/useDataTablePagination'
+import { useDataTable } from '@/composables/useDataTable'
 import { useDataTableSelection } from '@/composables/useDataTableSelection'
 import { useDataTableSearch } from '@/composables/useDataTableSearch'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns } from '@/utils/datatable'
@@ -211,7 +220,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   headerText: '',
   loading: false,
   showSearch: true,
-  showRowEntries: true,
+  showFooter: true,
   searchPlaceholder: 'Search...',
   loadingText: 'Loading...',
   noDataText: 'No data available',
@@ -229,20 +238,29 @@ const attrs = useAttrs()
 const hasRowClick = computed(() => !!attrs['onRowClick'])
 
 // Use composables
-const { page, rowsPerPage, totalRecords, recordRange, handlePageChange } = useDataTablePagination(props, emit)
-const { sortedRows, sortHelpers } = useDataTableSort(props, emit, page)
-const { 
-  selectedItems, 
-  isItemSelectedControlled, 
-  isAllChecked, 
+const {
+  page,
+  rowsPerPage,
+  totalRecords,
+  recordRange,
+  handlePageChange,
+  handleRowsPerPage,
+  sortedRows,
+  sortHelpers,
+} = useDataTable(props, emit)
+
+const {
+  selectedItems,
+  isItemSelectedControlled,
+  isAllChecked,
   isSomeChecked,
   toggleAll,
-  toggleRow
+  toggleRow,
 } = useDataTableSelection(props, emit)
 const { searchQuery, onInputTyped } = useDataTableSearch(emit)
 
 // Computed properties
-const totalColumns = computed(() => 
+const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value)
 )
 

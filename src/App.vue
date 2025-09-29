@@ -16,6 +16,7 @@
         @sort-changed="fetchSortedData"
         @row-selected="rowSelected"
         @all-rows-selected="allRowsSelected"
+        @rows-per-page-changed="handleRowsPerPage"
         :loading="false"
         class="vs-theme-rounded"
       >
@@ -119,6 +120,10 @@ function fetchSortedData(payload: {
   console.log(sortArray)
 }
 
+const handleRowsPerPage = (rowsPerPage: number) => {
+  console.log('RowsPerPage: ', rowsPerPage)
+}
+
 /**
  * -------------------
  * SERVER OPTIONS
@@ -127,7 +132,7 @@ function fetchSortedData(payload: {
  const serverItemsLength = ref(20)
  const serverOptions = ref({
   page: 1,
-  rowsPerPage: 20,
+  rowsPerPage: 25,
   sort: []
 })
 

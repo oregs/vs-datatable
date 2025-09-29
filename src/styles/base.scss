@@ -344,6 +344,34 @@
   }
 }
 
+.vs-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* spacing between items */
+}
+
+.vs-divider {
+  width: 1px;
+  height: 20px;
+  background-color: #ccc; /* light gray divider */
+}
+
+.vs-rows-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.vs-items-dropdown {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .vs-table-container {
