@@ -4,7 +4,7 @@
 
 import {type Ref, ref, computed, watch } from 'vue'
 import type { Sort, SortHelpers } from '@/types/datatable'
-import { sortArray, paginateRows } from '@/utils/datatable'
+import { sortArray, paginateRows, filterRowsByQuery } from '@/utils/datatable'
 
 export function useDataTableSort<
   T extends (event: any, ...args: any[]) => void
@@ -12,7 +12,8 @@ export function useDataTableSort<
   props: { sort?: Sort[]; serverOptions?: any; rows: any[], rowsPerPage: number },
   emit: T,
   page: Ref<number>,
-  rowsPerPage: Ref<number>
+  rowsPerPage: Ref<number>,
+  searchQuery: Ref<string>
 ) {
   const vsInitialPage = ref<number>(1)
   const localSort = ref<Sort[]>(props.sort ?? [])
@@ -34,10 +35,15 @@ export function useDataTableSort<
   // Sorted rows computed
   const sortedRows = computed(() => {
     let resultRows = props.rows
+
+     // Apply search filter first (before sorting and pagination)
+    if (searchQuery.value) {
+      resultRows = filterRowsByQuery(resultRows, searchQuery.value)
+    }
     
     // Apply sorting if active sort exists
     if (activeSort.value.length) {
-      resultRows = sortArray(props.rows, activeSort.value)
+      resultRows = sortArray(resultRows, activeSort.value)
     }
     
     // Apply pagination if rowsPerPage is set

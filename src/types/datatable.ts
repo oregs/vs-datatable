@@ -35,16 +35,16 @@ export interface DataTableProps {
   headerText?: string
   loading?: boolean
   columns: Column[]
-  showSearch?: boolean
   tableClass?: string | string[] | Record<string, any>
   rowClass?: string | string[] | Record<string, any>
   showFooter?: boolean
   containerClass?: string | string[] | Record<string, any>
   headerClass?: string | string[] | Record<string, any>
   cellClass?: string | string[] | Record<string, any>
+  showSearch?: boolean
   searchClass?: string | string[] | Record<string, any>
-  paginationClass?: string | string[] | Record<string, any>
   searchPlaceholder?: string
+  paginationClass?: string | string[] | Record<string, any>
   loadingText?: string
   noDataText?: string
   noDataDescription?: string

@@ -18,7 +18,6 @@
         @all-rows-selected="allRowsSelected"
         @rows-per-page-changed="handleRowsPerPage"
         :loading="false"
-        class="vs-theme-rounded"
       >
         <template #cell-id="{ item }">#{{ item.id }}</template>
 

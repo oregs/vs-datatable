@@ -2,16 +2,15 @@
  * DataTable Search Composable
  */
 
-import { ref } from 'vue'
+import { type Ref, ref, computed } from 'vue'
 import type { SearchHelpers } from '@/types/datatable'
 
 export function useDataTableSearch<
   T extends (event: any, ...args: any[]) => void
 >(
-  emit: T
+  emit: T,
+  searchQuery: Ref<string>
 ) {
-  const searchQuery = ref<string>('')
-
   const onInputTyped = (value: string) => {
     searchQuery.value = value
     emit('input-typed', value)
@@ -37,6 +36,6 @@ export function useDataTableSearch<
     onInputTyped,
     clearSearch,
     setSearchQuery,
-    searchHelpers
+    searchHelpers,
   }
 }

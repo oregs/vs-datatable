@@ -207,7 +207,6 @@ import VsRowsPerPage from './VsRowsPerPage.vue'
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTableSelection } from '@/composables/useDataTableSelection'
-import { useDataTableSearch } from '@/composables/useDataTableSearch'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns } from '@/utils/datatable'
 
 // Props and Emits
@@ -217,9 +216,9 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   tablename: 'default-table',
   serverOptions: null,
   showHeader: true,
+  showSearch: true,
   headerText: '',
   loading: false,
-  showSearch: true,
   showFooter: true,
   searchPlaceholder: 'Search...',
   loadingText: 'Loading...',
@@ -247,6 +246,8 @@ const {
   handleRowsPerPage,
   sortedRows,
   sortHelpers,
+  searchQuery,
+  onInputTyped,
 } = useDataTable(props, emit)
 
 const {
@@ -257,7 +258,6 @@ const {
   toggleAll,
   toggleRow,
 } = useDataTableSelection(props, emit)
-const { searchQuery, onInputTyped } = useDataTableSearch(emit)
 
 // Computed properties
 const totalColumns = computed(() =>

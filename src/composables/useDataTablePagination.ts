@@ -16,13 +16,14 @@ export function useDataTablePagination<
   },
   emit: T,
   page: Ref<number>,
-  rowsPerPage: Ref<number>
+  rowsPerPage: Ref<number>,
+  sortedRows: Ref<Record<string, any>>
 ) {
   // Client-side pagination state
   // const csPage = ref<number>(1)
 
   const totalRecords = computed<number>({
-    get: () => (props.serverItemsLength !== undefined ? props.serverItemsLength : props.rows.length),
+    get: () => (props.serverItemsLength !== undefined ? props.serverItemsLength : sortedRows.value.length),
     set: (newValue: number) => {
       if (props.serverItemsLength !== undefined) {
         emit('update:serverItemsLength', newValue)

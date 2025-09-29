@@ -200,3 +200,33 @@ export function deepClone<T>(obj: T): T {
 export function calcTotalPages(totalRecords: number, rowsPerPage: number): number {
   return Math.ceil(totalRecords / rowsPerPage)
 }
+
+/**
+ * Filter
+ * @param totalRecords - total records
+ * @param rowsPerPage - rows per page
+ * @returns total number of pages
+ */
+export function filterRowsByQuery<T extends Record<string, any>>(
+  resultRows: T[],
+  query: string,
+  columns?: (keyof T)[]
+): T[] {
+  if (!query || query.trim() === "") return resultRows;
+
+  const lowerQuery = query.toLowerCase();
+
+  return resultRows.filter(row => {
+    // if columns are specified, only search those
+    if (columns && columns.length > 0) {
+      return columns.some(col =>
+        String(row[col] ?? "").toLowerCase().includes(lowerQuery)
+      );
+    }
+
+    // otherwise search across all fields in row
+    return (Object.values(row) as unknown[]).some(value =>
+      String(value ?? "").toLowerCase().includes(lowerQuery)
+    );
+  });
+}
