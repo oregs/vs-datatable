@@ -31,8 +31,8 @@ export function useDataTableSort<
   const activeSort = computed(() => 
     props.serverOptions?.sort ?? localSort.value ?? []
   )
-  
-  const sortedRows = computed(() => {
+  // processedRows
+  const processedRows = computed(() => {
     let resultRows = props.rows
   
     // Only apply client-side operations if not in server mode
@@ -45,11 +45,6 @@ export function useDataTableSort<
       // Apply sorting
       if (activeSort.value.length) {
         resultRows = sortArray(resultRows, activeSort.value)
-      }
-  
-      // Apply pagination
-      if (props.rowsPerPage) {
-        resultRows = paginateRows(resultRows, page.value, rowsPerPage.value)
       }
     }
   
@@ -121,7 +116,7 @@ export function useDataTableSort<
   }
 
   return {
-    sortedRows,
+    processedRows,
     activeSort,
     sortHelpers
   }

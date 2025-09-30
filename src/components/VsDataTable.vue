@@ -112,7 +112,7 @@
             </tr>
 
             <!-- No Data -->
-            <tr v-else-if="!sortedRows.length">
+            <tr v-else-if="!paginatedRows.length">
               <td :colspan="totalColumns" class="vs-no-data">
                 <slot name="no-data">
                   <div class="vs-no-data-icon">
@@ -129,7 +129,7 @@
             </tr>
 
             <!-- Table Rows -->
-            <template v-else v-for="(item, index) in sortedRows" :key="getRowKey(item, index)">
+            <template v-else v-for="(item, index) in paginatedRows" :key="getRowKey(item, index)">
               <tr
                 :class="[
                   rowClass,
@@ -252,7 +252,7 @@ const {
   recordRange,
   handlePageChange,
   handleRowsPerPage,
-  sortedRows,
+  paginatedRows,
   sortHelpers,
   searchQuery,
   onInputTyped,
