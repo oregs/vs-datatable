@@ -31,24 +31,26 @@ export function useDataTableSort<
   const activeSort = computed(() => 
     props.serverOptions?.sort ?? localSort.value ?? []
   )
-
-  // Sorted rows computed
+  
   const sortedRows = computed(() => {
     let resultRows = props.rows
-
-     // Apply search filter first (before sorting and pagination)
-    if (searchQuery.value) {
-      resultRows = filterRowsByQuery(resultRows, searchQuery.value)
-    }
-    
-    // Apply sorting if active sort exists
-    if (activeSort.value.length) {
-      resultRows = sortArray(resultRows, activeSort.value)
-    }
-    
-    // Apply pagination if rowsPerPage is set
-    if (props.rowsPerPage) {
-      resultRows = paginateRows(resultRows, page.value, rowsPerPage.value)
+  
+    // Only apply client-side operations if not in server mode
+    if (!props.serverOptions) {
+      // Apply search filter
+      if (searchQuery.value) {
+        resultRows = filterRowsByQuery(resultRows, searchQuery.value)
+      }
+  
+      // Apply sorting
+      if (activeSort.value.length) {
+        resultRows = sortArray(resultRows, activeSort.value)
+      }
+  
+      // Apply pagination
+      if (props.rowsPerPage) {
+        resultRows = paginateRows(resultRows, page.value, rowsPerPage.value)
+      }
     }
   
     return resultRows

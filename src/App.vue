@@ -11,7 +11,6 @@
         :columns="columns"
         v-model:sort="sort"
         v-model:item-selected="itemSelected"
-        @input-typed="handleInputTyped"
         @page-updated="onPageUpdated"
         @sort-changed="fetchSortedData"
         @row-selected="rowSelected"
@@ -46,6 +45,8 @@
         @update:server-options="handleServerOptionsChange"
         @sort-changed="handleServerSortChange"
         @row-click="handleSercerRowClick"
+        @rows-per-page-changed="handleServerRowsPerPage"
+        @input-typed="handleServerInputTyped"
       />
     </section>
   </div>
@@ -93,10 +94,6 @@ const columns = ref<any[]>([
   { label: 'Customer', field: 'customer', width: '30', sortable: true },
   { label: 'Total', field: 'total', width: '15', sortable: true },
 ])
-
-const handleInputTyped = (value: string) => {
-  console.log(value)
-}
 
 const onPageUpdated = (newPage: number) => {
   console.log('Page updated to:', newPage)
@@ -146,5 +143,14 @@ const handleServerOptionsChange = (options: any) => {
 
 const handleServerSortChange = ({ sort }: { sort: any[] }) => {
   console.log('Sort changed:', sort)
+}
+
+const handleServerRowsPerPage = (rowsPerPage: number) => {
+  serverOptions.value = {...serverOptions.value, rowsPerPage}
+  console.log('RowsPerPage: ', rowsPerPage, serverOptions.value)
+}
+
+const handleServerInputTyped = (value: string) => {
+  console.log(value)
 }
 </script>

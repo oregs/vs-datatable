@@ -1,14 +1,21 @@
 <template>
   <div class="vs-datatable">
-    <!-- Search and Filter Area -->
-    <div v-if="showSearch" class="vs-search-container">
-      <VsSearch
-        v-model="searchQuery"
-        @input-typed="onInputTyped"
-        :placeholder="searchPlaceholder"
-        :class="searchClass"
-      />
-      <slot name="filterArea"></slot>
+    <div class="vs-layout-row">
+      <div class="vs-layout-start">
+        <!-- Search and Filter Area -->
+        <div v-if="showSearch" class="vs-search-container">
+          <VsSearch
+            v-model="searchQuery"
+            @input-typed="onInputTyped"
+            :placeholder="searchPlaceholder"
+            :class="searchClass"
+          />
+          <slot name="filterArea"></slot>
+        </div>
+      </div>
+      <div class="vs-layout-end">
+        <!-- <DropDownButton /> -->
+      </div>
     </div>
 
     <!-- Table Container -->
@@ -208,6 +215,7 @@ import type { DataTableProps, DataTableEmits } from '@/types/datatable'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTableSelection } from '@/composables/useDataTableSelection'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns } from '@/utils/datatable'
+import DropDownButton from './DropDownButton.vue'
 
 // Props and Emits
 const props = withDefaults(defineProps<DataTableProps>(), {
