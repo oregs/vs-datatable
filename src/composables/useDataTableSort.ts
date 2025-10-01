@@ -13,7 +13,10 @@ export function useDataTableSort<
   emit: T,
   page: Ref<number>,
   rowsPerPage: Ref<number>,
-  searchQuery: Ref<string>
+  searchQuery: Ref<string>,
+  payload: {
+    isRowExpanded: any
+  }
 ) {
   const vsInitialPage = ref<number>(1)
   const localSort = ref<Sort[]>(props.sort ?? [])
@@ -48,6 +51,11 @@ export function useDataTableSort<
       }
     }
   
+    resultRows.map(row => ({
+      ...row,
+      isExpanded: payload.isRowExpanded(row.id),
+    }))
+
     return resultRows
   })
 

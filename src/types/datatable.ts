@@ -24,8 +24,25 @@ export interface ServerOptions {
   [key: string]: any
 }
 
+export interface Row {
+  id: string | number
+  [key: string]: any
+}
+
+export interface ExpandEvent {
+  row: any
+  index: number
+  rowId: string | number
+}
+
+export interface CollapseEvent {
+  row: any
+  index: number
+  rowId: string | number
+}
+
 export interface DataTableProps {
-  rows?: any[]
+  rows?: Row[]
   itemSelected?: any[] | null
   tablename?: string
   sort?: Sort[]
@@ -52,6 +69,9 @@ export interface DataTableProps {
   maxVisiblePages?: number
   rowsPerPage?:number
   rowKey?: string | ((item: any, index: number) => string | number)
+  expanded?: (string | number)[]
+  expandable?: boolean
+  accordion?: boolean
 }
 
 export interface DataTableEmits {
@@ -71,6 +91,9 @@ export interface DataTableEmits {
   (event: 'table:before-mount'): void
   (event: 'data-loaded', data: any[]): void
   (event: 'data-error', error: any): void
+  (event: "update:expanded", value: (string | number)[]): void
+  (event: 'expand-row', payload: ExpandEvent): void
+  (event: 'collapse-row', payload: CollapseEvent): void
 }
 
 export interface RecordRange {

@@ -24,6 +24,16 @@
         <table class="vs-table" :class="tableClass">
           <thead>
             <tr>
+              <!-- Expandable column header -->
+              <th v-if="expandable" class="vs-expand-column" style="width: 5%">
+                <!-- <button
+                  v-if="accordion"
+                  @click="$emit('update:expanded', [])"
+                  class="vs-expand-collapse-all"
+                >
+                  −
+                </button> -->
+              </th>
               <!-- Checkbox Column -->
               <th v-if="isItemSelectedControlled" class="vs-checkbox-column" style="width: 5%">
                 <div class="vs-checkbox">
@@ -138,6 +148,42 @@
                 ]"
                 @click="$emit('row-click', item, index)"
               >
+                <!-- Expand toggle cell -->
+                <td v-if="expandable" class="vs-expand-column" @click.stop>
+                  <button
+                    class="vs-expand-btn"
+                    type="button"
+                    :aria-expanded="isRowExpanded(item, index)"
+                    :aria-controls="`row-details-${getRowKey(item, index)}`"
+                    @click.stop="toggleRowExpansion(item, index)"
+                  >
+                    <!-- You can swap for an icon -->
+                    <span v-if="isRowExpanded(item, index)">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#495057"
+                      >
+                        <path d="M480-345 240-585l56-56 184 183 184-183 56 56-240 240Z" />
+                      </svg>
+                    </span>
+                    <span v-else>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="24px"
+                        viewBox="0 -960 960 960"
+                        width="24px"
+                        fill="#495057"
+                      >
+                        <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z" />
+                      </svg>
+                    </span>
+                  </button>
+                </td>
+
+                <!-- Data Cells -->
                 <td v-if="isItemSelectedControlled" @click.stop class="vs-checkbox-column">
                   <div class="vs-checkbox">
                     <input
@@ -162,6 +208,22 @@
                   </slot>
                 </td>
               </tr>
+
+              <!-- Expanded Row -->
+              <!-- Expanded content -->
+              <template v-if="expandable">
+                <tr v-if="isRowExpanded(item, index)" class="vs-row-extendable">
+                  <td :colspan="totalColumns">
+                    <slot name="row-expand" :item="item" :index="index">
+                      <!-- default expanded content -->
+                      <div class="vs-expand-content">
+                        Expanded details for row
+                        {{ getRowId(item, index) }}
+                      </div>
+                    </slot>
+                  </td>
+                </tr>
+              </template>
             </template>
           </tbody>
         </table>
@@ -196,7 +258,6 @@
 
 <script setup lang="ts">
 import {
-  ref,
   computed,
   defineProps,
   defineEmits,
@@ -256,6 +317,9 @@ const {
   sortHelpers,
   searchQuery,
   onInputTyped,
+  isRowExpanded,
+  getRowId,
+  toggleRowExpansion,
 } = useDataTable(props, emit)
 
 const {
@@ -269,7 +333,7 @@ const {
 
 // Computed properties
 const totalColumns = computed(() =>
-  calculateTotalColumns(props.columns, isItemSelectedControlled.value)
+  calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
 
 // Lifecycle hooks
@@ -337,5 +401,23 @@ onBeforeMount(() => {
 
 .vs-search-container {
   margin-bottom: var(--vs-spacing-md);
+}
+
+.vs-expand-column {
+  width: 40px;
+  text-align: center;
+}
+.vs-expand-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.vs-row-expanded {
+  background: #f9f9f9;
+}
+.vs-expanded-content {
+  padding: 1rem;
+  border-left: 3px solid #2d6cdf;
 }
 </style>

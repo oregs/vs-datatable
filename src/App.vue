@@ -17,6 +17,10 @@
         @all-rows-selected="allRowsSelected"
         @rows-per-page-changed="handleRowsPerPage"
         :loading="false"
+        expandable
+        accordion
+        @expand-row="onExpandRow"
+        @collapse-row="onCollapseRow"
       >
         <template #cell-id="{ item }">#{{ item.id }}</template>
 
@@ -29,6 +33,12 @@
         </template>
 
         <template #cell-total="{ item }"> ${{ item.total.toFixed(2) }} </template>
+
+        <template #row-expanded="{ item }">
+          <div>
+            <p><strong>Role:</strong> {{ item }}</p>
+          </div>
+        </template>
       </VsDataTable>
       <!-- END VSBody -->
     </section>
@@ -56,6 +66,7 @@
 import { ref } from 'vue'
 // import VsDataTable from './index'
 import { VsDataTable } from './index'
+import type { ExpandEvent, CollapseEvent } from './index' 
 
 /**
  * ----------------------------------------------------------------
@@ -84,7 +95,7 @@ import { VsDataTable } from './index'
   { id: 19, date: 'Tue 14 Dec, 11:53am', customer: 'Helen George', total: 325.6 },
   { id: 20, date: 'Wed 15 Dec, 07:39pm', customer: 'Anthony Clark', total: 410.8 },
 ])
-
+const expanded = ref<number[]>([])
 const loading = ref<boolean>(false)
 const sort = ref<any[]>([{ field: 'date', order: 'asc' }])
 const itemSelected = ref<any[]>([])
@@ -118,6 +129,20 @@ function fetchSortedData(payload: {
 
 const handleRowsPerPage = (rowsPerPage: number) => {
   console.log('RowsPerPage: ', rowsPerPage)
+}
+
+function onExpandRow({ row, index, rowId }: ExpandEvent) {
+  console.log("Expanded row:", row, index, rowId)
+  // Example: make API call here
+  // fetch(`/api/details/${rowId}`)
+  //   .then(res => res.json())
+  //   .then(data => {
+  //     console.log("Row details:", data)
+  //   })
+}
+
+function onCollapseRow({ row, index, rowId }: CollapseEvent) {
+  console.log("Collapsed row:", row, index, rowId)
 }
 
 /**

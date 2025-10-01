@@ -4,6 +4,7 @@ import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
 import { useDataTableSearch } from '@/composables/useDataTableSearch'
 import { paginateRows } from '@/utils/datatable'
+import { useExpandable } from '@/composables/useExpandable'
 
 export function useDataTable<
     T extends (event: any, ...args: any[]) => void
@@ -11,8 +12,16 @@ export function useDataTable<
     const page = ref<number>(1)
     const rowsPerPage = ref(props.serverOptions?.rowsPerPage ?? props.rowsPerPage)
     const searchQuery = ref<string>('')
+
+    // const { toggleRowExpansion, isRowExpanded } = useExpandable<string | number>({
+    //   props: { modelValue: props.expanded },
+    //   emit: (event, payload) => emit(event as any, payload),
+    //   accordion: props.accordion ?? false,
+    // })
+
+    const { isRowExpanded, toggleRowExpansion, getRowId } = useExpandable(props, emit)
   
-    const { processedRows, sortHelpers } = useDataTableSort(props, emit, page, rowsPerPage, searchQuery)
+    const { processedRows, sortHelpers } = useDataTableSort(props, emit, page, rowsPerPage, searchQuery, {isRowExpanded})
     const { totalRecords, recordRange, handlePageChange } = useDataTablePagination(props, emit, page, rowsPerPage, processedRows)
     const { handleRowsPerPage } = useDataTableRowsPerPage(props, emit, page, rowsPerPage)
     const { onInputTyped } = useDataTableSearch(emit, searchQuery)
@@ -39,5 +48,11 @@ export function useDataTable<
       //Search
       searchQuery,
       onInputTyped,
+
+      //Expanded
+      // toggleRowExpansion,
+      isRowExpanded,
+      toggleRowExpansion, 
+      getRowId
     }
   }

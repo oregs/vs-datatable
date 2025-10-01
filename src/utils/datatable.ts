@@ -55,8 +55,8 @@ export function isRowSelected(
  * @param hasCheckbox - Whether checkbox column is present
  * @returns Total number of columns
  */
-export function calculateTotalColumns(columns: Column[], hasCheckbox: boolean): number {
-  return columns.length + (hasCheckbox ? 1 : 0)
+export function calculateTotalColumns(columns: Column[], hasCheckbox: boolean, hasExtendable: boolean): number {
+  return columns.length + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
 }
 
 /**
