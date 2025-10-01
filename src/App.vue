@@ -6,6 +6,7 @@
     <section>
       <!-- VSBody -->
       <VsDataTable
+        ref="tableRef"
         header-text="Pre-auction Approval (5)"
         :rows="rows"
         :columns="columns"
@@ -35,9 +36,9 @@
         <template #cell-total="{ item }"> ${{ item.total.toFixed(2) }} </template>
 
         <template #row-expanded="{ item }">
-          <div>
+          <!-- <div>
             <p><strong>Role:</strong> {{ item }}</p>
-          </div>
+          </div> -->
         </template>
       </VsDataTable>
       <!-- END VSBody -->
@@ -66,7 +67,7 @@
 import { ref } from 'vue'
 // import VsDataTable from './index'
 import { VsDataTable } from './index'
-import type { ExpandEvent, CollapseEvent } from './index' 
+import type { ExpandEventPayload, CollapseEventPayload } from './index' 
 
 /**
  * ----------------------------------------------------------------
@@ -95,6 +96,8 @@ import type { ExpandEvent, CollapseEvent } from './index'
   { id: 19, date: 'Tue 14 Dec, 11:53am', customer: 'Helen George', total: 325.6 },
   { id: 20, date: 'Wed 15 Dec, 07:39pm', customer: 'Anthony Clark', total: 410.8 },
 ])
+
+const tableRef = ref<any>(null)
 const expanded = ref<number[]>([])
 const loading = ref<boolean>(false)
 const sort = ref<any[]>([{ field: 'date', order: 'asc' }])
@@ -131,17 +134,21 @@ const handleRowsPerPage = (rowsPerPage: number) => {
   console.log('RowsPerPage: ', rowsPerPage)
 }
 
-function onExpandRow({ row, index, rowId }: ExpandEvent) {
-  console.log("Expanded row:", row, index, rowId)
+function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
+  // console.log("Expanded row:", row, index, rowId)
+  tableRef.value?.setRowLoading(rowId, true)
   // Example: make API call here
-  // fetch(`/api/details/${rowId}`)
-  //   .then(res => res.json())
-  //   .then(data => {
-  //     console.log("Row details:", data)
-  //   })
+  fetch(`/api/details/${rowId}`)
+    .then(res => res.json())
+    .then(data => {
+      console.log("Row details:", data)
+    })
+    .finally(() => {
+      // tableRef.value?.setRowLoading(rowId, false)
+    })
 }
 
-function onCollapseRow({ row, index, rowId }: CollapseEvent) {
+function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
   console.log("Collapsed row:", row, index, rowId)
 }
 

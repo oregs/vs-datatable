@@ -1,3 +1,4 @@
+import type { CollapseEventPayload, ExpandEventPayload } from '@/types';
 import { ref, computed, type SetupContext } from 'vue'
 
 export function useExpandable(
@@ -5,6 +6,7 @@ export function useExpandable(
   emit: SetupContext['emit']
 ) {
   const internalExpanded = ref<(string | number)[]>([])
+  const loadingMap = ref<Map<string | number, boolean>>(new Map())
 
   const expandedRows = computed<(string | number)[]>({
     get: () => props.expanded ?? internalExpanded.value,
@@ -36,13 +38,22 @@ export function useExpandable(
 
     if (isExpanded) {
       newExpanded = expandedRows.value.filter((id) => id !== rowId)
-      emit('collapse-row', { row, index, rowId })
+      emit('collapse-row', { row, index, rowId } as CollapseEventPayload)
     } else {
       newExpanded = props.accordion ? [rowId] : [...expandedRows.value, rowId]
-      emit('expand-row', { row, index, rowId })
+      emit('expand-row', { row, index, rowId } as ExpandEventPayload)
     }
 
     expandedRows.value = newExpanded
+  }
+
+  function isRowLoading(row: any, index: number): boolean {
+    const rowId = getRowId(row, index)
+    return loadingMap.value.get(rowId) === true
+  }
+
+  function setRowLoading(rowId: string | number, loading: boolean) {
+    loadingMap.value.set(rowId, loading)
   }
 
   return {
@@ -50,6 +61,8 @@ export function useExpandable(
     isRowExpanded,
     toggleRowExpansion,
     getRowId,
+    setRowLoading,
+    isRowLoading
   }
 }
 

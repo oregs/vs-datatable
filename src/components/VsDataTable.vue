@@ -209,18 +209,23 @@
                 </td>
               </tr>
 
-              <!-- Expanded Row -->
               <!-- Expanded content -->
               <template v-if="expandable">
-                <tr v-if="isRowExpanded(item, index)" class="vs-row-extendable">
-                  <td :colspan="totalColumns">
-                    <slot name="row-expand" :item="item" :index="index">
-                      <!-- default expanded content -->
-                      <div class="vs-expand-content">
-                        Expanded details for row
-                        {{ getRowId(item, index) }}
+                <tr v-if="isRowExpanded(item, index)" class="vs-row-expanded">
+                  <td :colspan="totalColumns" class="vs-expanded-cell">
+                    <!-- Loader (sticks to top) -->
+                    <slot v-if="isRowLoading(item, index)"  name="row-expanded-loader" :item="item" :index="index">
+                      <div class="vs-loader-bar">
+                        <div class="vs-loader-bar-inner"></div>
                       </div>
                     </slot>
+
+                    <!-- Expanded Content (with its own padding) -->
+                    <div v-else class="vs-expanded-content">
+                      <slot name="row-expanded" :item="item" :index="index">
+                        Expanded details for row <b>{{ getRowKey(item, index) }}</b>
+                      </slot>
+                    </div>
                   </td>
                 </tr>
               </template>
@@ -320,6 +325,8 @@ const {
   isRowExpanded,
   getRowId,
   toggleRowExpansion,
+  setRowLoading,
+  isRowLoading,
 } = useDataTable(props, emit)
 
 const {
@@ -335,6 +342,12 @@ const {
 const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
+
+// Expose
+defineExpose({
+  toggleRowExpansion,
+  setRowLoading,
+})
 
 // Lifecycle hooks
 onMounted(() => {
@@ -401,23 +414,5 @@ onBeforeMount(() => {
 
 .vs-search-container {
   margin-bottom: var(--vs-spacing-md);
-}
-
-.vs-expand-column {
-  width: 40px;
-  text-align: center;
-}
-.vs-expand-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-}
-.vs-row-expanded {
-  background: #f9f9f9;
-}
-.vs-expanded-content {
-  padding: 1rem;
-  border-left: 3px solid #2d6cdf;
 }
 </style>

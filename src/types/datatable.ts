@@ -29,14 +29,14 @@ export interface Row {
   [key: string]: any
 }
 
-export interface ExpandEvent {
-  row: any
+export interface ExpandEventPayload<Row = any> {
+  row: Row
   index: number
   rowId: string | number
 }
 
-export interface CollapseEvent {
-  row: any
+export interface CollapseEventPayload {
+  row: Row
   index: number
   rowId: string | number
 }
@@ -92,8 +92,8 @@ export interface DataTableEmits {
   (event: 'data-loaded', data: any[]): void
   (event: 'data-error', error: any): void
   (event: "update:expanded", value: (string | number)[]): void
-  (event: 'expand-row', payload: ExpandEvent): void
-  (event: 'collapse-row', payload: CollapseEvent): void
+  (event: 'expand-row', payload: ExpandEventPayload): void
+  (event: 'collapse-row', payload: CollapseEventPayload): void
 }
 
 export interface RecordRange {
