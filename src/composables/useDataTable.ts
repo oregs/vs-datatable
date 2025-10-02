@@ -5,6 +5,7 @@ import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
 import { useDataTableSearch } from '@/composables/useDataTableSearch'
 import { paginateRows } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
+import { useColumnFilter } from "@/composables/useColumnFilter";
 
 export function useDataTable<
     T extends (event: any, ...args: any[]) => void
@@ -18,6 +19,7 @@ export function useDataTable<
     const { totalRecords, recordRange, handlePageChange } = useDataTablePagination(props, emit, page, rowsPerPage, processedRows)
     const { handleRowsPerPage } = useDataTableRowsPerPage(props, emit, page, rowsPerPage)
     const { onInputTyped } = useDataTableSearch(emit, searchQuery)
+    const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(ref(props.rows), props.columns);
 
     // Apply pagination
     const paginatedRows = computed(() => paginateRows(processedRows.value, page.value, rowsPerPage.value))
@@ -43,11 +45,16 @@ export function useDataTable<
       onInputTyped,
 
       //Expanded
-      // toggleRowExpansion,
       isRowExpanded,
       toggleRowExpansion, 
       getRowId,
       setRowLoading,
-      isRowLoading
+      isRowLoading,
+
+      //Column Filter
+      filters,
+      filteredData,
+      setFilter,
+      clearFilter
     }
   }

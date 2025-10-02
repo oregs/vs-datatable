@@ -3,9 +3,9 @@
     <div class="vs-search-icon">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        height="24px"
+        height="22px"
         viewBox="0 -960 960 960"
-        width="24px"
+        width="22px"
         fill="#e3e3e3"
       >
         <path
@@ -42,6 +42,6 @@ const onInput = (event: Event) => {
 
 <style scoped>
 .vs-search .vs-search-input {
-  font-size: 18px !important;
+  font-size: 15px !important;
 }
 </style>

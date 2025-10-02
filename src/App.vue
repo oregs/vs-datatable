@@ -103,9 +103,9 @@ const loading = ref<boolean>(false)
 const sort = ref<any[]>([{ field: 'date', order: 'asc' }])
 const itemSelected = ref<any[]>([])
 const columns = ref<any[]>([
-  { label: 'Order', field: 'id', width: '10', sortable: true },
+  { label: 'Order', field: 'id', width: '10', sortable: true, filter: { type: 'number-range' } },
   { label: 'Date', field: 'date', width: '20', sortable: true },
-  { label: 'Customer', field: 'customer', width: '30', sortable: true },
+  { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
 ])
 

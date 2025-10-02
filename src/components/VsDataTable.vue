@@ -25,15 +25,8 @@
           <thead>
             <tr>
               <!-- Expandable column header -->
-              <th v-if="expandable" class="vs-expand-column" style="width: 5%">
-                <!-- <button
-                  v-if="accordion"
-                  @click="$emit('update:expanded', [])"
-                  class="vs-expand-collapse-all"
-                >
-                  −
-                </button> -->
-              </th>
+              <th v-if="expandable" class="vs-expand-column" style="width: 5%"></th>
+
               <!-- Checkbox Column -->
               <th v-if="isItemSelectedControlled" class="vs-checkbox-column" style="width: 5%">
                 <div class="vs-checkbox">
@@ -75,6 +68,7 @@
                           height="24px"
                           viewBox="0 -960 960 960"
                           width="24px"
+                          fill="var(--vs-gray-800)"
                         >
                           <path d="m280-400 200-200 200 200H280Z" />
                         </svg>
@@ -106,6 +100,25 @@
                     >
                       {{ sortHelpers.getSortPriority(column.field) }}
                     </span>
+
+                    <!-- Column Filter -->
+                    <VsDataTableFilterDropdown
+                      v-if="column.filter"
+                      :type="column.filter.type"
+                      :options="column.filter.options"
+                      :operators="column.filter.operators"
+                      v-model="filters[column.field]"
+                      :visible="openFilter === column.field"
+                      :anchor-el="null"
+                      @apply="val => setFilter(column.field, val)"
+                      @clear="() => clearFilter(column.field)"
+                      @close="openFilter = null"
+                    >
+                      <template #custom="{ filter, apply, clear }">
+                        <slot :name="`filter-${column.field}`" :filter="filter" :apply="apply" :clear="clear" />
+                      </template>
+                    </VsDataTableFilterDropdown>
+
                   </div>
                 </slot>
               </th>
@@ -164,7 +177,7 @@
                         height="24px"
                         viewBox="0 -960 960 960"
                         width="24px"
-                        fill="#495057"
+                        fill="var(--vs-gray-800)"
                       >
                         <path d="M480-345 240-585l56-56 184 183 184-183 56 56-240 240Z" />
                       </svg>
@@ -175,7 +188,7 @@
                         height="24px"
                         viewBox="0 -960 960 960"
                         width="24px"
-                        fill="#495057"
+                        fill="var(--vs-gray-800)"
                       >
                         <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z" />
                       </svg>
@@ -214,7 +227,12 @@
                 <tr v-if="isRowExpanded(item, index)" class="vs-row-expanded">
                   <td :colspan="totalColumns" class="vs-expanded-cell">
                     <!-- Loader (sticks to top) -->
-                    <slot v-if="isRowLoading(item, index)"  name="row-expanded-loader" :item="item" :index="index">
+                    <slot
+                      v-if="isRowLoading(item, index)"
+                      name="row-expanded-loader"
+                      :item="item"
+                      :index="index"
+                    >
                       <div class="vs-loader-bar">
                         <div class="vs-loader-bar-inner"></div>
                       </div>
@@ -263,6 +281,7 @@
 
 <script setup lang="ts">
 import {
+  ref,
   computed,
   defineProps,
   defineEmits,
@@ -275,6 +294,7 @@ import {
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
 import VsRowsPerPage from './VsRowsPerPage.vue'
+import VsDataTableFilterDropdown from '@/components/VsDataTableFilterDropdown.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
@@ -327,6 +347,10 @@ const {
   toggleRowExpansion,
   setRowLoading,
   isRowLoading,
+  filters,
+  filteredData,
+  setFilter,
+  clearFilter,
 } = useDataTable(props, emit)
 
 const {
@@ -342,6 +366,10 @@ const {
 const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
+
+// Filter Column
+const anchorEl = ref<HTMLElement | null>(null);
+const openFilter = ref<string | null>(null);
 
 // Expose
 defineExpose({
@@ -415,4 +443,5 @@ onBeforeMount(() => {
 .vs-search-container {
   margin-bottom: var(--vs-spacing-md);
 }
+
 </style>

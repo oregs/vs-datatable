@@ -3,12 +3,17 @@ import { type Ref, type ComputedRef } from 'vue'
  * VsDataTable Types and Interfaces
  */
 
-export interface Column {
+export interface Column <T = any> {
   label: string
-  field: string
+  field: keyof T & string;
   width?: string
   sortable?: boolean
   isKey?: boolean
+  filter?: {
+    type: FilterType;
+    options?: string[];
+    operators?: FilterOperator[];
+  };
 }
 
 export interface Sort {
@@ -35,11 +40,55 @@ export interface ExpandEventPayload<Row = any> {
   rowId: string | number
 }
 
-export interface CollapseEventPayload {
+export interface CollapseEventPayload<Row = any> {
   row: Row
   index: number
   rowId: string | number
 }
+
+// Column Filter Types
+export type FilterType =
+  | "text"
+  | "multi-select"
+  | "number-range"
+  | "date-range"
+  | "custom";
+
+export interface FilterOperator {
+  value: string;
+  label: string;
+}
+
+export interface TextFilter {
+  type: "text";
+  value?: string;
+  operator?: "contains" | "equals" | "startsWith" | "endsWith"
+}
+
+export interface MultiSelectFilter {
+  type: "multi-select";
+  value?: string[];
+}
+
+export interface NumberRangeFilter {
+  type: "number-range";
+  min?: number | null;
+  max?: number | null;
+}
+
+export interface DateRangeFilter {
+  type: "date-range";
+  start?: string | null; // ISO string
+  end?: string | null;
+}
+
+export type ColumnFilter =
+  | TextFilter
+  | MultiSelectFilter
+  | NumberRangeFilter
+  | DateRangeFilter
+
+export type FilterMap = Record<string, ColumnFilter | undefined>
 
 export interface DataTableProps {
   rows?: Row[]
