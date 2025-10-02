@@ -75,24 +75,15 @@ export function useDataTable<T>(props: any, emit: any) {
     return resultRows
   })
 
-  // const processedRows = computed(() => {
-  //   let rowsToSort = filteredAndSearched.value
+  // Reset page when filters change
+  watch(filters, () => {
+    page.value = 1
+  }, { deep: true })
 
-  //   if (activeSort.value.length) {
-  //     rowsToSort = [...rowsToSort] // copy before sort
-  //     rowsToSort.sort((a, b) => {
-  //       for (const s of activeSort.value) {
-  //         const valA = a[s.field]
-  //         const valB = b[s.field]
-  //         if (valA == valB) continue
-  //         return s.order === 'asc' ? (valA > valB ? 1 : -1) : valA > valB ? -1 : 1
-  //       }
-  //       return 0
-  //     })
-  //   }
-
-  //   return rowsToSort
-  // })
+  // Reset page when search query changes
+  watch(searchQuery, () => {
+    page.value = 1
+  })
 
   // --- Paginated rows
   const paginatedRows = computed(() =>

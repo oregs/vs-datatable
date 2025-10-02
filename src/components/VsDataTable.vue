@@ -102,7 +102,7 @@
                     </span>
 
                     <!-- Column Filter -->
-                    <VsDataTableFilterDropdown
+                    <!-- <VsDataTableFilterDropdown
                       v-if="column.filter"
                       :type="column.filter.type"
                       :options="column.filter.options"
@@ -113,6 +113,25 @@
                       @apply="val => setFilter(column.field, val)"
                       @clear="() => clearFilter(column.field)"
                       @close="openFilter = null"
+                    >
+                      <template #custom="{ filter, apply, clear }">
+                        <slot :name="`filter-${column.field}`" :filter="filter" :apply="apply" :clear="clear" />
+                      </template>
+                    </VsDataTableFilterDropdown> -->
+
+
+                    <VsDataTableFilterDropdown
+                      v-if="column.filter"
+                      :type="column.filter.type"
+                      :options="column.filter.options"
+                      :operators="column.filter.operators"
+                      v-model="filters[column.field]"
+                      :visible="openFilter === column.field"
+                      :anchor-el="anchorEl"
+                      @apply="val => { setFilter(column.field, val); page = 1 }"
+                      @clear="() => { clearFilter(column.field); page = 1 }"
+                      @close="handleCloseFilter(column.field)"
+                      @open="handleOpenFilter(column.field)"
                     >
                       <template #custom="{ filter, apply, clear }">
                         <slot :name="`filter-${column.field}`" :filter="filter" :apply="apply" :clear="clear" />
@@ -348,7 +367,6 @@ const {
   setRowLoading,
   isRowLoading,
   filters,
-  filteredData,
   setFilter,
   clearFilter,
 } = useDataTable(props, emit)
@@ -370,6 +388,15 @@ const totalColumns = computed(() =>
 // Filter Column
 const anchorEl = ref<HTMLElement | null>(null);
 const openFilter = ref<string | null>(null);
+
+function handleOpenFilter(field: string) {
+  openFilter.value = field // auto closes other filters
+}
+
+function handleCloseFilter(field: string) {
+  // Only close if the current open filter matches
+  if (openFilter.value === field) openFilter.value = null
+}
 
 // Expose
 defineExpose({

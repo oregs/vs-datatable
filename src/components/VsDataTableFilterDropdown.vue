@@ -3,7 +3,7 @@
   <span
     ref="referenceRef"
     class="vs-column-filter"
-    @click.stop="isOpen = !isOpen"
+    @click.stop="toggleDropdown"
     :class="{ 'is-active': hasValue(localFilter) }"
   >
     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
@@ -67,7 +67,8 @@ import type { ColumnFilter } from '@/types/datatable'
 interface Props {
   modelValue?: ColumnFilter
   type: ColumnFilter['type']
-  options?: string[]
+  options?: string[],
+  visible?: boolean
 }
 
 const props = defineProps<Props>()
@@ -75,6 +76,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', val: ColumnFilter): void
   (e: 'apply', val: ColumnFilter): void
   (e: 'clear'): void
+  (e: 'open'): void
   (e: 'close'): void
 }>()
 
@@ -84,6 +86,17 @@ const floatingRef = ref<HTMLElement | null>(null)
 const cleanup = ref<() => void>()
 
 const isOpen = ref(false)
+
+watch(
+  () => props.visible,
+  (val) => {
+    isOpen.value = !!val
+    if (isOpen.value) startPositioning()
+    else stopPositioning()
+  },
+  { immediate: true }
+)
+
 
 // Local filter state
 const localFilter = ref<ColumnFilter>(initFilter(props.type, props.modelValue))
@@ -96,18 +109,26 @@ watch(
   { immediate: true }
 )
 
+function toggleDropdown() {
+  emit('open')
+}
+
 // Apply / Clear actions
 function applyFilter() {
   emit('update:modelValue', { ...localFilter.value })
   emit('apply', { ...localFilter.value })
-  isOpen.value = false
+  // closeDropdown()
 }
 
 function clearFilter() {
   localFilter.value = initFilter(props.type)
   emit('update:modelValue', { ...localFilter.value })
   emit('clear')
-  isOpen.value = false
+  closeDropdown()
+}
+
+function closeDropdown() {
+  emit('close')
 }
 
 // Floating-ui positioning
@@ -149,13 +170,13 @@ function onClickOutside(e: MouseEvent) {
     !referenceRef.value.contains(target) &&
     !floatingRef.value.contains(target)
   ) {
-    isOpen.value = false
+    closeDropdown()
   }
 }
 
 function onEscapeKey(e: KeyboardEvent) {
   if (e.key === 'Escape' && isOpen.value) {
-    isOpen.value = false
+    closeDropdown()
   }
 }
 
