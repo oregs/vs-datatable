@@ -6,23 +6,45 @@
     @click.stop="toggleDropdown"
     :class="{ 'is-active': hasValue(localFilter) }"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-      <path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+      fill="#e3e3e3"
+    >
+      <path
+        d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"
+      />
     </svg>
   </span>
 
   <!-- Floating dropdown -->
-  <div v-if="isOpen" ref="floatingRef" class="vs-filter-dropdown" style="position: absolute; z-index: 1000" @click.stop>
-    
+  <div
+    v-if="isOpen"
+    ref="floatingRef"
+    class="vs-filter-dropdown"
+    style="position: absolute; z-index: 1000"
+    @click.stop
+  >
     <!-- Text filter -->
     <div v-if="localFilter.type === 'text'" class="vs-filter-text">
-      <select v-model="localFilter.operator" class="vs-operator-select">
-        <option value="contains">Contains</option>
-        <option value="equals">Equals</option>
-        <option value="startsWith">Starts With</option>
-        <option value="endsWith">Ends With</option>
-      </select>
-      <input type="text" v-model="localFilter.value" placeholder="Search..." class="vs-input" />
+      <div class="vs-pb-sm">
+        <select v-model="localFilter.operator" class="vs-operator-select vs-mx-auto vs-w-full">
+          <option value="contains">Contains</option>
+          <option value="equals">Equals</option>
+          <option value="startsWith">Starts With</option>
+          <option value="endsWith">Ends With</option>
+        </select>
+      </div>
+      <div>
+        <input
+          type="text"
+          v-model="localFilter.value"
+          placeholder="Search..."
+          class="vs-input mx-auto vs-w-full"
+        />
+      </div>
     </div>
 
     <!-- Multi-select filter -->
@@ -35,9 +57,13 @@
 
     <!-- Number range filter -->
     <div v-else-if="localFilter.type === 'number-range'" class="vs-filter-range">
-      <input type="number" v-model.number="localFilter.min" placeholder="Min" class="vs-input" />
-      <span>to</span>
-      <input type="number" v-model.number="localFilter.max" placeholder="Max" class="vs-input" />
+      <div>
+        <input type="number" v-model.number="localFilter.min" placeholder="Min" class="vs-input vs-w-full" />
+      </div>
+      <div class="vs-text-center">-----------to-----------</div>
+      <div>
+        <input type="number" v-model.number="localFilter.max" placeholder="Max" class="vs-input vs-w-full" />
+      </div>
     </div>
 
     <!-- Date range filter -->
@@ -67,7 +93,7 @@ import type { ColumnFilter } from '@/types/datatable'
 interface Props {
   modelValue?: ColumnFilter
   type: ColumnFilter['type']
-  options?: string[],
+  options?: string[]
   visible?: boolean
 }
 
@@ -96,7 +122,6 @@ watch(
   },
   { immediate: true }
 )
-
 
 // Local filter state
 const localFilter = ref<ColumnFilter>(initFilter(props.type, props.modelValue))

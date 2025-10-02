@@ -43,8 +43,10 @@
       </VsDataTable>
       <!-- END VSBody -->
     </section>
-    
+
   </div>
+
+  <DemoLayout />
 </template>
 
 <script setup lang="ts">
@@ -52,6 +54,7 @@ import { ref } from 'vue'
 // import VsDataTable from './index'
 import { VsDataTable } from './index'
 import type { ExpandEventPayload, CollapseEventPayload } from './index' 
+import DemoLayout from '@/views/DemoLayout.vue'
 
 /**
  * ----------------------------------------------------------------

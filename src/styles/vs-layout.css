@@ -1,0 +1,645 @@
+/* ----------------------------------- */
+/* Base row & flex */
+.vs-row,
+.vs-d-flex {
+  display: flex;
+  width: 100%;
+}
+
+/* Flex directions */
+.vs-row-row,
+.vs-d-flex.vs-row-row {
+  flex-direction: row;
+}
+.vs-row-column,
+.vs-d-flex.vs-row-column {
+  flex-direction: column;
+}
+.vs-row-row-reverse,
+.vs-d-flex.vs-row-row-reverse {
+  flex-direction: row-reverse;
+}
+.vs-row-column-reverse,
+.vs-d-flex.vs-row-column-reverse {
+  flex-direction: column-reverse;
+}
+
+/* Justify content */
+.vs-justify-start {
+  justify-content: flex-start;
+}
+.vs-justify-end {
+  justify-content: flex-end;
+}
+.vs-justify-center {
+  justify-content: center;
+}
+.vs-justify-between {
+  justify-content: space-between;
+}
+.vs-justify-around {
+  justify-content: space-around;
+}
+.vs-justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* Align items */
+.vs-align-start {
+  align-items: flex-start;
+}
+.vs-align-end {
+  align-items: flex-end;
+}
+.vs-align-center {
+  align-items: center;
+}
+.vs-align-baseline {
+  align-items: baseline;
+}
+.vs-align-stretch {
+  align-items: stretch;
+}
+
+/* Wrap */
+.vs-wrap {
+  flex-wrap: wrap;
+}
+.vs-nowrap {
+  flex-wrap: nowrap;
+}
+
+/* Gaps */
+.vs-gap-0 {
+  gap: 0;
+}
+.vs-gap-1 {
+  gap: 0.25rem;
+}
+.vs-gap-2 {
+  gap: 0.5rem;
+}
+.vs-gap-3 {
+  gap: 0.75rem;
+}
+.vs-gap-4 {
+  gap: 1rem;
+}
+.vs-gap-5 {
+  gap: 1.25rem;
+}
+.vs-gap-6 {
+  gap: 1.5rem;
+}
+
+/* Columns 12-grid */
+.vs-col {
+  flex: 0 0 auto;
+}
+.vs-col-span-1 {
+  width: 8.333333%;
+}
+.vs-col-span-2 {
+  width: 16.666667%;
+}
+.vs-col-span-3 {
+  width: 25%;
+}
+.vs-col-span-4 {
+  width: 33.333333%;
+}
+.vs-col-span-5 {
+  width: 41.666667%;
+}
+.vs-col-span-6 {
+  width: 50%;
+}
+.vs-col-span-7 {
+  width: 58.333333%;
+}
+.vs-col-span-8 {
+  width: 66.666667%;
+}
+.vs-col-span-9 {
+  width: 75%;
+}
+.vs-col-span-10 {
+  width: 83.333333%;
+}
+.vs-col-span-11 {
+  width: 91.666667%;
+}
+.vs-col-span-12 {
+  width: 100%;
+}
+
+.vs-col-offset-1 {
+  margin-left: 8.333333%;
+}
+.vs-col-offset-2 {
+  margin-left: 16.666667%;
+}
+.vs-col-offset-3 {
+  margin-left: 25%;
+}
+.vs-col-offset-4 {
+  margin-left: 33.333333%;
+}
+.vs-col-offset-5 {
+  margin-left: 41.666667%;
+}
+.vs-col-offset-6 {
+  margin-left: 50%;
+}
+.vs-col-offset-7 {
+  margin-left: 58.333333%;
+}
+.vs-col-offset-8 {
+  margin-left: 66.666667%;
+}
+.vs-col-offset-9 {
+  margin-left: 75%;
+}
+.vs-col-offset-10 {
+  margin-left: 83.333333%;
+}
+.vs-col-offset-11 {
+  margin-left: 91.666667%;
+}
+
+/* ----------------------------------- */
+/* Responsive Breakpoints */
+
+/* sm: 640px */
+@media (min-width: 640px) {
+  /* Directions */
+  .sm\:vs-row-row {
+    flex-direction: row;
+  }
+  .sm\:vs-row-column {
+    flex-direction: column;
+  }
+  .sm\:vs-row-row-reverse {
+    flex-direction: row-reverse;
+  }
+  .sm\:vs-row-column-reverse {
+    flex-direction: column-reverse;
+  }
+
+  /* Justify */
+  .sm\:vs-justify-start {
+    justify-content: flex-start;
+  }
+  .sm\:vs-justify-end {
+    justify-content: flex-end;
+  }
+  .sm\:vs-justify-center {
+    justify-content: center;
+  }
+  .sm\:vs-justify-between {
+    justify-content: space-between;
+  }
+  .sm\:vs-justify-around {
+    justify-content: space-around;
+  }
+  .sm\:vs-justify-evenly {
+    justify-content: space-evenly;
+  }
+
+  /* Align */
+  .sm\:vs-align-start {
+    align-items: flex-start;
+  }
+  .sm\:vs-align-end {
+    align-items: flex-end;
+  }
+  .sm\:vs-align-center {
+    align-items: center;
+  }
+  .sm\:vs-align-baseline {
+    align-items: baseline;
+  }
+  .sm\:vs-align-stretch {
+    align-items: stretch;
+  }
+
+  /* Wrap */
+  .sm\:vs-wrap {
+    flex-wrap: wrap;
+  }
+  .sm\:vs-nowrap {
+    flex-wrap: nowrap;
+  }
+
+  /* Gaps */
+  .sm\:vs-gap-0 {
+    gap: 0;
+  }
+  .sm\:vs-gap-1 {
+    gap: 0.25rem;
+  }
+  .sm\:vs-gap-2 {
+    gap: 0.5rem;
+  }
+  .sm\:vs-gap-3 {
+    gap: 0.75rem;
+  }
+  .sm\:vs-gap-4 {
+    gap: 1rem;
+  }
+  .sm\:vs-gap-5 {
+    gap: 1.25rem;
+  }
+  .sm\:vs-gap-6 {
+    gap: 1.5rem;
+  }
+
+  /* Columns */
+  .sm\:vs-col-span-1 {
+    width: 8.333333%;
+  }
+  .sm\:vs-col-span-2 {
+    width: 16.666667%;
+  }
+  .sm\:vs-col-span-3 {
+    width: 25%;
+  }
+  .sm\:vs-col-span-4 {
+    width: 33.333333%;
+  }
+  .sm\:vs-col-span-5 {
+    width: 41.666667%;
+  }
+  .sm\:vs-col-span-6 {
+    width: 50%;
+  }
+  .sm\:vs-col-span-7 {
+    width: 58.333333%;
+  }
+  .sm\:vs-col-span-8 {
+    width: 66.666667%;
+  }
+  .sm\:vs-col-span-9 {
+    width: 75%;
+  }
+  .sm\:vs-col-span-10 {
+    width: 83.333333%;
+  }
+  .sm\:vs-col-span-11 {
+    width: 91.666667%;
+  }
+  .sm\:vs-col-span-12 {
+    width: 100%;
+  }
+}
+
+/* md: 768px */
+@media (min-width: 768px) {
+  .md\:vs-row-row {
+    flex-direction: row;
+  }
+  .md\:vs-row-column {
+    flex-direction: column;
+  }
+  .md\:vs-row-row-reverse {
+    flex-direction: row-reverse;
+  }
+  .md\:vs-row-column-reverse {
+    flex-direction: column-reverse;
+  }
+
+  .md\:vs-justify-start {
+    justify-content: flex-start;
+  }
+  .md\:vs-justify-end {
+    justify-content: flex-end;
+  }
+  .md\:vs-justify-center {
+    justify-content: center;
+  }
+  .md\:vs-justify-between {
+    justify-content: space-between;
+  }
+  .md\:vs-justify-around {
+    justify-content: space-around;
+  }
+  .md\:vs-justify-evenly {
+    justify-content: space-evenly;
+  }
+
+  .md\:vs-align-start {
+    align-items: flex-start;
+  }
+  .md\:vs-align-end {
+    align-items: flex-end;
+  }
+  .md\:vs-align-center {
+    align-items: center;
+  }
+  .md\:vs-align-baseline {
+    align-items: baseline;
+  }
+  .md\:vs-align-stretch {
+    align-items: stretch;
+  }
+
+  .md\:vs-wrap {
+    flex-wrap: wrap;
+  }
+  .md\:vs-nowrap {
+    flex-wrap: nowrap;
+  }
+
+  .md\:vs-gap-0 {
+    gap: 0;
+  }
+  .md\:vs-gap-1 {
+    gap: 0.25rem;
+  }
+  .md\:vs-gap-2 {
+    gap: 0.5rem;
+  }
+  .md\:vs-gap-3 {
+    gap: 0.75rem;
+  }
+  .md\:vs-gap-4 {
+    gap: 1rem;
+  }
+  .md\:vs-gap-5 {
+    gap: 1.25rem;
+  }
+  .md\:vs-gap-6 {
+    gap: 1.5rem;
+  }
+
+  .md\:vs-col-span-1 {
+    width: 8.333333%;
+  }
+  .md\:vs-col-span-2 {
+    width: 16.666667%;
+  }
+  .md\:vs-col-span-3 {
+    width: 25%;
+  }
+  .md\:vs-col-span-4 {
+    width: 33.333333%;
+  }
+  .md\:vs-col-span-5 {
+    width: 41.666667%;
+  }
+  .md\:vs-col-span-6 {
+    width: 50%;
+  }
+  .md\:vs-col-span-7 {
+    width: 58.333333%;
+  }
+  .md\:vs-col-span-8 {
+    width: 66.666667%;
+  }
+  .md\:vs-col-span-9 {
+    width: 75%;
+  }
+  .md\:vs-col-span-10 {
+    width: 83.333333%;
+  }
+  .md\:vs-col-span-11 {
+    width: 91.666667%;
+  }
+  .md\:vs-col-span-12 {
+    width: 100%;
+  }
+}
+
+/* lg: 1024px */
+@media (min-width: 1024px) {
+  .lg\:vs-row-row {
+    flex-direction: row;
+  }
+  .lg\:vs-row-column {
+    flex-direction: column;
+  }
+  .lg\:vs-row-row-reverse {
+    flex-direction: row-reverse;
+  }
+  .lg\:vs-row-column-reverse {
+    flex-direction: column-reverse;
+  }
+
+  .lg\:vs-justify-start {
+    justify-content: flex-start;
+  }
+  .lg\:vs-justify-end {
+    justify-content: flex-end;
+  }
+  .lg\:vs-justify-center {
+    justify-content: center;
+  }
+  .lg\:vs-justify-between {
+    justify-content: space-between;
+  }
+  .lg\:vs-justify-around {
+    justify-content: space-around;
+  }
+  .lg\:vs-justify-evenly {
+    justify-content: space-evenly;
+  }
+
+  .lg\:vs-align-start {
+    align-items: flex-start;
+  }
+  .lg\:vs-align-end {
+    align-items: flex-end;
+  }
+  .lg\:vs-align-center {
+    align-items: center;
+  }
+  .lg\:vs-align-baseline {
+    align-items: baseline;
+  }
+  .lg\:vs-align-stretch {
+    align-items: stretch;
+  }
+
+  .lg\:vs-wrap {
+    flex-wrap: wrap;
+  }
+  .lg\:vs-nowrap {
+    flex-wrap: nowrap;
+  }
+
+  .lg\:vs-gap-0 {
+    gap: 0;
+  }
+  .lg\:vs-gap-1 {
+    gap: 0.25rem;
+  }
+  .lg\:vs-gap-2 {
+    gap: 0.5rem;
+  }
+  .lg\:vs-gap-3 {
+    gap: 0.75rem;
+  }
+  .lg\:vs-gap-4 {
+    gap: 1rem;
+  }
+  .lg\:vs-gap-5 {
+    gap: 1.25rem;
+  }
+  .lg\:vs-gap-6 {
+    gap: 1.5rem;
+  }
+
+  .lg\:vs-col-span-1 {
+    width: 8.333333%;
+  }
+  .lg\:vs-col-span-2 {
+    width: 16.666667%;
+  }
+  .lg\:vs-col-span-3 {
+    width: 25%;
+  }
+  .lg\:vs-col-span-4 {
+    width: 33.333333%;
+  }
+  .lg\:vs-col-span-5 {
+    width: 41.666667%;
+  }
+  .lg\:vs-col-span-6 {
+    width: 50%;
+  }
+  .lg\:vs-col-span-7 {
+    width: 58.333333%;
+  }
+  .lg\:vs-col-span-8 {
+    width: 66.666667%;
+  }
+  .lg\:vs-col-span-9 {
+    width: 75%;
+  }
+  .lg\:vs-col-span-10 {
+    width: 83.333333%;
+  }
+  .lg\:vs-col-span-11 {
+    width: 91.666667%;
+  }
+  .lg\:vs-col-span-12 {
+    width: 100%;
+  }
+}
+
+/* xl: 1280px */
+@media (min-width: 1280px) {
+  .xl\:vs-row-row {
+    flex-direction: row;
+  }
+  .xl\:vs-row-column {
+    flex-direction: column;
+  }
+  .xl\:vs-row-row-reverse {
+    flex-direction: row-reverse;
+  }
+  .xl\:vs-row-column-reverse {
+    flex-direction: column-reverse;
+  }
+
+  .xl\:vs-justify-start {
+    justify-content: flex-start;
+  }
+  .xl\:vs-justify-end {
+    justify-content: flex-end;
+  }
+  .xl\:vs-justify-center {
+    justify-content: center;
+  }
+  .xl\:vs-justify-between {
+    justify-content: space-between;
+  }
+  .xl\:vs-justify-around {
+    justify-content: space-around;
+  }
+  .xl\:vs-justify-evenly {
+    justify-content: space-evenly;
+  }
+
+  .xl\:vs-align-start {
+    align-items: flex-start;
+  }
+  .xl\:vs-align-end {
+    align-items: flex-end;
+  }
+  .xl\:vs-align-center {
+    align-items: center;
+  }
+  .xl\:vs-align-baseline {
+    align-items: baseline;
+  }
+  .xl\:vs-align-stretch {
+    align-items: stretch;
+  }
+
+  .xl\:vs-wrap {
+    flex-wrap: wrap;
+  }
+  .xl\:vs-nowrap {
+    flex-wrap: nowrap;
+  }
+
+  .xl\:vs-gap-0 {
+    gap: 0;
+  }
+  .xl\:vs-gap-1 {
+    gap: 0.25rem;
+  }
+  .xl\:vs-gap-2 {
+    gap: 0.5rem;
+  }
+  .xl\:vs-gap-3 {
+    gap: 0.75rem;
+  }
+  .xl\:vs-gap-4 {
+    gap: 1rem;
+  }
+  .xl\:vs-gap-5 {
+    gap: 1.25rem;
+  }
+  .xl\:vs-gap-6 {
+    gap: 1.5rem;
+  }
+
+  .xl\:vs-col-span-1 {
+    width: 8.333333%;
+  }
+  .xl\:vs-col-span-2 {
+    width: 16.666667%;
+  }
+  .xl\:vs-col-span-3 {
+    width: 25%;
+  }
+  .xl\:vs-col-span-4 {
+    width: 33.333333%;
+  }
+  .xl\:vs-col-span-5 {
+    width: 41.666667%;
+  }
+  .xl\:vs-col-span-6 {
+    width: 50%;
+  }
+  .xl\:vs-col-span-7 {
+    width: 58.333333%;
+  }
+  .xl\:vs-col-span-8 {
+    width: 66.666667%;
+  }
+  .xl\:vs-col-span-9 {
+    width: 75%;
+  }
+  .xl\:vs-col-span-10 {
+    width: 83.333333%;
+  }
+  .xl\:vs-col-span-11 {
+    width: 91.666667%;
+  }
+  .xl\:vs-col-span-12 {
+    width: 100%;
+  }
+}

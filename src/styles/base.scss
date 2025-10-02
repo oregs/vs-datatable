@@ -62,6 +62,342 @@
   --vs-z-tooltip: 1060;
 }
 
+/* ===========================================
+   VsDataTable - Utility Classes (SCSS Generated)
+   =========================================== */
+
+// Spacing scale map
+$spacing-scale: (
+  xs: var(--vs-spacing-xs),
+  sm: var(--vs-spacing-sm),
+  md: var(--vs-spacing-md),
+  lg: var(--vs-spacing-lg),
+  xl: var(--vs-spacing-xl)
+);
+
+// Legacy number mapping (for classes like vs-m-2)
+$legacy-spacing: (
+  2: var(--vs-spacing-sm),
+  5: var(--vs-spacing-lg)
+);
+
+// Color map
+$colors: (
+  primary: var(--vs-primary),
+  secondary: var(--vs-secondary),
+  success: var(--vs-success),
+  danger: var(--vs-danger),
+  warning: var(--vs-warning),
+  info: var(--vs-info),
+  light: var(--vs-light),
+  dark: var(--vs-dark)
+);
+
+// Mixin to generate spacing utilities
+@mixin generate-spacing-utilities($property, $prefix, $directions: null) {
+  @if $directions {
+    @each $dir-key, $dir-property in $directions {
+      @each $size, $value in $spacing-scale {
+        .#{$prefix}#{$dir-key}-#{$size} {
+          #{$dir-property}: $value !important;
+        }
+      }
+    }
+  } @else {
+    @each $size, $value in $spacing-scale {
+      .#{$prefix}-#{$size} {
+        #{$property}: $value !important;
+      }
+    }
+  }
+}
+
+// Mixin to generate legacy spacing utilities
+@mixin generate-legacy-spacing($property, $prefix, $directions: null) {
+  @if $directions {
+    @each $dir-key, $dir-property in $directions {
+      @each $number, $value in $legacy-spacing {
+        .#{$prefix}#{$dir-key}-#{$number} {
+          #{$dir-property}: $value !important;
+        }
+      }
+    }
+  } @else {
+    @each $number, $value in $legacy-spacing {
+      .#{$prefix}-#{$number} {
+        #{$property}: $value !important;
+      }
+    }
+  }
+}
+
+// Mixin to generate color utilities
+@mixin generate-color-utilities($property, $prefix) {
+  @each $color, $value in $colors {
+    .#{$prefix}-#{$color} {
+      #{$property}: $value !important;
+    }
+  }
+}
+
+// Generate Margin Utilities
+@include generate-spacing-utilities(margin, 'vs-m');
+@include generate-spacing-utilities(margin, 'vs-m', (
+  't': margin-top,
+  'b': margin-bottom,
+  'l': margin-left,
+  'r': margin-right
+));
+
+// Generate Directional Margin Utilities
+@include generate-spacing-utilities(margin, 'vs-m', (
+  'x': (margin-left, margin-right),
+  'y': (margin-top, margin-bottom)
+));
+
+// Generate Padding Utilities
+@include generate-spacing-utilities(padding, 'vs-p');
+@include generate-spacing-utilities(padding, 'vs-p', (
+  't': padding-top,
+  'b': padding-bottom,
+  'l': padding-left,
+  'r': padding-right
+));
+
+// Generate Directional Padding Utilities
+@include generate-spacing-utilities(padding, 'vs-p', (
+  'x': (padding-left, padding-right),
+  'y': (padding-top, padding-bottom)
+));
+
+// Generate Legacy Spacing Utilities (as requested)
+@include generate-legacy-spacing(margin, 'vs-m');
+@include generate-legacy-spacing(margin, 'vs-m', (
+  'l': margin-left,
+  'b': margin-bottom
+));
+@include generate-legacy-spacing(margin, 'vs-m', (
+  'x': (margin-left, margin-right)
+));
+@include generate-legacy-spacing(padding, 'vs-p', (
+  '': padding
+));
+
+// Auto margin utilities
+.vs-mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.vs-my-auto {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+
+.vs-ml-auto { margin-left: auto !important; }
+.vs-mr-auto { margin-right: auto !important; }
+.vs-mt-auto { margin-top: auto !important; }
+.vs-mb-auto { margin-bottom: auto !important; }
+
+// Typography Utilities
+$font-sizes: (
+  xs: var(--vs-font-size-sm),
+  sm: var(--vs-font-size-sm),
+  base: var(--vs-font-size),
+  lg: var(--vs-font-size-lg),
+  xl: var(--vs-font-size-lg)
+);
+
+@each $size, $value in $font-sizes {
+  .vs-text-#{$size} {
+    font-size: $value !important;
+  }
+}
+
+.vs-font-normal { font-weight: var(--vs-font-weight-normal) !important; }
+.vs-font-bold { font-weight: var(--vs-font-weight-bold) !important; }
+
+.vs-text-left { text-align: left !important; }
+.vs-text-center { text-align: center !important; }
+.vs-text-right { text-align: right !important; }
+
+.vs-uppercase { text-transform: uppercase !important; }
+.vs-lowercase { text-transform: lowercase !important; }
+.vs-capitalize { text-transform: capitalize !important; }
+
+// Color Utilities
+@include generate-color-utilities(color, 'vs-text');
+@include generate-color-utilities(background-color, 'vs-bg');
+
+// Display Utilities
+$displays: none, inline, inline-block, block, flex, inline-flex, grid, table;
+
+@each $display in $displays {
+  .vs-d-#{$display} {
+    display: #{$display} !important;
+  }
+}
+
+// Flexbox Utilities
+.vs-flex-row { flex-direction: row !important; }
+.vs-flex-row-reverse { flex-direction: row-reverse !important; }
+.vs-flex-column { flex-direction: column !important; }
+.vs-flex-column-reverse { flex-direction: column-reverse !important; }
+
+$justify: (
+  start: flex-start,
+  end: flex-end,
+  center: center,
+  between: space-between,
+  around: space-around
+);
+
+@each $key, $value in $justify {
+  .vs-justify-#{$key} {
+    justify-content: #{$value} !important;
+  }
+}
+
+$align: (
+  start: flex-start,
+  end: flex-end,
+  center: center,
+  baseline: baseline,
+  stretch: stretch
+);
+
+@each $key, $value in $align {
+  .vs-align-#{$key} {
+    align-items: #{$value} !important;
+  }
+}
+
+.vs-flex-wrap { flex-wrap: wrap !important; }
+.vs-flex-nowrap { flex-wrap: nowrap !important; }
+.vs-flex-wrap-reverse { flex-wrap: wrap-reverse !important; }
+
+.vs-flex-1 { flex: 1 1 0% !important; }
+.vs-flex-auto { flex: 1 1 auto !important; }
+.vs-flex-none { flex: none !important; }
+
+// Border Radius Utilities
+$border-radius: (
+  sm: var(--vs-border-radius-sm),
+  rounded: var(--vs-border-radius),
+  lg: var(--vs-border-radius-lg),
+  full: 50%
+);
+
+@each $key, $value in $border-radius {
+  .vs-rounded-#{$key} {
+    border-radius: #{$value} !important;
+  }
+}
+
+// Directional border radius
+.vs-rounded-top { 
+  border-top-left-radius: var(--vs-border-radius) !important;
+  border-top-right-radius: var(--vs-border-radius) !important;
+}
+.vs-rounded-bottom { 
+  border-bottom-left-radius: var(--vs-border-radius) !important;
+  border-bottom-right-radius: var(--vs-border-radius) !important;
+}
+.vs-rounded-left { 
+  border-top-left-radius: var(--vs-border-radius) !important;
+  border-bottom-left-radius: var(--vs-border-radius) !important;
+}
+.vs-rounded-right { 
+  border-top-right-radius: var(--vs-border-radius) !important;
+  border-bottom-right-radius: var(--vs-border-radius) !important;
+}
+
+// Shadow Utilities
+$shadows: (
+  none: none,
+  sm: var(--vs-shadow-sm),
+  shadow: var(--vs-shadow),
+  lg: var(--vs-shadow-lg)
+);
+
+@each $key, $value in $shadows {
+  .vs-shadow-#{$key} {
+    box-shadow: #{$value} !important;
+  }
+}
+
+// Position Utilities
+$positions: static, relative, absolute, fixed, sticky;
+
+@each $position in $positions {
+  .vs-position-#{$position} {
+    position: #{$position} !important;
+  }
+}
+
+// Overflow Utilities
+$overflows: auto, hidden, visible, scroll;
+
+@each $overflow in $overflows {
+  .vs-overflow-#{$overflow} {
+    overflow: #{$overflow} !important;
+  }
+}
+
+// Width & Height Utilities
+.vs-w-auto { width: auto !important; }
+.vs-w-full { width: 100% !important; }
+.vs-w-screen { width: 100vw !important; }
+.vs-w-50 { width: 50% !important; }
+.vs-w-100 { width: 100% !important; }
+
+.vs-h-auto { height: auto !important; }
+.vs-h-full { height: 100% !important; }
+.vs-h-screen { height: 100vh !important; }
+.vs-h-50 { height: 50% !important; }
+.vs-h-100 { height: 100% !important; }
+
+// Visibility Utilities
+.vs-visible { visibility: visible !important; }
+.vs-invisible { visibility: hidden !important; }
+
+// Cursor Utilities
+$cursors: auto, pointer, default, not-allowed;
+
+@each $cursor in $cursors {
+  .vs-cursor-#{$cursor} {
+    cursor: #{$cursor} !important;
+  }
+}
+
+// Border Utilities
+.vs-border { border: 1px solid var(--vs-table-border) !important; }
+.vs-border-top { border-top: 1px solid var(--vs-table-border) !important; }
+.vs-border-bottom { border-bottom: 1px solid var(--vs-table-border) !important; }
+.vs-border-left { border-left: 1px solid var(--vs-table-border) !important; }
+.vs-border-right { border-right: 1px solid var(--vs-table-border) !important; }
+
+// Z-index Utilities
+$z-indices: (
+  dropdown: var(--vs-z-dropdown),
+  sticky: var(--vs-z-sticky),
+  fixed: var(--vs-z-fixed),
+  modal: var(--vs-z-modal),
+  popover: var(--vs-z-popover),
+  tooltip: var(--vs-z-tooltip)
+);
+
+@each $key, $value in $z-indices {
+  .vs-z-#{$key} {
+    z-index: #{$value} !important;
+  }
+}
+
+// Transition Utilities
+.vs-transition { transition: var(--vs-transition) !important; }
+.vs-transition-fast { transition: var(--vs-transition-fast) !important; }
+.vs-transition-none { transition: none !important; }
+
 /* Reset and Base Styles */
 .vs-datatable {
   font-family: var(--vs-font-family);
@@ -546,6 +882,12 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+.vs-operator-select {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  gap: 0.55rem;
+}
 .vs-btn {
   padding: 0.35rem 0.75rem;
   border-radius: 4px;
@@ -560,12 +902,12 @@
   background: #f5f5f5;
   border: 1px solid #ccc;
 }
-.vs-filter-range,
-.vs-filter-date {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
+// .vs-filter-range,
+// .vs-filter-date {
+//   display: flex;
+//   gap: 0.5rem;
+//   align-items: center;
+// }
 
 .vs-column-filter {
   display: inline-flex;
