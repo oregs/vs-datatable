@@ -1,10 +1,12 @@
 import { ref, computed, type Ref } from "vue"
 import type { ColumnFilter, Column } from "@/types/datatable"
-import { ensureFilter, createFilter } from "@/utils/filters"
+import { initFilter } from "@/utils/filters"
 
 export function useColumnFilter<T>(data: Ref<T[]>, columns: Column<T>[]) {
+  // filters state: key = column.field
   const filters = ref<Record<string, ColumnFilter>>({})
 
+  // Computed filtered data
   const filteredData = computed(() => {
     return data.value.filter((row) => {
       return columns.every((col) => {
@@ -41,14 +43,19 @@ export function useColumnFilter<T>(data: Ref<T[]>, columns: Column<T>[]) {
     })
   })
 
-  function setFilter(columnKey: string, filter: ColumnFilter) {
-    filters.value[columnKey] = ensureFilter(filter, filter.type)
+  // Set or update a filter
+  function setFilter(columnKey: string, filter?: ColumnFilter, type?: ColumnFilter["type"]) {
+    if (filter) {
+      filters.value[columnKey] = initFilter(filter.type, filter)
+    } else if (type) {
+      filters.value[columnKey] = initFilter(type)
+    }
   }
 
+  // Clear a filter
   function clearFilter(columnKey: string, type?: ColumnFilter["type"]) {
     if (type) {
-      // reset to default filter if type is known
-      filters.value[columnKey] = createFilter(type)
+      filters.value[columnKey] = initFilter(type)
     } else {
       delete filters.value[columnKey]
     }
