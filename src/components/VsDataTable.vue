@@ -109,7 +109,7 @@
                       :operators="column.filter.operators"
                       v-model="filters[column.field]"
                       :visible="openFilter === column.field"
-                      :anchor-el="null"
+                      :anchor-el="anchorEl"
                       @apply="val => setFilter(column.field, val)"
                       @clear="() => clearFilter(column.field)"
                       @close="openFilter = null"

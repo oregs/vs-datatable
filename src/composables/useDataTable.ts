@@ -3,58 +3,131 @@ import { useDataTableSort } from '@/composables/useDataTableSort'
 import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
 import { useDataTableSearch } from '@/composables/useDataTableSearch'
-import { paginateRows } from '@/utils/datatable'
+import { filterRowsByQuery, paginateRows, sortArray } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
-import { useColumnFilter } from "@/composables/useColumnFilter";
+import { useColumnFilter } from '@/composables/useColumnFilter'
 
-export function useDataTable<
-    T extends (event: any, ...args: any[]) => void
->(props: any, emit: T) {
-    const page = ref<number>(1)
-    const rowsPerPage = ref(props.serverOptions?.rowsPerPage ?? props.rowsPerPage)
-    const searchQuery = ref<string>('')
+export function useDataTable<T>(props: any, emit: any) {
+  // --- Pagination
+  const page = ref<number>(1)
+  const rowsPerPage = ref(props.serverOptions?.rowsPerPage ?? props.rowsPerPage)
+  const searchQuery = ref<string>('')
 
-    const { isRowExpanded, toggleRowExpansion, getRowId, setRowLoading, isRowLoading } = useExpandable(props, emit)
-    const { processedRows, sortHelpers } = useDataTableSort(props, emit, page, rowsPerPage, searchQuery, {isRowExpanded})
-    const { totalRecords, recordRange, handlePageChange } = useDataTablePagination(props, emit, page, rowsPerPage, processedRows)
-    const { handleRowsPerPage } = useDataTableRowsPerPage(props, emit, page, rowsPerPage)
-    const { onInputTyped } = useDataTableSearch(emit, searchQuery)
-    const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(ref(props.rows), props.columns);
+  // --- Expandable rows
+  const { isRowExpanded, toggleRowExpansion, getRowId, setRowLoading, isRowLoading } =
+    useExpandable(props, emit)
 
-    // Apply pagination
-    const paginatedRows = computed(() => paginateRows(processedRows.value, page.value, rowsPerPage.value))
-  
-    return {
-      //Pagination
-      page,
-      totalRecords,
-      recordRange,
-      handlePageChange,
-      
-      //Row Per Page
-      rowsPerPage,
-      handleRowsPerPage,
+  // --- Column filters
+  const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(
+    ref(props.rows as Record<string, any>[]),
+    props.columns
+  )
 
-      //Sort
-      processedRows,
-      paginatedRows,
-      sortHelpers,
+  // --- Sort
+  const { activeSort, sortHelpers } = useDataTableSort(props, emit, page)
 
-      //Search
-      searchQuery,
-      onInputTyped,
+  // --- Search
+  const { onInputTyped } = useDataTableSearch(emit, searchQuery)
 
-      //Expanded
-      isRowExpanded,
-      toggleRowExpansion, 
-      getRowId,
-      setRowLoading,
-      isRowLoading,
+  // --- Pagination helpers
+  const { totalRecords, recordRange, handlePageChange } = useDataTablePagination(
+    props,
+    emit,
+    page,
+    rowsPerPage,
+    computed(() => processedRows.value)
+  )
+  const { handleRowsPerPage } = useDataTableRowsPerPage(props, emit, page, rowsPerPage)
 
-      //Column Filter
-      filters,
-      filteredData,
-      setFilter,
-      clearFilter
+  // --- Processed rows: apply filters, search, then sort
+  const filteredAndSearched = computed(() => {
+    let result = filteredData.value
+
+    // Apply search
+    if (searchQuery.value) {
+      result = filterRowsByQuery(result, searchQuery.value)
     }
+
+    return result
+  })
+
+  const processedRows = computed(() => {
+    let resultRows = filteredAndSearched.value
+  
+    // Only apply client-side operations if not in server mode
+    if (!props.serverOptions) {
+      // Apply search filter
+      if (searchQuery.value) {
+        resultRows = filterRowsByQuery(resultRows, searchQuery.value)
+      }
+  
+      // Apply sorting
+      if (activeSort.value.length) {
+        resultRows = sortArray(resultRows, activeSort.value)
+      }
+    }
+  
+    return resultRows.map((row, index) => ({
+      ...row,
+      isExpanded: isRowExpanded(row, index), // pass index here
+    }))
+
+    return resultRows
+  })
+
+  // const processedRows = computed(() => {
+  //   let rowsToSort = filteredAndSearched.value
+
+  //   if (activeSort.value.length) {
+  //     rowsToSort = [...rowsToSort] // copy before sort
+  //     rowsToSort.sort((a, b) => {
+  //       for (const s of activeSort.value) {
+  //         const valA = a[s.field]
+  //         const valB = b[s.field]
+  //         if (valA == valB) continue
+  //         return s.order === 'asc' ? (valA > valB ? 1 : -1) : valA > valB ? -1 : 1
+  //       }
+  //       return 0
+  //     })
+  //   }
+
+  //   return rowsToSort
+  // })
+
+  // --- Paginated rows
+  const paginatedRows = computed(() =>
+    paginateRows(processedRows.value, page.value, rowsPerPage.value)
+  )
+
+  return {
+    // Pagination
+    page,
+    totalRecords,
+    recordRange,
+    handlePageChange,
+    rowsPerPage,
+    handleRowsPerPage,
+
+    // Sorting
+    processedRows,
+    paginatedRows,
+    sortHelpers,
+
+    // Search
+    searchQuery,
+    onInputTyped,
+
+    // Expandable
+    isRowExpanded,
+    toggleRowExpansion,
+    getRowId,
+    setRowLoading,
+    isRowLoading,
+
+    // Column filters
+    filters,
+    filteredData,
+    setFilter,
+    clearFilter,
   }
+}

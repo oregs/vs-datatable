@@ -2,12 +2,12 @@ import { ref, computed, type Ref } from "vue"
 import type { ColumnFilter, Column } from "@/types/datatable"
 import { initFilter } from "@/utils/filters"
 
-export function useColumnFilter<T>(data: Ref<T[]>, columns: Column<T>[]) {
+export function useColumnFilter<T extends Record<string, any>>(data: Ref<T[]>, columns: Column<T>[]) {
   // filters state: key = column.field
   const filters = ref<Record<string, ColumnFilter>>({})
 
   // Computed filtered data
-  const filteredData = computed(() => {
+  const filteredData: Ref<T[]> = computed(() => {
     return data.value.filter((row) => {
       return columns.every((col) => {
         const filter = filters.value[col.field]

@@ -43,7 +43,23 @@
       </VsDataTable>
       <!-- END VSBody -->
     </section>
-    
+
+    <!-- Server-side Pagination -->
+    <section>
+      <h2>Server-side Pagination</h2>
+      <VsDataTable
+        :columns="columns"
+        :rows="rows"
+        :server-options="serverOptions"
+        :server-items-length="serverItemsLength"
+        :loading="loading"
+        @update:server-options="handleServerOptionsChange"
+        @sort-changed="handleServerSortChange"
+        @row-click="handleSercerRowClick"
+        @rows-per-page-changed="handleServerRowsPerPage"
+        @input-typed="handleServerInputTyped"
+      />
+    </section>
   </div>
 </template>
 
@@ -134,5 +150,39 @@ function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
 
 function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
   console.log("Collapsed row:", row, index, rowId)
+}
+
+/**
+ * -------------------
+ * SERVER OPTIONS
+ *--------------------
+ */
+ const serverItemsLength = ref(20)
+ const serverOptions = ref({
+  page: 1,
+  rowsPerPage: 25,
+  sort: []
+})
+
+const handleSercerRowClick = (row: any, index: number) => {
+  console.log('Row clicked:', row, index)
+}
+
+const handleServerOptionsChange = (options: any) => {
+  console.log('Server options changed:', options)
+  serverOptions.value = options
+}
+
+const handleServerSortChange = ({ sort }: { sort: any[] }) => {
+  console.log('Sort changed:', sort)
+}
+
+const handleServerRowsPerPage = (rowsPerPage: number) => {
+  serverOptions.value = {...serverOptions.value, rowsPerPage}
+  console.log('RowsPerPage: ', rowsPerPage, serverOptions.value)
+}
+
+const handleServerInputTyped = (value: string) => {
+  console.log(value)
 }
 </script>
