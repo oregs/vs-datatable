@@ -30,12 +30,13 @@
     <!-- Text filter -->
     <div v-if="localFilter.type === 'text'" class="vs-filter-text">
       <div class="vs-pb-sm">
-        <select v-model="localFilter.operator" class="vs-operator-select vs-mx-auto vs-w-full">
-          <option value="contains">Contains</option>
-          <option value="equals">Equals</option>
-          <option value="startsWith">Starts With</option>
-          <option value="endsWith">Ends With</option>
-        </select>
+        <div v-if="availableOperators.length > 1" class="vs-pb-sm">
+          <select v-model="localFilter.operator" class="vs-operator-select vs-mx-auto vs-w-full">
+            <option v-for="op in availableOperators" :key="op" :value="op">
+              {{ capitalize(op) }}
+            </option>
+          </select>
+        </div>
       </div>
       <div>
         <input
@@ -55,22 +56,64 @@
       </div>
     </div>
 
-    <!-- Number range filter -->
+    <!-- Number filter -->
     <div v-else-if="localFilter.type === 'number-range'" class="vs-filter-range">
-      <div>
-        <input type="number" v-model.number="localFilter.min" placeholder="Min" class="vs-input vs-w-full" />
+      <div v-if="availableOperators.length > 1" class="vs-pb-sm">
+        <select v-model="localFilter.operator" class="vs-operator-select vs-w-full">
+          <option v-for="op in availableOperators" :key="op" :value="op">
+            {{ capitalize(op) }}
+          </option>
+        </select>
       </div>
-      <div class="vs-text-center">-----------to-----------</div>
-      <div>
-        <input type="number" v-model.number="localFilter.max" placeholder="Max" class="vs-input vs-w-full" />
+      <div v-else>
+        <span class="vs-operator-fixed">{{ localFilter.operator }}</span>
+      </div>
+
+      <div v-if="localFilter.operator === 'between'">
+        <div>
+          <input
+            type="number"
+            v-model.number="localFilter.min"
+            placeholder="Min"
+            class="vs-input vs-w-full mb-1"
+          />
+        </div>
+        <div class="vs-text-center vs-py-sm">----------- to -----------</div>
+        <div>
+          <input
+            type="number"
+            v-model.number="localFilter.max"
+            placeholder="Max"
+            class="vs-input vs-w-full"
+          />
+        </div>
+      </div>
+      <div
+        v-else-if="
+          ['equals', 'notEqual', 'greaterThan', 'lessThan'].includes(localFilter.operator || '')
+        "
+      >
+        <input
+          type="number"
+          v-model.number="localFilter.value"
+          placeholder="Enter number"
+          class="vs-input vs-w-full"
+        />
+      </div>
+      <div v-else-if="['empty', 'notEmpty'].includes(localFilter.operator || '')">
+        <p class="text-xs text-gray-500">No input required</p>
       </div>
     </div>
 
     <!-- Date range filter -->
     <div v-else-if="localFilter.type === 'date-range'" class="vs-filter-date">
-      <input type="date" v-model="localFilter.start" class="vs-input" />
-      <span>to</span>
-      <input type="date" v-model="localFilter.end" class="vs-input" />
+      <div>
+        <input type="date" v-model="localFilter.start" class="vs-input vs-w-full" />
+      </div>
+      <div class="vs-text-center vs-py-sm">----------- to -----------</div>
+      <div>
+        <input type="date" v-model="localFilter.end" class="vs-input vs-w-full" />
+      </div>
     </div>
 
     <!-- Footer actions -->
@@ -85,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick, computed, capitalize } from 'vue'
 import { computePosition, autoUpdate, flip, offset, shift } from '@floating-ui/dom'
 import { initFilter, hasValue } from '@/utils/filters'
 import type { ColumnFilter } from '@/types/datatable'
@@ -95,7 +138,31 @@ interface Props {
   type: ColumnFilter['type']
   options?: string[]
   visible?: boolean
+  operators?: string[]
+  anchorEl?: HTMLElement
 }
+
+// default operators per type
+const defaultOperators: Record<ColumnFilter['type'], string[]> = {
+  text: [
+    'contains',
+    'doesNotContains',
+    'equals',
+    'doesNotEqual',
+    'startsWith',
+    'endsWith',
+    'empty',
+    'notEmpty',
+  ],
+  'multi-select': [],
+  'number-range': ['between', 'equals', 'notEqual', 'greaterThan', 'lessThan', 'empty', 'notEmpty'],
+  'date-range': ['between', 'equals', 'notEqual', 'before', 'after', 'empty', 'notEmpty'],
+}
+
+// pick operators
+const availableOperators = computed(() => {
+  return props.operators?.length ? props.operators : defaultOperators[props.type]
+})
 
 const props = defineProps<Props>()
 const emit = defineEmits<{

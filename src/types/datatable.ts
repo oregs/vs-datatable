@@ -3,17 +3,17 @@ import { type Ref, type ComputedRef } from 'vue'
  * VsDataTable Types and Interfaces
  */
 
-export interface Column <T = any> {
+export interface Column<T = any> {
   label: string
-  field: keyof T & string;
+  field: keyof T & string
   width?: string
   sortable?: boolean
   isKey?: boolean
   filter?: {
-    type: FilterType;
-    options?: string[];
-    operators?: FilterOperator[];
-  };
+    type: FilterType
+    options?: string[]
+    operators?: FilterOperator[]
+  }
 }
 
 export interface Sort {
@@ -47,46 +47,47 @@ export interface CollapseEventPayload<Row = any> {
 }
 
 // Column Filter Types
-export type FilterType =
-  | "text"
-  | "multi-select"
-  | "number-range"
-  | "date-range"
-  | "custom";
+export type FilterType = 'text' | 'multi-select' | 'number-range' | 'date-range' | 'custom'
 
 export interface FilterOperator {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
 export interface TextFilter {
-  type: "text";
-  value?: string;
-  operator?: "contains" | "equals" | "startsWith" | "endsWith"
+  type: 'text'
+  value?: string
+  operator?:
+    | 'contains'
+    | 'doesNotContains'
+    | 'equals'
+    | 'doesNotEqual'
+    | 'startsWith'
+    | 'endsWith'
+    | 'empty'
+    | 'notEmpty'
 }
 
 export interface MultiSelectFilter {
-  type: "multi-select";
-  value?: string[];
+  type: 'multi-select'
+  value?: string[]
 }
 
 export interface NumberRangeFilter {
-  type: "number-range";
-  min?: number | null;
-  max?: number | null;
+  type: 'number-range'
+  operator?: 'equals' | 'notEqual' | 'greaterThan' | 'lessThan' | 'between' | 'empty' | 'notEmpty'
+  value?: number | null
+  min?: number | null
+  max?: number | null
 }
 
 export interface DateRangeFilter {
-  type: "date-range";
-  start?: string | null; // ISO string
-  end?: string | null;
+  type: 'date-range'
+  start?: string | null // ISO string
+  end?: string | null
 }
 
-export type ColumnFilter =
-  | TextFilter
-  | MultiSelectFilter
-  | NumberRangeFilter
-  | DateRangeFilter
+export type ColumnFilter = TextFilter | MultiSelectFilter | NumberRangeFilter | DateRangeFilter
 
 export type FilterMap = Record<string, ColumnFilter | undefined>
 
@@ -116,7 +117,7 @@ export interface DataTableProps {
   noDataDescription?: string
   entriesText?: string
   maxVisiblePages?: number
-  rowsPerPage?:number
+  rowsPerPage?: number
   rowKey?: string | ((item: any, index: number) => string | number)
   expanded?: (string | number)[]
   expandable?: boolean
@@ -140,7 +141,7 @@ export interface DataTableEmits {
   (event: 'table:before-mount'): void
   (event: 'data-loaded', data: any[]): void
   (event: 'data-error', error: any): void
-  (event: "update:expanded", value: (string | number)[]): void
+  (event: 'update:expanded', value: (string | number)[]): void
   (event: 'expand-row', payload: ExpandEventPayload): void
   (event: 'collapse-row', payload: CollapseEventPayload): void
 }

@@ -62,27 +62,27 @@ import DemoLayout from '@/views/DemoLayout.vue'
  * ----------------------------------------------------------------
  */
  const rows = ref<any[]>([
-  { id: 1, date: 'Fri 26 Nov, 10:11pm', customer: 'Rwanda Lee', total: 391.0 },
-  { id: 2, date: 'Sat 27 Nov, 09:23pm', customer: 'Bolu', total: 398.0 },
-  { id: 3, date: 'Sun 28 Nov, 01:23pm', customer: 'Temilade', total: 393.0 },
-  { id: 4, date: 'Mon 29 Nov, 08:45am', customer: 'Samuel O.', total: 210.5 },
-  { id: 5, date: 'Tue 30 Nov, 02:19pm', customer: 'Grace Adeniyi', total: 145.75 },
-  { id: 6, date: 'Wed 01 Dec, 06:34pm', customer: 'Michael Obi', total: 500.0 },
-  { id: 7, date: 'Thu 02 Dec, 11:05am', customer: 'Ada Lovelace', total: 315.25 },
-  { id: 8, date: 'Fri 03 Dec, 04:42pm', customer: 'Chinedu Okafor', total: 260.0 },
-  { id: 9, date: 'Sat 04 Dec, 07:55pm', customer: 'Fatima Bello', total: 425.0 },
-  { id: 10, date: 'Sun 05 Dec, 09:14am', customer: 'John Smith', total: 180.99 },
-  { id: 11, date: 'Mon 06 Dec, 01:32pm', customer: 'Mary Johnson', total: 222.49 },
-  { id: 12, date: 'Tue 07 Dec, 03:47pm', customer: 'Ibrahim Musa', total: 355.75 },
-  { id: 13, date: 'Wed 08 Dec, 06:23pm', customer: 'Olivia Brown', total: 412.0 },
-  { id: 14, date: 'Thu 09 Dec, 10:11am', customer: 'Emeka Uche', total: 295.3 },
-  { id: 15, date: 'Fri 10 Dec, 05:50pm', customer: 'Sophia Davis', total: 389.0 },
-  { id: 16, date: 'Sat 11 Dec, 08:25pm', customer: 'David Wilson', total: 476.2 },
-  { id: 17, date: 'Sun 12 Dec, 12:41pm', customer: 'Ngozi Okeke', total: 150.0 },
-  { id: 18, date: 'Mon 13 Dec, 09:07am', customer: 'Daniel James', total: 233.4 },
-  { id: 19, date: 'Tue 14 Dec, 11:53am', customer: 'Helen George', total: 325.6 },
-  { id: 20, date: 'Wed 15 Dec, 07:39pm', customer: 'Anthony Clark', total: 410.8 },
-])
+  { id: 1, date: '2025-11-26 22:11', customer: 'Rwanda Lee', total: 391.0, status: 'Completed', payment: 'Credit Card', items: 3 },
+  { id: 2, date: '2025-07-27 21:23', customer: 'Bolu', total: 398.0, status: 'Completed', payment: 'PayPal', items: 5 },
+  { id: 3, date: '2025-07-28 13:23', customer: 'Temilade', total: 393.0, status: 'Processing', payment: 'Bank Transfer', items: 2 },
+  { id: 4, date: '2025-11-29 08:45', customer: 'Samuel O.', total: 210.5, status: 'Completed', payment: 'Credit Card', items: 1 },
+  { id: 5, date: '2025-11-30 14:19', customer: 'Grace Adeniyi', total: 145.75, status: 'Cancelled', payment: 'Cash', items: 4 },
+  { id: 6, date: '2025-12-01 18:34', customer: 'Michael Obi', total: 500.0, status: 'Completed', payment: 'Credit Card', items: 6 },
+  { id: 7, date: '2025-12-02 11:05', customer: 'Ada Lovelace', total: 315.25, status: 'Processing', payment: 'PayPal', items: 3 },
+  { id: 8, date: '2025-10-03 16:42', customer: 'Chinedu Okafor', total: 260.0, status: 'Completed', payment: 'Bank Transfer', items: 2 },
+  { id: 9, date: '2023-12-04 19:55', customer: 'Fatima Bello', total: 425.0, status: 'Completed', payment: 'Credit Card', items: 5 },
+  { id: 10, date: '2023-10-05 09:14', customer: 'John Smith', total: 180.99, status: 'Completed', payment: 'PayPal', items: 1 },
+  { id: 11, date: '2023-08-06 13:32', customer: 'Mary Johnson', total: 222.49, status: 'Processing', payment: 'Credit Card', items: 3 },
+  { id: 12, date: '2023-08-07 15:47', customer: 'Ibrahim Musa', total: 355.75, status: 'Completed', payment: 'Cash', items: 4 },
+  { id: 13, date: '2025-05-08 18:23', customer: 'Olivia Brown', total: 412.0, status: 'Completed', payment: 'Credit Card', items: 7 },
+  { id: 14, date: '2025-06-09 10:11', customer: 'Emeka Uche', total: 295.3, status: 'Cancelled', payment: 'PayPal', items: 2 },
+  { id: 15, date: '2025-09-10 17:50', customer: 'Sophia Davis', total: 389.0, status: 'Completed', payment: 'Bank Transfer', items: 3 },
+  { id: 16, date: '2025-12-11 20:25', customer: 'David Wilson', total: 476.2, status: 'Processing', payment: 'Credit Card', items: 6 },
+  { id: 17, date: '2025-12-12 12:41', customer: 'Ngozi Okeke', total: 150.0, status: 'Completed', payment: 'Cash', items: 1 },
+  { id: 18, date: '2025-12-13 09:07', customer: 'Daniel James', total: 233.4, status: 'Completed', payment: 'PayPal', items: 2 },
+  { id: 19, date: '2025-12-14 11:53', customer: 'Helen George', total: 325.6, status: 'Completed', payment: 'Credit Card', items: 4 },
+  { id: 20, date: '2025-12-15 19:39', customer: 'Anthony Clark', total: 410.8, status: 'Processing', payment: 'Bank Transfer', items: 5 }
+]);
 
 const tableRef = ref<any>(null)
 const expanded = ref<number[]>([])
@@ -90,10 +90,13 @@ const loading = ref<boolean>(false)
 const sort = ref<any[]>([{ field: 'date', order: 'asc' }])
 const itemSelected = ref<any[]>([])
 const columns = ref<any[]>([
-  { label: 'Order', field: 'id', width: '10', sortable: true, filter: { type: 'number-range' } },
-  { label: 'Date', field: 'date', width: '20', sortable: true },
+  { label: 'Order', field: 'id', width: '10', sortable: true, filter: { type: 'number-range', operator: ['between', 'equals', 'notEqual'] } },
+  { label: 'Date', field: 'date', width: '20', sortable: true, filter: { type: 'date-range' } },
   { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
+  { label: 'Status', field: 'status', width: '15', sortable: true },
+  { label: 'Payment', field: 'payment', width: '15', sortable: true },
+  { label: 'Items', field: 'items', width: '15', sortable: true },
 ])
 
 const onPageUpdated = (newPage: number) => {

@@ -1,42 +1,4 @@
-// src/utils/filters.ts
 import type { ColumnFilter } from '@/types/datatable'
-
-// /**
-//  * Creates a default filter object for a given type.
-//  */
-// export function createFilter(type: ColumnFilter['type']): ColumnFilter {
-//   switch (type) {
-//     case 'text':
-//       return { type, value: '', operator: 'contains' }
-//     case 'multi-select':
-//       return { type, value: [] }
-//     case 'number-range':
-//       return { type, min: null, max: null }
-//     case 'date-range':
-//       return { type, start: null, end: null }
-//   }
-// }
-
-// /**
-//  * Ensures an existing filter matches the type; fills in missing properties.
-//  */
-// export function ensureFilter(existing: ColumnFilter | undefined, type: ColumnFilter['type']): ColumnFilter {
-//   const defaults = createFilter(type)
-
-//   if (!existing) return defaults
-
-//   switch (type) {
-//     case 'text':
-//       return { ...defaults, ...(existing.type === 'text' ? existing : {}) }
-//     case 'multi-select':
-//       return { ...defaults, ...(existing.type === 'multi-select' ? existing : {}) }
-//     case 'number-range':
-//       return { ...defaults, ...(existing.type === 'number-range' ? existing : {}) }
-//     case 'date-range':
-//       return { ...defaults, ...(existing.type === 'date-range' ? existing : {}) }
-//   }
-// }
-
 
 /**
  * Returns a fully initialized filter of a given type.
@@ -61,7 +23,7 @@ export function initFilter(type: ColumnFilter['type'], existing?: ColumnFilter):
       return defaults
 
     case 'number-range':
-      defaults = { type, min: null, max: null }
+      defaults = { type, operator: 'between', value: null, min: null, max: null }
       if (existing?.type === 'number-range') {
         return { ...defaults, ...existing }
       }
@@ -76,19 +38,52 @@ export function initFilter(type: ColumnFilter['type'], existing?: ColumnFilter):
   }
 }
 
-
 /**
  * Optional helper to check if a filter has a value
  */
 export function hasValue(filter: ColumnFilter): boolean {
   switch (filter.type) {
     case 'text':
+      if (!filter.operator) return false
+      // operators that don’t require a text value
+      if (['empty', 'notEmpty'].includes(filter.operator || '')) return true
       return !!filter.value?.trim()
+
     case 'multi-select':
       return !!filter.value?.length
+
     case 'number-range':
-      return filter.min != null || filter.max != null
+      if (filter.operator === 'between') {
+        return filter.min != null || filter.max != null
+      }
+      if (['equals', 'notEquals', 'greaterThan', 'lessThan'].includes(filter.operator ?? '')) {
+        return filter.value != null
+      }
+      if (['empty', 'notEmpty'].includes(filter.operator ?? '')) {
+        return true
+      }
+      return false
+
+    // case 'number-range':
+    //   switch (filter.operator) {
+    //     case 'between':
+    //       return filter.min != null || filter.max != null
+    //     case 'equals':
+    //     case 'notEqual':
+    //     case 'greaterThan':
+    //     case 'lessThan':
+    //       return filter.value != null
+    //     case 'empty':
+    //     case 'notEmpty':
+    //       return true
+    //     default:
+    //       return false
+    //   }
+
     case 'date-range':
       return !!filter.start || !!filter.end
+
+    default:
+      return false
   }
 }

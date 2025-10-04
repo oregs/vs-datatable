@@ -7,14 +7,14 @@
       </VsDFlex>
   
       <!-- Two-column layout -->
-      <VsRow gap="6" responsive="{ sm: { direction: 'column', gap: 4 } }">
+      <VsRow gap="6" :responsive="{ sm: { direction: 'column', gap: 4 } }">
         <!-- Left Column -->
-        <VsColumn span="8" responsive="{ sm: { span: 12 } }">
+        <VsColumn span="8" :responsive="{ sm: { span: 12 } }">
           <VsRow gap="4">
-            <VsColumn span="6" responsive="{ sm: { span: 12 } }">
+            <VsColumn span="6" :responsive="{ sm: { span: 12 } }">
               <div class="p-4 bg-gray-100 rounded">Card 1</div>
             </VsColumn>
-            <VsColumn span="6" responsive="{ sm: { span: 12 } }">
+            <VsColumn span="6" :responsive="{ sm: { span: 12 } }">
               <div class="p-4 bg-gray-100 rounded">Card 2</div>
             </VsColumn>
           </VsRow>
@@ -26,7 +26,7 @@
         </VsColumn>
   
         <!-- Right Column -->
-        <VsColumn span="4" responsive="{ sm: { span: 12 } }">
+        <VsColumn span="4" :responsive="{ sm: { span: 12 } }">
           <div class="bg-gray-100 rounded mb-4">
             <h2 class="font-semibold mb-2">Notifications</h2>
             <ul class="list-disc ml-4">
