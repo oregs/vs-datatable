@@ -161,7 +161,7 @@
         </div>
 
         <!-- Footer actions -->
-        <div class="vs-filter-actions">
+        <div v-if="localFilter.type !== 'custom'" class="vs-filter-actions">
           <button class="vs-btn vs-btn-primary" @click="applyFilter">Apply</button>
           <button class="vs-btn vs-btn-secondary" @click="clearFilter">Clear</button>
         </div>
@@ -219,6 +219,7 @@ const defaultOperators: Record<ColumnFilter['type'], string[]> = {
   'multi-select': [],
   'number-range': ['between', 'equals', 'notEqual', 'greaterThan', 'lessThan', 'empty', 'notEmpty'],
   'date-range': ['between', 'equals', 'notEqual', 'before', 'after', 'empty', 'notEmpty'],
+  custom: []
 }
 
 function formatOperator(op: string) {
@@ -246,7 +247,7 @@ function formatOperator(op: string) {
 
 // pick operators
 const availableOperators = computed(() => {
-  console.log(props.operators?.length)
+  if (props.type === 'custom') return []
   return props.operators?.length ? props.operators : defaultOperators[props.type]
 })
 

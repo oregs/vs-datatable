@@ -12,7 +12,8 @@ export interface Column<T = any> {
   filter?: {
     type: FilterType
     options?: string[]
-    operators?: string[]
+    operators?: string[],
+    custom?: string
     // operators?: FilterOperator[]
   }
 }
@@ -90,7 +91,18 @@ export interface DateRangeFilter {
   end?: string | null
 }
 
-export type ColumnFilter = TextFilter | MultiSelectFilter | NumberRangeFilter | DateRangeFilter
+export interface CustomFilter {
+  type: 'custom'
+  custom: string,
+  value?: any
+}
+
+export type ColumnFilter =
+  | TextFilter
+  | MultiSelectFilter
+  | NumberRangeFilter
+  | DateRangeFilter
+  | CustomFilter
 
 export type FilterMap = Record<string, ColumnFilter | undefined>
 

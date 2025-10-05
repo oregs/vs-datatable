@@ -40,6 +40,25 @@
             <p><strong>Role:</strong> {{ item }}</p>
           </div> -->
         </template>
+
+        <!-- ✅ Custom filter slot for "Status" -->
+        <template #StatusFilterSlot="{ filter, apply, clear }">
+          <div class="vs-custom-filter">
+            <label class="vs-label">Status</label>
+
+            <select v-model="filter.value" class="vs-input vs-w-full">
+              <option disabled value="">-- Select Status --</option>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <div class="vs-flex vs-gap-2 vs-pt-sm">
+              <button class="vs-btn vs-btn-primary" @click="apply()">Apply</button>
+              <button class="vs-btn vs-btn-secondary" @click="clear()">Clear</button>
+            </div>
+          </div>
+        </template>
       </VsDataTable>
       <!-- END VSBody -->
     </section>
@@ -94,7 +113,7 @@ const columns = ref<any[]>([
   { label: 'Date', field: 'date', width: '20', sortable: true, filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] } },
   { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
-  { label: 'Status', field: 'status', width: '15', sortable: true },
+  { label: 'Status', field: 'status', width: '15', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot' }, },
   { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select' } },
   { label: 'Items', field: 'items', width: '15', sortable: true },
 ])

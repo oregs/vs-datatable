@@ -116,9 +116,13 @@
                       @close="handleCloseFilter(column.field)"
                       @open="handleOpenFilter(column.field)"
                     >
-                      <template #custom="{ filter, apply, clear }">
+                    <template v-if="column.filter.custom" #custom="{ filter, apply, clear }">
+                      <slot :name="column.filter.custom" :filter="filter" :apply="apply" :clear="clear" />
+                    </template>
+
+                      <!-- <template #custom="{ filter, apply, clear }">
                         <slot :name="`filter-${column.field}`" :filter="filter" :apply="apply" :clear="clear" />
-                      </template>
+                      </template> -->
                     </VsDataTableFilterDropdown>
 
                   </div>
