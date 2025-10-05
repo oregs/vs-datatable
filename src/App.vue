@@ -67,11 +67,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 // import VsDataTable from './index'
 import { VsDataTable } from './index'
 import type { ExpandEventPayload, CollapseEventPayload } from './index' 
 import DemoLayout from '@/views/DemoLayout.vue'
+import { filterFns } from '@/utils/filterFns'
 
 /**
  * ----------------------------------------------------------------
@@ -111,7 +112,7 @@ const columns = ref<any[]>([
   { label: 'Date', field: 'date', width: '20', sortable: true, filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] } },
   { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
-  { label: 'Status', field: 'status', width: '15', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot' }, },
+  { label: 'Status', field: 'status', width: '15', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
   { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select' } },
   { label: 'Items', field: 'items', width: '15', sortable: true },
 ])
@@ -158,4 +159,12 @@ function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
 function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
   console.log("Collapsed row:", row, index, rowId)
 }
+
+onMounted(() => {
+  // ✅ Custom Status Filter
+  filterFns.statusFilter = (row, field, filter) => {
+    if (!filter.value?.length) return true
+    return filter.value.includes(row[field])
+  }
+})
 </script>

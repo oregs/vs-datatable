@@ -1,3 +1,4 @@
+import type { filterFns } from '@/utils/filterFns'
 import { type Ref, type ComputedRef } from 'vue'
 /**
  * VsDataTable Types and Interfaces
@@ -13,6 +14,8 @@ export interface Column<T = any> {
     type: FilterType
     options?: string[]
     operators?: string[],
+    filterFn?: (cellValue: any, filterValue: any, row: Record<string, any>) => boolean
+    filterKey?: string
     custom?: string
     // operators?: FilterOperator[]
   }
@@ -93,8 +96,10 @@ export interface DateRangeFilter {
 
 export interface CustomFilter {
   type: 'custom'
-  custom: string,
   value?: any
+  filterKey?: keyof typeof filterFns
+  filterFn?: (cellValue: any, filterValue: any, row?: any) => boolean
+  custom: string,
 }
 
 export type ColumnFilter =
