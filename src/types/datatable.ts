@@ -12,8 +12,8 @@ export interface Column<T = any> {
   isKey?: boolean
   filter?: {
     type: FilterType
-    options?: string[]
-    operators?: string[],
+    operators?: string[]
+    asyncOptions?: () => Promise<string[]>
     filterFn?: (cellValue: any, filterValue: any, row: Record<string, any>) => boolean
     filterKey?: string
     custom?: string

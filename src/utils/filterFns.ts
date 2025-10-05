@@ -113,70 +113,7 @@ export const filterFns: Record<
           return fn(row, field, filter)
         }
     }
-
-    // fallback
+    
     return true
   },
 }
-
-
-
-
-
-// // Generic type for filter function
-// export type FilterFn = (cellValue: any, filterValue: any, row?: any) => boolean
-
-// export const filterFns: Record<string, FilterFn> = {
-//   // 🟢 Text filters
-//   contains: (cell, val) =>
-//     String(cell ?? '').toLowerCase().includes(String(val ?? '').toLowerCase()),
-
-//   doesNotContains: (cell, val) =>
-//     !String(cell ?? '').toLowerCase().includes(String(val ?? '').toLowerCase()),
-
-//   equals: (cell, val) => String(cell ?? '').toLowerCase() === String(val ?? '').toLowerCase(),
-
-//   doesNotEqual: (cell, val) => String(cell ?? '').toLowerCase() !== String(val ?? '').toLowerCase(),
-
-//   startsWith: (cell, val) =>
-//     String(cell ?? '').toLowerCase().startsWith(String(val ?? '').toLowerCase()),
-
-//   endsWith: (cell, val) =>
-//     String(cell ?? '').toLowerCase().endsWith(String(val ?? '').toLowerCase()),
-
-//   empty: (cell) => cell == null || String(cell).trim() === '',
-//   notEmpty: (cell) => cell != null && String(cell).trim() !== '',
-
-//   // Number range filters
-//   between: (cell, val) => {
-//     if (!val || typeof val !== 'object') return true
-//     const { min, max } = val
-//     const num = Number(cell)
-//     if (isNaN(num)) return false
-//     if (min != null && num < min) return false
-//     if (max != null && num > max) return false
-//     return true
-//   },
-//   greaterThan: (cell, val) => Number(cell) > Number(val),
-//   lessThan: (cell, val) => Number(cell) < Number(val),
-
-//   // Date filters
-//   dateBetween: (cell, val) => {
-//     const date = new Date(cell)
-//     const start = val?.start ? new Date(val.start) : null
-//     const end = val?.end ? new Date(val.end) : null
-//     if (start && date < start) return false
-//     if (end && date > end) return false
-//     return true
-//   },
-//   before: (cell, val) => new Date(cell) < new Date(val),
-//   after: (cell, val) => new Date(cell) > new Date(val),
-//   dateEquals: (cell, val) =>
-//     new Date(cell).toDateString() === new Date(val).toDateString(),
-
-//   // Custom Example: Status filter
-//   status: (cell, val) => {
-//     if (!val || !val.length) return true
-//     return val.includes(cell)
-//   },
-// }

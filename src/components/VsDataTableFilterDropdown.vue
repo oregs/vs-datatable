@@ -50,8 +50,10 @@
 
         <!-- Multi-select filter -->
         <div v-else-if="localFilter.type === 'multi-select'" class="vs-filter-multi">
+          <button v-if="asyncOptions" @click="loadAsyncOptions(true)">🔄 Reload</button>
           <VsMultiSelect
-            :columnData="columnData"
+            :isLoading="isLoading"
+            :columnData="columnOrAsyncOptions"
             v-model="localFilter.value"
             placeholder="Select values..."
           />
@@ -181,15 +183,17 @@ import type { ColumnFilter } from '@/types/datatable'
 import VsDFlex from '@/components/layout/VsDFlex.vue'
 import '@/styles/vs-layout.css'
 import VsMultiSelect from '@/components/ui/VsMultiSelect.vue'
+import { useAsyncOption } from '@/composables/useAsyncOption'
 
 interface Props {
   modelValue?: ColumnFilter
   type: ColumnFilter['type']
-  options?: string[]
+  field?: string,
   visible?: boolean
   operators?: string[]
   anchorEl?: HTMLElement
   columnData: any[]
+  asyncOptions?: () => Promise<string[]>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -203,6 +207,12 @@ const emit = defineEmits<{
   (e: 'open'): void
   (e: 'close'): void
 }>()
+
+const { columnOrAsyncOptions, isLoading, clearCache, loadAsyncOptions } = useAsyncOption({
+  asyncOptions: props.asyncOptions,
+  columnData: props.columnData,
+  cacheKey: props.field
+})
 
 // default operators per type
 const defaultOperators: Record<ColumnFilter['type'], string[]> = {
@@ -258,12 +268,21 @@ const cleanup = ref<() => void>()
 
 const isOpen = ref(false)
 
+// Watch open state
 watch(
   () => props.visible,
-  (val) => {
+  async (val) => {
     isOpen.value = !!val
-    if (isOpen.value) startPositioning()
-    else stopPositioning()
+    if (isOpen.value) {
+      await nextTick() 
+      startPositioning()
+
+      if (props.asyncOptions) {
+        loadAsyncOptions()
+      }
+    } else {
+      stopPositioning()
+    }
   },
   { immediate: true }
 )
@@ -323,28 +342,6 @@ function stopPositioning() {
   cleanup.value?.()
   cleanup.value = undefined
 }
-
-// Watch open state
-watch(
-  () => props.visible,
-  async (val) => {
-    isOpen.value = !!val
-    if (isOpen.value) {
-      await nextTick()
-      startPositioning()
-    } else stopPositioning()
-  }
-)
-
-// watch(isOpen, async (open) => {
-//   if (open) {
-//     await nextTick()
-//     startPositioning()
-//   } else {
-//     stopPositioning()
-//     emit('close')
-//   }
-// })
 
 // Click outside & Escape
 function onClickOutside(e: MouseEvent) {

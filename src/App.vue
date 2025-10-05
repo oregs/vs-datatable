@@ -73,6 +73,7 @@ import { VsDataTable } from './index'
 import type { ExpandEventPayload, CollapseEventPayload } from './index' 
 import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
+import { fetchPaymentMethods } from './api/mock/paymentMethods'
 
 /**
  * ----------------------------------------------------------------
@@ -113,7 +114,7 @@ const columns = ref<any[]>([
   { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
   { label: 'Status', field: 'status', width: '15', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
-  { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select' } },
+  { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select', asyncOptions: fetchPaymentMethods } }, // Remove 'asyncOptions' to use Column field value
   { label: 'Items', field: 'items', width: '15', sortable: true },
 ])
 

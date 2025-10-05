@@ -1,6 +1,6 @@
 import { ref, computed, type Ref } from 'vue'
 import type { ColumnFilter, Column } from '@/types/datatable'
-import { applyColumnFilter, initFilter } from '@/utils/filters'
+import { initFilter } from '@/utils/filters'
 import { filterFns } from '@/utils/filterFns'
 
 export function useColumnFilter<T extends Record<string, any>>(
@@ -9,30 +9,22 @@ export function useColumnFilter<T extends Record<string, any>>(
 ) {
   const filters = ref<Record<string, ColumnFilter>>({})
 
-  // const filteredData = computed(() => {
-  //   return data.value.filter((row) => {
-  //     return columns.every((col) => {
-  //       const filter = filters.value[col.field]
-  //       if (!filter) return true
-  //       return applyColumnFilter(row, col, filter)
-  //     })
-  //   })
-  // })
-
   const filteredData = computed(() => {
     return data.value.filter((row) => {
       return columns.every((col) => {
         const filter = filters.value[col.field]
         if (!filter || !filter.type) return true
 
+        // return applyColumnFilter(row, col, filter)
+
         const cellValue = row[col.field]
 
-        // Check if column itself defines a custom inline filter function
+        // Custom inline filter function
         if (col.filter?.filterFn) {
           return col.filter.filterFn(cellValue, filter.value, row)
         }
 
-        // Check for registered filter function by key
+        // Registered filter function by key
         if (filter.type === 'custom' && col.filter?.filterKey) {
           const customFn = filterFns[col.filter.filterKey]
           if (typeof customFn === 'function') {
@@ -41,7 +33,7 @@ export function useColumnFilter<T extends Record<string, any>>(
           return true
         }
 
-        // Use built-in filterFn from utils/filterFns.ts
+        // Use built-in filterFn
         const fn = filterFns[filter.type]
         if (typeof fn === 'function') {
           return fn(row, col.field, filter)

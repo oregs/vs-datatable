@@ -105,7 +105,8 @@
                     <VsDataTableFilterDropdown
                       v-if="column.filter"
                       :type="column.filter.type"
-                      :options="column.filter.options"
+                      :async-options="column.filter.asyncOptions"
+                      :field="column.field"
                       :operators="column.filter.operators"
                       v-model="filters[column.field]"
                       :visible="openFilter === column.field"

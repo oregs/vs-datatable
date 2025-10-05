@@ -1,22 +1,27 @@
 <template>
-    <div class="vs-multiselect">
-      <!-- Select/Deselect All with counts -->
-      <div class="vs-multiselect-actions">
-        <button @click.stop="selectAll">Select All ({{ unselectedCount }})</button>
-        <button @click.stop="deselectAll">Deselect All ({{ selectedCount }})</button>
-      </div>
-  
-      <!-- Search -->
-      <VsDFlex direction="row">
-        <input
-          type="text"
-          v-model="search"
-          placeholder="Search..."
-          class="vs-multiselect-search vs-w-full"
-        />
-      </VsDFlex>
-  
-      <!-- Options -->
+  <div class="vs-multiselect">
+    <!-- Select/Deselect All with counts -->
+    <div class="vs-multiselect-actions">
+      <button @click.stop="selectAll">Select All ({{ unselectedCount }})</button>
+      <button @click.stop="deselectAll">Deselect All ({{ selectedCount }})</button>
+    </div>
+
+    <!-- Search -->
+    <VsDFlex direction="row">
+      <input
+        type="text"
+        v-model="search"
+        placeholder="Search..."
+        class="vs-multiselect-search vs-w-full"
+      />
+    </VsDFlex>
+
+    <template v-if="isLoading">
+      <div class="vs-py-4 vs-text-center vs-text-primary">Loading options...</div>
+    </template>
+
+    <!-- Options -->
+    <template v-else>
       <ul class="vs-multiselect-options">
         <li
           v-for="option in filteredOptions"
@@ -44,10 +49,11 @@
           </svg>
         </li>
       </ul>
-    </div>
-  </template>
+    </template>
+  </div>
+</template>
   
-  <script setup lang="ts">
+<script setup lang="ts">
   import { ref, computed, watch } from 'vue'
   import VsDFlex from '../layout/VsDFlex.vue'
   
@@ -55,6 +61,7 @@
   const props = defineProps<{
     columnData: any[]
     modelValue?: any[]
+    isLoading: boolean
   }>()
   
   const emit = defineEmits<{
