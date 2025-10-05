@@ -114,6 +114,12 @@ export function useColumnFilter<T extends Record<string, any>>(
             }
           }
 
+          case 'custom': {
+            const cellValue = String(row[col.field] ?? '')
+            if (filter.value == null || filter.value === '') return true
+            return cellValue === String(filter.value)
+          }
+
           default:
             return true
         }

@@ -45,14 +45,12 @@
         <template #StatusFilterSlot="{ filter, apply, clear }">
           <div class="vs-custom-filter">
             <label class="vs-label">Status</label>
-
             <select v-model="filter.value" class="vs-input vs-w-full">
               <option disabled value="">-- Select Status --</option>
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
-
             <div class="vs-flex vs-gap-2 vs-pt-sm">
               <button class="vs-btn vs-btn-primary" @click="apply()">Apply</button>
               <button class="vs-btn vs-btn-secondary" @click="clear()">Clear</button>
@@ -65,7 +63,7 @@
 
   </div>
 
-  <DemoLayout />
+  <!-- <DemoLayout /> -->
 </template>
 
 <script setup lang="ts">
