@@ -30,7 +30,7 @@ export function initFilter(type: ColumnFilter['type'], existing?: ColumnFilter):
       return defaults
 
     case 'date-range':
-      defaults = { type, start: null, end: null }
+      defaults = { type, operator: 'between', value: null, start: null, end: null }
       if (existing?.type === 'date-range') {
         return { ...defaults, ...existing }
       }
@@ -64,24 +64,17 @@ export function hasValue(filter: ColumnFilter): boolean {
       }
       return false
 
-    // case 'number-range':
-    //   switch (filter.operator) {
-    //     case 'between':
-    //       return filter.min != null || filter.max != null
-    //     case 'equals':
-    //     case 'notEqual':
-    //     case 'greaterThan':
-    //     case 'lessThan':
-    //       return filter.value != null
-    //     case 'empty':
-    //     case 'notEmpty':
-    //       return true
-    //     default:
-    //       return false
-    //   }
-
     case 'date-range':
-      return !!filter.start || !!filter.end
+      if (filter.operator === 'between') {
+        return !!filter.start || !!filter.end
+      }
+      if (['equals', 'notEqual', 'before', 'after'].includes(filter.operator ?? '')) {
+        return filter.value != null && filter.value != ''
+      }
+      if (['empty', 'notEmpty'].includes(filter.operator ?? '')) {
+        return true
+      }
+      return false
 
     default:
       return false

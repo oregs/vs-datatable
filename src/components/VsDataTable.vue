@@ -102,24 +102,6 @@
                     </span>
 
                     <!-- Column Filter -->
-                    <!-- <VsDataTableFilterDropdown
-                      v-if="column.filter"
-                      :type="column.filter.type"
-                      :options="column.filter.options"
-                      :operators="column.filter.operators"
-                      v-model="filters[column.field]"
-                      :visible="openFilter === column.field"
-                      :anchor-el="anchorEl"
-                      @apply="val => setFilter(column.field, val)"
-                      @clear="() => clearFilter(column.field)"
-                      @close="openFilter = null"
-                    >
-                      <template #custom="{ filter, apply, clear }">
-                        <slot :name="`filter-${column.field}`" :filter="filter" :apply="apply" :clear="clear" />
-                      </template>
-                    </VsDataTableFilterDropdown> -->
-
-
                     <VsDataTableFilterDropdown
                       v-if="column.filter"
                       :type="column.filter.type"
@@ -128,6 +110,7 @@
                       v-model="filters[column.field]"
                       :visible="openFilter === column.field"
                       :anchor-el="anchorEl"
+                      :column-data="rows.map((r: Record<string, any>) => r[column.field])"
                       @apply="val => { setFilter(column.field, val); page = 1 }"
                       @clear="() => { clearFilter(column.field); page = 1 }"
                       @close="handleCloseFilter(column.field)"
@@ -468,7 +451,7 @@ onBeforeMount(() => {
 }
 
 .vs-search-container {
-  margin-bottom: var(--vs-spacing-md);
+  margin-bottom: var(--vs-spacing-sm);
 }
 
 </style>

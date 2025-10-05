@@ -90,12 +90,12 @@ const loading = ref<boolean>(false)
 const sort = ref<any[]>([{ field: 'date', order: 'asc' }])
 const itemSelected = ref<any[]>([])
 const columns = ref<any[]>([
-  { label: 'Order', field: 'id', width: '10', sortable: true, filter: { type: 'number-range', operator: ['between', 'equals', 'notEqual'] } },
-  { label: 'Date', field: 'date', width: '20', sortable: true, filter: { type: 'date-range' } },
+  { label: 'Order', field: 'id', width: '10', sortable: true, filter: { type: 'number-range', operators: ['between', 'equals', 'notEqual'] } },
+  { label: 'Date', field: 'date', width: '20', sortable: true, filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] } },
   { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
   { label: 'Status', field: 'status', width: '15', sortable: true },
-  { label: 'Payment', field: 'payment', width: '15', sortable: true },
+  { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select' } },
   { label: 'Items', field: 'items', width: '15', sortable: true },
 ])
 

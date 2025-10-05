@@ -12,7 +12,8 @@ export interface Column<T = any> {
   filter?: {
     type: FilterType
     options?: string[]
-    operators?: FilterOperator[]
+    operators?: string[]
+    // operators?: FilterOperator[]
   }
 }
 
@@ -83,7 +84,9 @@ export interface NumberRangeFilter {
 
 export interface DateRangeFilter {
   type: 'date-range'
-  start?: string | null // ISO string
+  operator?: 'between' | 'equals' | 'notEqual' | 'before' | 'after' | 'empty' | 'notEmpty'
+  value?: string | null
+  start?: string | null
   end?: string | null
 }
 

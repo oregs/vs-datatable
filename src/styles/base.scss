@@ -877,7 +877,8 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
-.vs-input {
+.vs-input, 
+.vs-multiselect-search {
   padding: 0.35rem 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -888,6 +889,75 @@
   border-radius: 4px;
   gap: 0.55rem;
 }
+
+/* VS Multi-Select */
+.vs-multiselect {
+  width: 100%;
+}
+
+.vs-multiselect-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.vs-multiselect-actions button {
+  font-size: 0.85rem;
+  background: transparent;
+  border: none;
+  color: #2d6cdf;
+  cursor: pointer;
+}
+
+.vs-multiselect-search {
+  width: var(vs-w-full);
+  padding: var(--vs-spacing-sm);
+  border-bottom: 1px solid #eee;
+  outline: none;
+}
+
+.vs-multiselect-options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.vs-multiselect-options li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.vs-multiselect-options li:hover {
+  background: #f9f9f9;
+}
+
+.vs-multiselect-options li.selected {
+  background: #f0f6ff;
+  color: #2d6cdf;
+}
+
+.option-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.check-icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+/* VS Button */
 .vs-btn {
   padding: 0.35rem 0.75rem;
   border-radius: 4px;

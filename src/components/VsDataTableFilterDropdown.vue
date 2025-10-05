@@ -19,119 +19,168 @@
     </svg>
   </span>
 
-  <!-- Floating dropdown -->
-  <div
-    v-if="isOpen"
-    ref="floatingRef"
-    class="vs-filter-dropdown"
-    style="position: absolute; z-index: 1000"
-    @click.stop
-  >
-    <!-- Text filter -->
-    <div v-if="localFilter.type === 'text'" class="vs-filter-text">
-      <div class="vs-pb-sm">
-        <div v-if="availableOperators.length > 1" class="vs-pb-sm">
-          <select v-model="localFilter.operator" class="vs-operator-select vs-mx-auto vs-w-full">
-            <option v-for="op in availableOperators" :key="op" :value="op">
-              {{ capitalize(op) }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <input
-          type="text"
-          v-model="localFilter.value"
-          placeholder="Search..."
-          class="vs-input mx-auto vs-w-full"
-        />
-      </div>
-    </div>
-
-    <!-- Multi-select filter -->
-    <div v-else-if="localFilter.type === 'multi-select'" class="vs-filter-multi">
-      <div v-for="opt in options" :key="opt">
-        <input type="checkbox" :value="opt" v-model="localFilter.value" />
-        <label>{{ opt }}</label>
-      </div>
-    </div>
-
-    <!-- Number filter -->
-    <div v-else-if="localFilter.type === 'number-range'" class="vs-filter-range">
-      <div v-if="availableOperators.length > 1" class="vs-pb-sm">
-        <select v-model="localFilter.operator" class="vs-operator-select vs-w-full">
-          <option v-for="op in availableOperators" :key="op" :value="op">
-            {{ capitalize(op) }}
-          </option>
-        </select>
-      </div>
-      <div v-else>
-        <span class="vs-operator-fixed">{{ localFilter.operator }}</span>
-      </div>
-
-      <div v-if="localFilter.operator === 'between'">
-        <div>
-          <input
-            type="number"
-            v-model.number="localFilter.min"
-            placeholder="Min"
-            class="vs-input vs-w-full mb-1"
-          />
-        </div>
-        <div class="vs-text-center vs-py-sm">----------- to -----------</div>
-        <div>
-          <input
-            type="number"
-            v-model.number="localFilter.max"
-            placeholder="Max"
-            class="vs-input vs-w-full"
-          />
-        </div>
-      </div>
+  <!-- Dropdown (teleported outside table for responsiveness) -->
+  <teleport to="body">
+    <transition name="fade">
+      <!-- Floating dropdown -->
       <div
-        v-else-if="
-          ['equals', 'notEqual', 'greaterThan', 'lessThan'].includes(localFilter.operator || '')
-        "
+        v-if="isOpen"
+        ref="floatingRef"
+        class="vs-filter-dropdown"
+        style="position: absolute; z-index: 1000"
+        @click.stop
       >
-        <input
-          type="number"
-          v-model.number="localFilter.value"
-          placeholder="Enter number"
-          class="vs-input vs-w-full"
-        />
-      </div>
-      <div v-else-if="['empty', 'notEmpty'].includes(localFilter.operator || '')">
-        <p class="text-xs text-gray-500">No input required</p>
-      </div>
-    </div>
+        <!-- Text filter -->
+        <div v-if="localFilter.type === 'text'" class="vs-filter-text">
+          <div v-if="availableOperators.length > 1" class="vs-pb-sm">
+            <select v-model="localFilter.operator" class="vs-operator-select vs-mx-auto vs-w-full">
+              <option v-for="op in availableOperators" :key="op" :value="op">
+                {{ formatOperator(op) }}
+              </option>
+            </select>
+          </div>
+          <VsDFlex direction="row" class="mb-6">
+            <input
+              type="text"
+              v-model="localFilter.value"
+              placeholder="Search..."
+              class="vs-input vs-mx-auto vs-w-full"
+          /></VsDFlex>
+        </div>
 
-    <!-- Date range filter -->
-    <div v-else-if="localFilter.type === 'date-range'" class="vs-filter-date">
-      <div>
-        <input type="date" v-model="localFilter.start" class="vs-input vs-w-full" />
-      </div>
-      <div class="vs-text-center vs-py-sm">----------- to -----------</div>
-      <div>
-        <input type="date" v-model="localFilter.end" class="vs-input vs-w-full" />
-      </div>
-    </div>
+        <!-- Multi-select filter -->
+        <div v-else-if="localFilter.type === 'multi-select'" class="vs-filter-multi">
+          <VsMultiSelect
+            :columnData="columnData"
+            v-model="localFilter.value"
+            placeholder="Select values..."
+          />
+        </div>
 
-    <!-- Footer actions -->
-    <div class="vs-filter-actions">
-      <button class="vs-btn vs-btn-primary" @click="applyFilter">Apply</button>
-      <button class="vs-btn vs-btn-secondary" @click="clearFilter">Clear</button>
-    </div>
+        <!-- Number filter -->
+        <div v-else-if="localFilter.type === 'number-range'" class="vs-filter-range">
+          <div v-if="availableOperators.length > 1" class="vs-pb-sm">
+            <select v-model="localFilter.operator" class="vs-operator-select vs-w-full">
+              <option v-for="op in availableOperators" :key="op" :value="op">
+                {{ formatOperator(op) }}
+              </option>
+            </select>
+          </div>
+          <div v-else>
+            <span class="vs-operator-fixed">{{ localFilter.operator }}</span>
+          </div>
 
-    <!-- Custom slot -->
-    <slot name="custom" :filter="localFilter" :apply="applyFilter" :clear="clearFilter" />
-  </div>
+          <!-- Between -->
+          <VsDFlex
+            v-if="localFilter.operator === 'between'"
+            justify="between"
+            align="center"
+            gap="4"
+            class="mb-6"
+          >
+            <input
+              type="number"
+              v-model.number="localFilter.min"
+              placeholder="Min"
+              class="vs-input vs-w-full"
+            />
+            <span>-</span>
+            <input
+              type="number"
+              v-model.number="localFilter.max"
+              placeholder="Max"
+              class="vs-input vs-w-full"
+            />
+          </VsDFlex>
+
+          <!-- Equals / Not Equal / GreaterThan / LessThan -->
+          <VsDFlex
+            v-else-if="
+              ['equals', 'notEqual', 'greaterThan', 'lessThan'].includes(localFilter.operator || '')
+            "
+            direction="row"
+          >
+            <input
+              type="number"
+              v-model.number="localFilter.value"
+              placeholder="Enter number"
+              class="vs-input vs-w-full"
+            />
+          </VsDFlex>
+
+          <!-- Empty / Not Empty -->
+          <div v-else-if="['empty', 'notEmpty'].includes(localFilter.operator || '')">
+            <div class="vs-muted vs-text-center vs-pt-sm">No input required</div>
+          </div>
+        </div>
+
+        <!-- Date range filter -->
+        <div v-else-if="localFilter.type === 'date-range'" class="vs-filter-date">
+          <div v-if="availableOperators.length > 1" class="vs-pb-sm">
+            <select v-model="localFilter.operator" class="vs-operator-select vs-w-full">
+              <option v-for="op in availableOperators" :key="op" :value="op">
+                {{ formatOperator(op) }}
+              </option>
+            </select>
+          </div>
+          <div v-else>
+            <span class="vs-operator-fixed">{{ localFilter.operator }}</span>
+          </div>
+
+          <!-- Between -->
+          <VsDFlex
+            v-if="localFilter.operator === 'between'"
+            justify="between"
+            align="center"
+            gap="4"
+            class="mb-6"
+          >
+            <input type="date" v-model="localFilter.start" class="vs-input vs-w-full" />
+            <span>-</span>
+            <input type="date" v-model="localFilter.end" class="vs-input vs-w-full" />
+          </VsDFlex>
+
+          <!-- Equals / Not Equal / Before / After -->
+          <VsDFlex
+            v-else-if="
+              ['equals', 'notEqual', 'before', 'after'].includes(localFilter.operator || '')
+            "
+            direction="row"
+            class="vs-filter-single-date"
+          >
+            <input type="date" v-model="localFilter.value" class="vs-input vs-w-full" />
+          </VsDFlex>
+
+          <!-- Empty / Not Empty -->
+          <div
+            v-else-if="['empty', 'notEmpty'].includes(localFilter.operator || '')"
+            class="vs-muted vs-text-center vs-pt-sm"
+          >
+            No date input required
+          </div>
+        </div>
+
+        <!-- Footer actions -->
+        <div class="vs-filter-actions">
+          <button class="vs-btn vs-btn-primary" @click="applyFilter">Apply</button>
+          <button class="vs-btn vs-btn-secondary" @click="clearFilter">Clear</button>
+        </div>
+
+        <!-- Custom slot -->
+        <slot name="custom" :filter="localFilter" :apply="applyFilter" :clear="clearFilter" />
+      </div>
+    </transition>
+  </teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick, computed, capitalize } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { computePosition, autoUpdate, flip, offset, shift } from '@floating-ui/dom'
 import { initFilter, hasValue } from '@/utils/filters'
 import type { ColumnFilter } from '@/types/datatable'
+import VsDFlex from '@/components/layout/VsDFlex.vue'
+import '@/styles/vs-layout.css'
+import VsMultiSelect from '@/components/ui/VsMultiSelect.vue'
 
 interface Props {
   modelValue?: ColumnFilter
@@ -140,7 +189,20 @@ interface Props {
   visible?: boolean
   operators?: string[]
   anchorEl?: HTMLElement
+  columnData: any[]
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  columnData: () => [],
+})
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', val: ColumnFilter): void
+  (e: 'apply', val: ColumnFilter): void
+  (e: 'clear'): void
+  (e: 'open'): void
+  (e: 'close'): void
+}>()
 
 // default operators per type
 const defaultOperators: Record<ColumnFilter['type'], string[]> = {
@@ -159,19 +221,34 @@ const defaultOperators: Record<ColumnFilter['type'], string[]> = {
   'date-range': ['between', 'equals', 'notEqual', 'before', 'after', 'empty', 'notEmpty'],
 }
 
+function formatOperator(op: string) {
+  switch (op) {
+    case 'notEqual':
+      return 'Not Equal'
+    case 'greaterThan':
+      return 'Greater Than'
+    case 'lessThan':
+      return 'Less Than'
+    case 'doesNotContains':
+      return 'Does Not Contain'
+    case 'doesNotEqual':
+      return 'Does Not Equal'
+    case 'startsWith':
+      return 'Starts With'
+    case 'endsWith':
+      return 'Ends With'
+    case 'notEmpty':
+      return 'Not Empty'
+    default:
+      return op.charAt(0).toUpperCase() + op.slice(1)
+  }
+}
+
 // pick operators
 const availableOperators = computed(() => {
+  console.log(props.operators?.length)
   return props.operators?.length ? props.operators : defaultOperators[props.type]
 })
-
-const props = defineProps<Props>()
-const emit = defineEmits<{
-  (e: 'update:modelValue', val: ColumnFilter): void
-  (e: 'apply', val: ColumnFilter): void
-  (e: 'clear'): void
-  (e: 'open'): void
-  (e: 'close'): void
-}>()
 
 // refs for floating-ui
 const referenceRef = ref<HTMLElement | null>(null)
@@ -231,7 +308,12 @@ function startPositioning() {
       placement: 'bottom-start',
       middleware: [offset(6), flip(), shift({ padding: 8 })],
     }).then(({ x, y }) => {
-      Object.assign(floatingRef.value!.style, { left: `${x}px`, top: `${y}px` })
+      Object.assign(floatingRef.value!.style, {
+        left: `${x}px`,
+        top: `${y}px`,
+        position: 'absolute',
+        zIndex: 2000,
+      })
     })
   })
 }
@@ -242,15 +324,26 @@ function stopPositioning() {
 }
 
 // Watch open state
-watch(isOpen, async (open) => {
-  if (open) {
-    await nextTick()
-    startPositioning()
-  } else {
-    stopPositioning()
-    emit('close')
+watch(
+  () => props.visible,
+  async (val) => {
+    isOpen.value = !!val
+    if (isOpen.value) {
+      await nextTick()
+      startPositioning()
+    } else stopPositioning()
   }
-})
+)
+
+// watch(isOpen, async (open) => {
+//   if (open) {
+//     await nextTick()
+//     startPositioning()
+//   } else {
+//     stopPositioning()
+//     emit('close')
+//   }
+// })
 
 // Click outside & Escape
 function onClickOutside(e: MouseEvent) {
@@ -284,4 +377,13 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+/* .vs-filter-dropdown {
+  background: var(--vs-surface, #fff);
+  border: 1px solid var(--vs-border, #ddd);
+  border-radius: 6px;
+  padding: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  min-width: 200px;
+} */
+</style>
