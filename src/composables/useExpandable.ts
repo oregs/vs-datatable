@@ -38,10 +38,10 @@ export function useExpandable(
 
     if (isExpanded) {
       newExpanded = expandedRows.value.filter((id) => id !== rowId)
-      emit('collapse-row', { row, index, rowId } as CollapseEventPayload)
+      emit('collapseRow', { row, index, rowId } as CollapseEventPayload)
     } else {
       newExpanded = props.accordion ? [rowId] : [...expandedRows.value, rowId]
-      emit('expand-row', { row, index, rowId } as ExpandEventPayload)
+      emit('expandRow', { row, index, rowId } as ExpandEventPayload)
     }
 
     expandedRows.value = newExpanded
@@ -65,96 +65,3 @@ export function useExpandable(
     isRowLoading
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-// import { ref, watch } from "vue"
-
-// export interface ExpandableRowState<T> {
-//   isExpanded: boolean
-//   expandedData?: T
-// }
-
-// interface UseExpandableOptions<RowId, ExpandedType> {
-//   props: {
-//     modelValue?: RowId[] // external control for expanded rows
-//   }
-//   emit: (event: "update:modelValue" | "expand" | "collapse", payload: any) => void
-// }
-
-// export function useExpandable<RowId extends string | number, ExpandedType = unknown>(
-//   options: UseExpandableOptions<RowId, ExpandedType> & { accordion?: boolean }
-// ) {
-//   const { props, emit, accordion } = options
-//   const expandedRows = ref(new Map<RowId, ExpandableRowState<ExpandedType>>())
-
-//   function toggleRowExpansion(rowId: RowId, expandedData?: ExpandedType) {
-//     const current = expandedRows.value.get(rowId)
-
-//     if (current?.isExpanded) {
-//       expandedRows.value.delete(rowId)
-//       emit("collapse", rowId)
-//     } else {
-//       console.log('Accordion: ', accordion)
-//       if (accordion) {
-//         // collapse all before expanding
-//         expandedRows.value.clear()
-//       }
-//       expandedRows.value.set(rowId, { isExpanded: true, expandedData })
-//       emit("expand", { rowId, expandedData })
-//     }
-
-//     // emit("update:modelValue", Array.from(expandedRows.value.keys()))
-//   }
-
-//   function collapseRow(rowId: RowId) {
-//     if (expandedRows.value.has(rowId)) {
-//       expandedRows.value.delete(rowId)
-//       emit("collapse", rowId)
-//       emit("update:modelValue", Array.from(expandedRows.value.keys()))
-//     }
-//   }
-
-//   function collapseAll() {
-//     expandedRows.value.clear()
-//     emit("update:modelValue", [])
-//   }
-
-//   function isRowExpanded(rowId: RowId): boolean {
-//     return expandedRows.value.get(rowId)?.isExpanded ?? false
-//   }
-
-//   function getExpandedData(rowId: RowId): ExpandedType | undefined {
-//     return expandedRows.value.get(rowId)?.expandedData
-//   }
-
-//   // Sync when parent controls v-model
-//   watch(
-//     () => props.modelValue,
-//     (newVal) => {
-//       if (newVal) {
-//         expandedRows.value = new Map(newVal.map(id => [id, { isExpanded: true }]))
-//       } else {
-//         expandedRows.value.clear()
-//       }
-//     },
-//     { immediate: true }
-//   )
-
-//   return {
-//     expandedRows,
-//     toggleRowExpansion,
-//     collapseRow,
-//     collapseAll,
-//     isRowExpanded,
-//     getExpandedData,
-//   }
-// }

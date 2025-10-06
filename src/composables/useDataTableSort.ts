@@ -12,11 +12,11 @@ export function useDataTableSort<
   props: { sort?: Sort[]; serverOptions?: any; rows: any[], rowsPerPage: number },
   emit: T,
   page: Ref<number>,
-  rowsPerPage: Ref<number>,
-  searchQuery: Ref<string>,
-  payload: {
-    isRowExpanded: any
-  }
+  // rowsPerPage: Ref<number>,
+  // searchQuery: Ref<string>,
+  // payload: {
+  //   isRowExpanded: any
+  // }
 ) {
   const vsInitialPage = ref<number>(1)
   const localSort = ref<Sort[]>(props.sort ?? [])
@@ -34,30 +34,31 @@ export function useDataTableSort<
   const activeSort = computed(() => 
     props.serverOptions?.sort ?? localSort.value ?? []
   )
+  
   // processedRows
-  const processedRows = computed(() => {
-    let resultRows = props.rows
+  // const processedRows = computed(() => {
+  //   let resultRows = props.rows
   
-    // Only apply client-side operations if not in server mode
-    if (!props.serverOptions) {
-      // Apply search filter
-      if (searchQuery.value) {
-        resultRows = filterRowsByQuery(resultRows, searchQuery.value)
-      }
+  //   // Only apply client-side operations if not in server mode
+  //   if (!props.serverOptions) {
+  //     // Apply search filter
+  //     if (searchQuery.value) {
+  //       resultRows = filterRowsByQuery(resultRows, searchQuery.value)
+  //     }
   
-      // Apply sorting
-      if (activeSort.value.length) {
-        resultRows = sortArray(resultRows, activeSort.value)
-      }
-    }
+  //     // Apply sorting
+  //     if (activeSort.value.length) {
+  //       resultRows = sortArray(resultRows, activeSort.value)
+  //     }
+  //   }
   
-    resultRows.map(row => ({
-      ...row,
-      isExpanded: payload.isRowExpanded(row.id),
-    }))
+  //   resultRows.map(row => ({
+  //     ...row,
+  //     isExpanded: payload.isRowExpanded(row.id),
+  //   }))
 
-    return resultRows
-  })
+  //   return resultRows
+  // })
 
   // Sort helpers
   const isColumnSorted = (field: string): boolean => {
@@ -113,7 +114,7 @@ export function useDataTableSort<
     }
 
     page.value = vsInitialPage.value
-    emit('sort-changed', { sort })
+    emit('sortChanged', { sort })
   }
 
   const sortHelpers: SortHelpers = {
@@ -124,7 +125,7 @@ export function useDataTableSort<
   }
 
   return {
-    processedRows,
+    // processedRows,
     activeSort,
     sortHelpers
   }

@@ -14,7 +14,6 @@
   --vs-light: #f8f9fa;
   --vs-dark: #343a40;
   --vs-gray-800: #495057;
-  --vs-inactive: #cdcdcd;
 
   /* Table Colors */
   --vs-table-bg: #ffffff;
@@ -64,84 +63,139 @@
 }
 
 /* ===========================================
-   VsDataTable - Utility Classes
+   VsDataTable - Utility Classes (SCSS Generated)
    =========================================== */
 
-/* Spacing Utilities - Margin */
-.vs-m-xs { margin: var(--vs-spacing-xs) !important; }
-.vs-m-sm { margin: var(--vs-spacing-sm) !important; }
-.vs-m-md { margin: var(--vs-spacing-md) !important; }
-.vs-m-lg { margin: var(--vs-spacing-lg) !important; }
-.vs-m-xl { margin: var(--vs-spacing-xl) !important; }
+// Spacing scale map
+$spacing-scale: (
+  xs: var(--vs-spacing-xs),
+  sm: var(--vs-spacing-sm),
+  md: var(--vs-spacing-md),
+  lg: var(--vs-spacing-lg),
+  xl: var(--vs-spacing-xl)
+);
 
-.vs-mt-xs { margin-top: var(--vs-spacing-xs) !important; }
-.vs-mt-sm { margin-top: var(--vs-spacing-sm) !important; }
-.vs-mt-md { margin-top: var(--vs-spacing-md) !important; }
-.vs-mt-lg { margin-top: var(--vs-spacing-lg) !important; }
-.vs-mt-xl { margin-top: var(--vs-spacing-xl) !important; }
+// Legacy number mapping (for classes like vs-m-2)
+$legacy-spacing: (
+  2: var(--vs-spacing-sm),
+  5: var(--vs-spacing-lg)
+);
 
-.vs-mb-xs { margin-bottom: var(--vs-spacing-xs) !important; }
-.vs-mb-sm { margin-bottom: var(--vs-spacing-sm) !important; }
-.vs-mb-md { margin-bottom: var(--vs-spacing-md) !important; }
-.vs-mb-lg { margin-bottom: var(--vs-spacing-lg) !important; }
-.vs-mb-xl { margin-bottom: var(--vs-spacing-xl) !important; }
+// Color map
+$colors: (
+  primary: var(--vs-primary),
+  secondary: var(--vs-secondary),
+  success: var(--vs-success),
+  danger: var(--vs-danger),
+  warning: var(--vs-warning),
+  info: var(--vs-info),
+  light: var(--vs-light),
+  dark: var(--vs-dark)
+);
 
-.vs-ml-xs { margin-left: var(--vs-spacing-xs) !important; }
-.vs-ml-sm { margin-left: var(--vs-spacing-sm) !important; }
-.vs-ml-md { margin-left: var(--vs-spacing-md) !important; }
-.vs-ml-lg { margin-left: var(--vs-spacing-lg) !important; }
-.vs-ml-xl { margin-left: var(--vs-spacing-xl) !important; }
-
-.vs-mr-xs { margin-right: var(--vs-spacing-xs) !important; }
-.vs-mr-sm { margin-right: var(--vs-spacing-sm) !important; }
-.vs-mr-md { margin-right: var(--vs-spacing-md) !important; }
-.vs-mr-lg { margin-right: var(--vs-spacing-lg) !important; }
-.vs-mr-xl { margin-right: var(--vs-spacing-xl) !important; }
-
-/* Directional Margin Utilities */
-.vs-mx-xs { 
-  margin-left: var(--vs-spacing-xs) !important;
-  margin-right: var(--vs-spacing-xs) !important;
-}
-.vs-mx-sm { 
-  margin-left: var(--vs-spacing-sm) !important;
-  margin-right: var(--vs-spacing-sm) !important;
-}
-.vs-mx-md { 
-  margin-left: var(--vs-spacing-md) !important;
-  margin-right: var(--vs-spacing-md) !important;
-}
-.vs-mx-lg { 
-  margin-left: var(--vs-spacing-lg) !important;
-  margin-right: var(--vs-spacing-lg) !important;
-}
-.vs-mx-xl { 
-  margin-left: var(--vs-spacing-xl) !important;
-  margin-right: var(--vs-spacing-xl) !important;
-}
-
-.vs-my-xs { 
-  margin-top: var(--vs-spacing-xs) !important;
-  margin-bottom: var(--vs-spacing-xs) !important;
-}
-.vs-my-sm { 
-  margin-top: var(--vs-spacing-sm) !important;
-  margin-bottom: var(--vs-spacing-sm) !important;
-}
-.vs-my-md { 
-  margin-top: var(--vs-spacing-md) !important;
-  margin-bottom: var(--vs-spacing-md) !important;
-}
-.vs-my-lg { 
-  margin-top: var(--vs-spacing-lg) !important;
-  margin-bottom: var(--vs-spacing-lg) !important;
-}
-.vs-my-xl { 
-  margin-top: var(--vs-spacing-xl) !important;
-  margin-bottom: var(--vs-spacing-xl) !important;
+// Mixin to generate spacing utilities
+@mixin generate-spacing-utilities($property, $prefix, $directions: null) {
+  @if $directions {
+    @each $dir-key, $dir-property in $directions {
+      @each $size, $value in $spacing-scale {
+        @if $dir-key == 'x' {
+          .#{$prefix}#{$dir-key}-#{$size} {
+            #{$property}-left: $value !important;
+            #{$property}-right: $value !important;
+          }
+        } @else if $dir-key == 'y' {
+          .#{$prefix}#{$dir-key}-#{$size} {
+            #{$property}-top: $value !important;
+            #{$property}-bottom: $value !important;
+          }
+        } @else {
+          .#{$prefix}#{$dir-key}-#{$size} {
+            #{$dir-property}: $value !important;
+          }
+        }
+      }
+    }
+  } @else {
+    @each $size, $value in $spacing-scale {
+      .#{$prefix}-#{$size} {
+        #{$property}: $value !important;
+      }
+    }
+  }
 }
 
-/* Auto margin utilities */
+// Mixin to generate legacy spacing utilities
+@mixin generate-legacy-spacing($property, $prefix, $directions: null) {
+  @if $directions {
+    @each $dir-key, $dir-property in $directions {
+      @each $number, $value in $legacy-spacing {
+        .#{$prefix}#{$dir-key}-#{$number} {
+          #{$dir-property}: $value !important;
+        }
+      }
+    }
+  } @else {
+    @each $number, $value in $legacy-spacing {
+      .#{$prefix}-#{$number} {
+        #{$property}: $value !important;
+      }
+    }
+  }
+}
+
+// Mixin to generate color utilities
+@mixin generate-color-utilities($property, $prefix) {
+  @each $color, $value in $colors {
+    .#{$prefix}-#{$color} {
+      #{$property}: $value !important;
+    }
+  }
+}
+
+// Generate Margin Utilities
+@include generate-spacing-utilities(margin, 'vs-m');
+@include generate-spacing-utilities(margin, 'vs-m', (
+  't': margin-top,
+  'b': margin-bottom,
+  'l': margin-left,
+  'r': margin-right
+));
+
+// Generate Directional Margin Utilities
+@include generate-spacing-utilities(margin, 'vs-m', (
+  'x': (margin-left, margin-right),
+  'y': (margin-top, margin-bottom)
+));
+
+// Generate Padding Utilities
+@include generate-spacing-utilities(padding, 'vs-p');
+@include generate-spacing-utilities(padding, 'vs-p', (
+  't': padding-top,
+  'b': padding-bottom,
+  'l': padding-left,
+  'r': padding-right
+));
+
+// Generate Directional Padding Utilities
+@include generate-spacing-utilities(padding, 'vs-p', (
+  'x': (padding-left, padding-right),
+  'y': (padding-top, padding-bottom)
+));
+
+// Generate Legacy Spacing Utilities (as requested)
+@include generate-legacy-spacing(margin, 'vs-m');
+@include generate-legacy-spacing(margin, 'vs-m', (
+  'l': margin-left,
+  'b': margin-bottom
+));
+@include generate-legacy-spacing(margin, 'vs-m', (
+  'x': (margin-left, margin-right)
+));
+@include generate-legacy-spacing(padding, 'vs-p', (
+  '': padding
+));
+
+// Auto margin utilities
 .vs-mx-auto {
   margin-left: auto !important;
   margin-right: auto !important;
@@ -157,96 +211,20 @@
 .vs-mt-auto { margin-top: auto !important; }
 .vs-mb-auto { margin-bottom: auto !important; }
 
-/* Spacing Utilities - Padding */
-.vs-p-xs { padding: var(--vs-spacing-xs) !important; }
-.vs-p-sm { padding: var(--vs-spacing-sm) !important; }
-.vs-p-md { padding: var(--vs-spacing-md) !important; }
-.vs-p-lg { padding: var(--vs-spacing-lg) !important; }
-.vs-p-xl { padding: var(--vs-spacing-xl) !important; }
+// Typography Utilities
+$font-sizes: (
+  xs: var(--vs-font-size-sm),
+  sm: var(--vs-font-size-sm),
+  base: var(--vs-font-size),
+  lg: var(--vs-font-size-lg),
+  xl: var(--vs-font-size-lg)
+);
 
-.vs-pt-xs { padding-top: var(--vs-spacing-xs) !important; }
-.vs-pt-sm { padding-top: var(--vs-spacing-sm) !important; }
-.vs-pt-md { padding-top: var(--vs-spacing-md) !important; }
-.vs-pt-lg { padding-top: var(--vs-spacing-lg) !important; }
-.vs-pt-xl { padding-top: var(--vs-spacing-xl) !important; }
-
-.vs-pb-xs { padding-bottom: var(--vs-spacing-xs) !important; }
-.vs-pb-sm { padding-bottom: var(--vs-spacing-sm) !important; }
-.vs-pb-md { padding-bottom: var(--vs-spacing-md) !important; }
-.vs-pb-lg { padding-bottom: var(--vs-spacing-lg) !important; }
-.vs-pb-xl { padding-bottom: var(--vs-spacing-xl) !important; }
-
-.vs-pl-xs { padding-left: var(--vs-spacing-xs) !important; }
-.vs-pl-sm { padding-left: var(--vs-spacing-sm) !important; }
-.vs-pl-md { padding-left: var(--vs-spacing-md) !important; }
-.vs-pl-lg { padding-left: var(--vs-spacing-lg) !important; }
-.vs-pl-xl { padding-left: var(--vs-spacing-xl) !important; }
-
-.vs-pr-xs { padding-right: var(--vs-spacing-xs) !important; }
-.vs-pr-sm { padding-right: var(--vs-spacing-sm) !important; }
-.vs-pr-md { padding-right: var(--vs-spacing-md) !important; }
-.vs-pr-lg { padding-right: var(--vs-spacing-lg) !important; }
-.vs-pr-xl { padding-right: var(--vs-spacing-xl) !important; }
-
-/* Directional Padding Utilities */
-.vs-px-xs { 
-  padding-left: var(--vs-spacing-xs) !important;
-  padding-right: var(--vs-spacing-xs) !important;
+@each $size, $value in $font-sizes {
+  .vs-text-#{$size} {
+    font-size: $value !important;
+  }
 }
-.vs-px-sm { 
-  padding-left: var(--vs-spacing-sm) !important;
-  padding-right: var(--vs-spacing-sm) !important;
-}
-.vs-px-md { 
-  padding-left: var(--vs-spacing-md) !important;
-  padding-right: var(--vs-spacing-md) !important;
-}
-.vs-px-lg { 
-  padding-left: var(--vs-spacing-lg) !important;
-  padding-right: var(--vs-spacing-lg) !important;
-}
-.vs-px-xl { 
-  padding-left: var(--vs-spacing-xl) !important;
-  padding-right: var(--vs-spacing-xl) !important;
-}
-
-.vs-py-xs { 
-  padding-top: var(--vs-spacing-xs) !important;
-  padding-bottom: var(--vs-spacing-xs) !important;
-}
-.vs-py-sm { 
-  padding-top: var(--vs-spacing-sm) !important;
-  padding-bottom: var(--vs-spacing-sm) !important;
-}
-.vs-py-md { 
-  padding-top: var(--vs-spacing-md) !important;
-  padding-bottom: var(--vs-spacing-md) !important;
-}
-.vs-py-lg { 
-  padding-top: var(--vs-spacing-lg) !important;
-  padding-bottom: var(--vs-spacing-lg) !important;
-}
-.vs-py-xl { 
-  padding-top: var(--vs-spacing-xl) !important;
-  padding-bottom: var(--vs-spacing-xl) !important;
-}
-
-/* Legacy spacing classes (as requested) */
-.vs-m-2 { margin: var(--vs-spacing-sm) !important; }
-.vs-p-2 { padding: var(--vs-spacing-sm) !important; }
-.vs-ml-2 { margin-left: var(--vs-spacing-sm) !important; }
-.vs-mx-2 { 
-  margin-left: var(--vs-spacing-sm) !important;
-  margin-right: var(--vs-spacing-sm) !important;
-}
-.vs-mb-5 { margin-bottom: var(--vs-spacing-lg) !important; }
-
-/* Typography Utilities */
-.vs-text-xs { font-size: var(--vs-font-size-sm) !important; }
-.vs-text-sm { font-size: var(--vs-font-size-sm) !important; }
-.vs-text-base { font-size: var(--vs-font-size) !important; }
-.vs-text-lg { font-size: var(--vs-font-size-lg) !important; }
-.vs-text-xl { font-size: var(--vs-font-size-lg) !important; }
 
 .vs-font-normal { font-weight: var(--vs-font-weight-normal) !important; }
 .vs-font-bold { font-weight: var(--vs-font-weight-bold) !important; }
@@ -259,52 +237,52 @@
 .vs-lowercase { text-transform: lowercase !important; }
 .vs-capitalize { text-transform: capitalize !important; }
 
-/* Color Utilities */
-.vs-text-primary { color: var(--vs-primary) !important; }
-.vs-text-secondary { color: var(--vs-secondary) !important; }
-.vs-text-success { color: var(--vs-success) !important; }
-.vs-text-danger { color: var(--vs-danger) !important; }
-.vs-text-warning { color: var(--vs-warning) !important; }
-.vs-text-info { color: var(--vs-info) !important; }
-.vs-text-light { color: var(--vs-light) !important; }
-.vs-text-dark { color: var(--vs-dark) !important; }
+// Color Utilities
+@include generate-color-utilities(color, 'vs-text');
+@include generate-color-utilities(background-color, 'vs-bg');
 
-.vs-bg-primary { background-color: var(--vs-primary) !important; }
-.vs-bg-secondary { background-color: var(--vs-secondary) !important; }
-.vs-bg-success { background-color: var(--vs-success) !important; }
-.vs-bg-danger { background-color: var(--vs-danger) !important; }
-.vs-bg-warning { background-color: var(--vs-warning) !important; }
-.vs-bg-info { background-color: var(--vs-info) !important; }
-.vs-bg-light { background-color: var(--vs-light) !important; }
-.vs-bg-dark { background-color: var(--vs-dark) !important; }
+// Display Utilities
+$displays: none, inline, inline-block, block, flex, inline-flex, grid, table;
 
-/* Display Utilities */
-.vs-d-none { display: none !important; }
-.vs-d-inline { display: inline !important; }
-.vs-d-inline-block { display: inline-block !important; }
-.vs-d-block { display: block !important; }
-.vs-d-flex { display: flex !important; }
-.vs-d-inline-flex { display: inline-flex !important; }
-.vs-d-grid { display: grid !important; }
-.vs-d-table { display: table !important; }
+@each $display in $displays {
+  .vs-d-#{$display} {
+    display: #{$display} !important;
+  }
+}
 
-/* Flexbox Utilities */
+// Flexbox Utilities
 .vs-flex-row { flex-direction: row !important; }
 .vs-flex-row-reverse { flex-direction: row-reverse !important; }
 .vs-flex-column { flex-direction: column !important; }
 .vs-flex-column-reverse { flex-direction: column-reverse !important; }
 
-.vs-justify-start { justify-content: flex-start !important; }
-.vs-justify-end { justify-content: flex-end !important; }
-.vs-justify-center { justify-content: center !important; }
-.vs-justify-between { justify-content: space-between !important; }
-.vs-justify-around { justify-content: space-around !important; }
+$justify: (
+  start: flex-start,
+  end: flex-end,
+  center: center,
+  between: space-between,
+  around: space-around
+);
 
-.vs-align-start { align-items: flex-start !important; }
-.vs-align-end { align-items: flex-end !important; }
-.vs-align-center { align-items: center !important; }
-.vs-align-baseline { align-items: baseline !important; }
-.vs-align-stretch { align-items: stretch !important; }
+@each $key, $value in $justify {
+  .vs-justify-#{$key} {
+    justify-content: #{$value} !important;
+  }
+}
+
+$align: (
+  start: flex-start,
+  end: flex-end,
+  center: center,
+  baseline: baseline,
+  stretch: stretch
+);
+
+@each $key, $value in $align {
+  .vs-align-#{$key} {
+    align-items: #{$value} !important;
+  }
+}
 
 .vs-flex-wrap { flex-wrap: wrap !important; }
 .vs-flex-nowrap { flex-wrap: nowrap !important; }
@@ -314,12 +292,21 @@
 .vs-flex-auto { flex: 1 1 auto !important; }
 .vs-flex-none { flex: none !important; }
 
-/* Border Radius Utilities */
-.vs-rounded { border-radius: var(--vs-border-radius) !important; }
-.vs-rounded-sm { border-radius: var(--vs-border-radius-sm) !important; }
-.vs-rounded-lg { border-radius: var(--vs-border-radius-lg) !important; }
-.vs-rounded-full { border-radius: 50% !important; }
+// Border Radius Utilities
+$border-radius: (
+  sm: var(--vs-border-radius-sm),
+  rounded: var(--vs-border-radius),
+  lg: var(--vs-border-radius-lg),
+  full: 50%
+);
 
+@each $key, $value in $border-radius {
+  .vs-rounded-#{$key} {
+    border-radius: #{$value} !important;
+  }
+}
+
+// Directional border radius
 .vs-rounded-top { 
   border-top-left-radius: var(--vs-border-radius) !important;
   border-top-right-radius: var(--vs-border-radius) !important;
@@ -337,26 +324,39 @@
   border-bottom-right-radius: var(--vs-border-radius) !important;
 }
 
-/* Shadow Utilities */
-.vs-shadow-none { box-shadow: none !important; }
-.vs-shadow-sm { box-shadow: var(--vs-shadow-sm) !important; }
-.vs-shadow { box-shadow: var(--vs-shadow) !important; }
-.vs-shadow-lg { box-shadow: var(--vs-shadow-lg) !important; }
+// Shadow Utilities
+$shadows: (
+  none: none,
+  sm: var(--vs-shadow-sm),
+  shadow: var(--vs-shadow),
+  lg: var(--vs-shadow-lg)
+);
 
-/* Position Utilities */
-.vs-position-static { position: static !important; }
-.vs-position-relative { position: relative !important; }
-.vs-position-absolute { position: absolute !important; }
-.vs-position-fixed { position: fixed !important; }
-.vs-position-sticky { position: sticky !important; }
+@each $key, $value in $shadows {
+  .vs-shadow-#{$key} {
+    box-shadow: #{$value} !important;
+  }
+}
 
-/* Overflow Utilities */
-.vs-overflow-auto { overflow: auto !important; }
-.vs-overflow-hidden { overflow: hidden !important; }
-.vs-overflow-visible { overflow: visible !important; }
-.vs-overflow-scroll { overflow: scroll !important; }
+// Position Utilities
+$positions: static, relative, absolute, fixed, sticky;
 
-/* Width & Height Utilities */
+@each $position in $positions {
+  .vs-position-#{$position} {
+    position: #{$position} !important;
+  }
+}
+
+// Overflow Utilities
+$overflows: auto, hidden, visible, scroll;
+
+@each $overflow in $overflows {
+  .vs-overflow-#{$overflow} {
+    overflow: #{$overflow} !important;
+  }
+}
+
+// Width & Height Utilities
 .vs-w-auto { width: auto !important; }
 .vs-w-full { width: 100% !important; }
 .vs-w-screen { width: 100vw !important; }
@@ -369,32 +369,60 @@
 .vs-h-50 { height: 50% !important; }
 .vs-h-100 { height: 100% !important; }
 
-/* Visibility Utilities */
+// Visibility Utilities
 .vs-visible { visibility: visible !important; }
 .vs-invisible { visibility: hidden !important; }
 
-/* Cursor Utilities */
-.vs-cursor-auto { cursor: auto !important; }
-.vs-cursor-pointer { cursor: pointer !important; }
-.vs-cursor-default { cursor: default !important; }
-.vs-cursor-not-allowed { cursor: not-allowed !important; }
+// Cursor Utilities
+$cursors: auto, pointer, default, not-allowed;
 
-/* Border Utilities */
+@each $cursor in $cursors {
+  .vs-cursor-#{$cursor} {
+    cursor: #{$cursor} !important;
+  }
+}
+
+// Border Utilities
 .vs-border { border: 1px solid var(--vs-table-border) !important; }
 .vs-border-top { border-top: 1px solid var(--vs-table-border) !important; }
 .vs-border-bottom { border-bottom: 1px solid var(--vs-table-border) !important; }
 .vs-border-left { border-left: 1px solid var(--vs-table-border) !important; }
 .vs-border-right { border-right: 1px solid var(--vs-table-border) !important; }
 
-/* Z-index Utilities */
-.vs-z-dropdown { z-index: var(--vs-z-dropdown) !important; }
-.vs-z-sticky { z-index: var(--vs-z-sticky) !important; }
-.vs-z-fixed { z-index: var(--vs-z-fixed) !important; }
-.vs-z-modal { z-index: var(--vs-z-modal) !important; }
-.vs-z-popover { z-index: var(--vs-z-popover) !important; }
-.vs-z-tooltip { z-index: var(--vs-z-tooltip) !important; }
+// Z-index Utilities
+$z-indices: (
+  dropdown: var(--vs-z-dropdown),
+  sticky: var(--vs-z-sticky),
+  fixed: var(--vs-z-fixed),
+  modal: var(--vs-z-modal),
+  popover: var(--vs-z-popover),
+  tooltip: var(--vs-z-tooltip)
+);
 
-/* Transition Utilities */
+@each $key, $value in $z-indices {
+  .vs-z-#{$key} {
+    z-index: #{$value} !important;
+  }
+}
+
+// inline-block-level 
+.vs-d-inline {
+  display: inline !important;
+}
+
+.vs-d-block {
+  display: block !important;
+}
+
+.vs-d-inline-block {
+  display: inline-block !important;
+}
+
+.vs-d-flex {
+  display: flex !important;
+}
+
+// Transition Utilities
 .vs-transition { transition: var(--vs-transition) !important; }
 .vs-transition-fast { transition: var(--vs-transition-fast) !important; }
 .vs-transition-none { transition: none !important; }
@@ -515,7 +543,7 @@
     }
 
     .vs-sort-icon svg {
-      fill: var(--vs-inactive); // default color
+      fill: #e3e3e3; // default color
     }
 
     .vs-sort-icon.vs-active svg {
@@ -878,8 +906,7 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
-.vs-input, 
-.vs-multiselect-search {
+.vs-input {
   padding: 0.35rem 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -890,75 +917,6 @@
   border-radius: 4px;
   gap: 0.55rem;
 }
-
-/* VS Multi-Select */
-.vs-multiselect {
-  width: 100%;
-}
-
-.vs-multiselect-actions {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem;
-  border-bottom: 1px solid #eee;
-  background: #fafafa;
-}
-
-.vs-multiselect-actions button {
-  font-size: 0.85rem;
-  background: transparent;
-  border: none;
-  color: #2d6cdf;
-  cursor: pointer;
-}
-
-.vs-multiselect-search {
-  width: var(vs-w-full);
-  padding: var(--vs-spacing-sm);
-  border-bottom: 1px solid #eee;
-  outline: none;
-}
-
-.vs-multiselect-options {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 220px;
-  overflow-y: auto;
-}
-
-.vs-multiselect-options li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.vs-multiselect-options li:hover {
-  background: #f9f9f9;
-}
-
-.vs-multiselect-options li.selected {
-  background: #f0f6ff;
-  color: #2d6cdf;
-}
-
-.option-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.check-icon {
-  width: 18px;
-  height: 18px;
-  stroke-width: 2.5;
-}
-
-/* VS Button */
 .vs-btn {
   padding: 0.35rem 0.75rem;
   border-radius: 4px;
@@ -991,10 +949,7 @@
 }
 .vs-column-filter.is-active {
   background-color: rgba(41, 128, 185, 0.06);
-  color: var(--vs-text-primary, #2d6cdf);
-}
-.vs-column-filter.in-active {
-  color: var(--vs-inactive);
+  color: var(--vs-primary, #2d6cdf);
 }
 .vs-header-content {
   display: flex;

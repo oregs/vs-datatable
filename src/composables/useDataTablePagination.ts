@@ -51,7 +51,7 @@ export function useDataTablePagination<
     if (props.serverOptions) {
       emit('update:serverOptions', { ...props.serverOptions, page: newPage })
     }
-    emit('page-updated', newPage)
+    emit('pageUpdated', newPage)
   }
 
   const paginationHelpers: PaginationHelpers = {

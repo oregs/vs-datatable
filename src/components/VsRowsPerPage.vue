@@ -23,7 +23,7 @@
   
   const emit = defineEmits<{
     (e: 'update:modelValue', value: number): void
-    (e: 'rows-per-page-changed', value: number): void
+    (e: 'rowsPerPageChanged', value: number): void
   }>()
   
   // Default options if not passed in
@@ -32,7 +32,7 @@
   const onChange = (event: Event) => {
     const value = Number((event.target as HTMLSelectElement).value)
     emit('update:modelValue', value)
-    emit('rows-per-page-changed', value)
+    emit('rowsPerPageChanged', value)
   }
   </script>
   

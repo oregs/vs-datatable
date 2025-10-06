@@ -13,17 +13,17 @@ export function useDataTableSearch<
 ) {
   const onInputTyped = (value: string) => {
     searchQuery.value = value
-    emit('input-typed', value)
+    emit('inputTyped', value)
   }
 
   const clearSearch = () => {
     searchQuery.value = ''
-    emit('input-typed', '')
+    emit('inputTyped', '')
   }
 
   const setSearchQuery = (query: string) => {
     searchQuery.value = query
-    emit('input-typed', query)
+    emit('inputTyped', query)
   }
 
   const searchHelpers: SearchHelpers = {

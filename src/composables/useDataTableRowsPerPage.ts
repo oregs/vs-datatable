@@ -39,7 +39,7 @@ export function useDataTableRowsPerPage<
   // Explicit handler (same logic, plus fire extra event)
   const handleRowsPerPage = (newValue: number) => {
     rowsPerPage.value = newValue
-    emit('rows-per-page-changed', newValue)
+    emit('rowsPerPageChanged', newValue)
   }
 
   return {

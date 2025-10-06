@@ -25,15 +25,8 @@
           <thead>
             <tr>
               <!-- Expandable column header -->
-              <th v-if="expandable" class="vs-expand-column" style="width: 5%">
-                <!-- <button
-                  v-if="accordion"
-                  @click="$emit('update:expanded', [])"
-                  class="vs-expand-collapse-all"
-                >
-                  −
-                </button> -->
-              </th>
+              <th v-if="expandable" class="vs-expand-column" style="width: 5%"></th>
+
               <!-- Checkbox Column -->
               <th v-if="isItemSelectedControlled" class="vs-checkbox-column" style="width: 5%">
                 <div class="vs-checkbox">
@@ -75,6 +68,7 @@
                           height="24px"
                           viewBox="0 -960 960 960"
                           width="24px"
+                          fill="var(--vs-gray-800)"
                         >
                           <path d="m280-400 200-200 200 200H280Z" />
                         </svg>
@@ -106,6 +100,32 @@
                     >
                       {{ sortHelpers.getSortPriority(column.field) }}
                     </span>
+
+                    <!-- Column Filter -->
+                    <VsDataTableFilterDropdown
+                      v-if="column.filter"
+                      :type="column.filter.type"
+                      :async-options="column.filter.asyncOptions"
+                      :field="column.field"
+                      :operators="column.filter.operators"
+                      v-model="filters[column.field]"
+                      :visible="openFilter === column.field"
+                      :anchor-el="anchorEl"
+                      :column-data="rows.map((r: Record<string, any>) => r[column.field])"
+                      @apply="val => { setFilter(column.field, val); page = 1 }"
+                      @clear="() => { clearFilter(column.field); page = 1 }"
+                      @close="handleCloseFilter(column.field)"
+                      @open="handleOpenFilter(column.field)"
+                    >
+                    <template v-if="column.filter.custom" #custom="{ filter, apply, clear }">
+                      <slot :name="column.filter.custom" :filter="filter" :apply="apply" :clear="clear" />
+                    </template>
+
+                      <!-- <template #custom="{ filter, apply, clear }">
+                        <slot :name="`filter-${column.field}`" :filter="filter" :apply="apply" :clear="clear" />
+                      </template> -->
+                    </VsDataTableFilterDropdown>
+
                   </div>
                 </slot>
               </th>
@@ -146,7 +166,7 @@
                   { 'vs-row-clickable': hasRowClick },
                   { 'vs-row-selected': isRowSelected(item, selectedItems, rowKey) },
                 ]"
-                @click="$emit('row-click', item, index)"
+                @click="$emit('rowClick', item, index)"
               >
                 <!-- Expand toggle cell -->
                 <td v-if="expandable" class="vs-expand-column" @click.stop>
@@ -164,7 +184,7 @@
                         height="24px"
                         viewBox="0 -960 960 960"
                         width="24px"
-                        fill="#495057"
+                        fill="var(--vs-gray-800)"
                       >
                         <path d="M480-345 240-585l56-56 184 183 184-183 56 56-240 240Z" />
                       </svg>
@@ -175,7 +195,7 @@
                         height="24px"
                         viewBox="0 -960 960 960"
                         width="24px"
-                        fill="#495057"
+                        fill="var(--vs-gray-800)"
                       >
                         <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z" />
                       </svg>
@@ -214,7 +234,12 @@
                 <tr v-if="isRowExpanded(item, index)" class="vs-row-expanded">
                   <td :colspan="totalColumns" class="vs-expanded-cell">
                     <!-- Loader (sticks to top) -->
-                    <slot v-if="isRowLoading(item, index)"  name="row-expanded-loader" :item="item" :index="index">
+                    <slot
+                      v-if="isRowLoading(item, index)"
+                      name="row-expanded-loader"
+                      :item="item"
+                      :index="index"
+                    >
                       <div class="vs-loader-bar">
                         <div class="vs-loader-bar-inner"></div>
                       </div>
@@ -263,6 +288,7 @@
 
 <script setup lang="ts">
 import {
+  ref,
   computed,
   defineProps,
   defineEmits,
@@ -275,6 +301,7 @@ import {
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
 import VsRowsPerPage from './VsRowsPerPage.vue'
+import VsDataTableFilterDropdown from '@/components/VsDataTableFilterDropdown.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
@@ -327,6 +354,9 @@ const {
   toggleRowExpansion,
   setRowLoading,
   isRowLoading,
+  filters,
+  setFilter,
+  clearFilter,
 } = useDataTable(props, emit)
 
 const {
@@ -343,6 +373,19 @@ const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
 
+// Filter Column
+const anchorEl = ref<HTMLElement | null>(null);
+const openFilter = ref<string | null>(null);
+
+function handleOpenFilter(field: string) {
+  openFilter.value = field // auto closes other filters
+}
+
+function handleCloseFilter(field: string) {
+  // Only close if the current open filter matches
+  if (openFilter.value === field) openFilter.value = null
+}
+
 // Expose
 defineExpose({
   toggleRowExpansion,
@@ -351,20 +394,20 @@ defineExpose({
 
 // Lifecycle hooks
 onMounted(() => {
-  emit('table:mounted')
+  emit('tableMounted')
   try {
-    emit('data-loaded', props.rows)
+    emit('dataLoaded', props.rows)
   } catch (err) {
-    emit('data-error', err)
+    emit('dataError', err)
   }
 })
 
 onUnmounted(() => {
-  emit('table:unmounted')
+  emit('tableUnmounted')
 })
 
 onBeforeMount(() => {
-  emit('table:before-mount')
+  emit('tableBeforeMount')
 })
 </script>
 
@@ -413,6 +456,7 @@ onBeforeMount(() => {
 }
 
 .vs-search-container {
-  margin-bottom: var(--vs-spacing-md);
+  margin-bottom: var(--vs-spacing-sm);
 }
+
 </style>

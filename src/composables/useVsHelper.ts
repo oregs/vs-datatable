@@ -15,3 +15,10 @@ export const truncateText = (text: string, maxLength: number = 50): string => {
 export const getNestedValue = (obj: any, path: string): any => {
   return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? '';
 };
+
+export const capitalizeFirstLetter = (word: string) =>  {
+  if (typeof word !== 'string' || word.length === 0) {
+    return word;
+  }
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}

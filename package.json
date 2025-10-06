@@ -69,5 +69,8 @@
     "vite-plugin-lib-inject-css": "^2.2.2",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.4"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.4"
   }
 }
