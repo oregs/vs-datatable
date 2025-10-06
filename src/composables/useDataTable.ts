@@ -20,7 +20,13 @@ export function useDataTable<T>(props: any, emit: any) {
   // --- Column filters
   const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(
     ref(props.rows as Record<string, any>[]),
-    props.columns
+    props.columns,
+    {
+      serverMode: !!props.serverOptions,
+      onServerFilter(activeFilters) {
+        emit('filterChange', activeFilters)
+      },
+    }
   )
 
   // --- Sort
@@ -67,7 +73,7 @@ export function useDataTable<T>(props: any, emit: any) {
       }
     }
   
-    return resultRows.map((row, index) => ({
+    resultRows = resultRows.map((row, index) => ({
       ...row,
       isExpanded: isRowExpanded(row, index), // pass index here
     }))

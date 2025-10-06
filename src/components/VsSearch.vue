@@ -31,12 +31,12 @@ const props = defineProps<{
   placeholder?: string
 }>()
 
-const emit = defineEmits(['update:modelValue', 'input-typed'])
+const emit = defineEmits(['update:modelValue', 'inputTyped'])
 
 const onInput = (event: Event) => {
   const input = event.target as HTMLInputElement
   emit('update:modelValue', input.value)
-  emit('input-typed', input.value)
+  emit('inputTyped', input.value)
 }
 </script>
 

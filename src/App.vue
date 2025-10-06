@@ -153,7 +153,7 @@ function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
       console.log("Row details:", data)
     })
     .finally(() => {
-      // tableRef.value?.setRowLoading(rowId, false)
+      tableRef.value?.setRowLoading(rowId, false)
     })
 }
 

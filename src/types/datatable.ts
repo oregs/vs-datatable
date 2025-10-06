@@ -17,6 +17,7 @@ export interface Column<T = any> {
     filterFn?: (cellValue: any, filterValue: any, row: Record<string, any>) => boolean
     filterKey?: string
     custom?: string
+    // options?: string[]
     // operators?: FilterOperator[]
   }
 }
@@ -54,12 +55,16 @@ export interface CollapseEventPayload<Row = any> {
 // Column Filter Types
 export type FilterType = 'text' | 'multi-select' | 'number-range' | 'date-range' | 'custom'
 
+export interface BaseFilter {
+  type: FilterType
+}
+
 export interface FilterOperator {
   value: string
   label: string
 }
 
-export interface TextFilter {
+export interface TextFilter extends BaseFilter {
   type: 'text'
   value?: string
   operator?:
@@ -73,12 +78,12 @@ export interface TextFilter {
     | 'notEmpty'
 }
 
-export interface MultiSelectFilter {
+export interface MultiSelectFilter extends BaseFilter {
   type: 'multi-select'
   value?: string[]
 }
 
-export interface NumberRangeFilter {
+export interface NumberRangeFilter extends BaseFilter {
   type: 'number-range'
   operator?: 'equals' | 'notEqual' | 'greaterThan' | 'lessThan' | 'between' | 'empty' | 'notEmpty'
   value?: number | null
@@ -86,7 +91,7 @@ export interface NumberRangeFilter {
   max?: number | null
 }
 
-export interface DateRangeFilter {
+export interface DateRangeFilter extends BaseFilter {
   type: 'date-range'
   operator?: 'between' | 'equals' | 'notEqual' | 'before' | 'after' | 'empty' | 'notEmpty'
   value?: string | null
@@ -94,7 +99,7 @@ export interface DateRangeFilter {
   end?: string | null
 }
 
-export interface CustomFilter {
+export interface CustomFilter extends BaseFilter {
   type: 'custom'
   value?: any
   filterKey?: keyof typeof filterFns
@@ -145,25 +150,43 @@ export interface DataTableProps {
 }
 
 export interface DataTableEmits {
-  (event: 'update:itemSelected', value: any[]): void
+  // Pagination & server
   (event: 'update:serverItemsLength', value: number | undefined): void
   (event: 'update:serverOptions', value: ServerOptions): void
+  (event: 'pageUpdated', value: number): void
+  
+  // Search / typing
+  (event: 'inputTyped', value: string): void
+  
+  // Sorting
   (event: 'update:sort', value: Sort[]): void
-  (event: 'input-typed', value: string): void
-  (event: 'page-updated', value: number): void
-  (event: 'sort-changed', payload: { sort: Sort[] }): void
-  (event: 'row-click', row: any, index: number): void
-  (event: 'row-selected', row: any, index: number): void
-  (event: 'row-deselected', row: any, index: number): void
-  (event: 'all-rows-selected', rows: any[]): void
-  (event: 'table:mounted'): void
-  (event: 'table:unmounted'): void
-  (event: 'table:before-mount'): void
-  (event: 'data-loaded', data: any[]): void
-  (event: 'data-error', error: any): void
+  (event: 'sortChanged', payload: { sort: Sort[] }): void
+  
+  // Selection
+  (event: 'update:itemSelected', value: any[]): void
+  (event: 'rowSelected', row: any, index: number): void
+  (event: 'rowDeselected', row: any, index: number): void
+  (event: 'allRowsSelected', rows: any[]): void
+  
+   // Row interaction
+  (event: 'rowClick', row: any, index: number): void
+
+  // Table lifecycle
+  (event: 'tableBeforeMount'): void
+  (event: 'tableMounted'): void
+  (event: 'tableUnmounted'): void
+
+  // Data lifecycle
+  (event: 'dataLoaded', data: any[]): void
+  (event: 'dataError', error: any): void
+
+  // Expansion
   (event: 'update:expanded', value: (string | number)[]): void
-  (event: 'expand-row', payload: ExpandEventPayload): void
-  (event: 'collapse-row', payload: CollapseEventPayload): void
+  (event: 'expandRow', payload: ExpandEventPayload): void
+  (event: 'collapseRow', payload: CollapseEventPayload): void
+
+  // Filtering
+  (event: 'filterChange', payload: Record<string, ColumnFilter>): void
 }
 
 export interface RecordRange {

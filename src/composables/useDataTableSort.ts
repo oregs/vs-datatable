@@ -114,7 +114,7 @@ export function useDataTableSort<
     }
 
     page.value = vsInitialPage.value
-    emit('sort-changed', { sort })
+    emit('sortChanged', { sort })
   }
 
   const sortHelpers: SortHelpers = {

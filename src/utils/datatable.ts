@@ -3,6 +3,7 @@
  */
 
 import type { Column, Sort } from '@/types/datatable'
+import type { ColumnFilter } from '@/types/datatable'
 
 /**
  * Get nested value from object using dot notation
@@ -229,4 +230,36 @@ export function filterRowsByQuery<T extends Record<string, any>>(
       String(value ?? "").toLowerCase().includes(lowerQuery)
     );
   });
+}
+
+/**
+ * Convert active column filters into a flat object
+ * useful for server API params, like:
+ *   { status_type: 'select', status_val: 'Pending' }
+ */
+export function serializeFilters(filters: Record<string, ColumnFilter>) {
+  const params: Record<string, any> = {}
+
+  for (const [field, f] of Object.entries(filters)) {
+    if (!f) continue
+
+    // Base info
+    params[`${field}_type`] = f.type ?? ''
+    if ('operator' in f && f.operator) params[`${field}_op`] = f.operator
+
+    // Values
+    if (Array.isArray(f.value)) {
+      params[`${field}_val[]`] = f.value
+    } else if (f.value !== undefined && f.value !== null && f.value !== '') {
+      params[`${field}_val`] = f.value
+    }
+
+    // Range / date range support
+    if ('min' in f && f.min != null) params[`${field}_min`] = f.min
+    if ('max' in f && f.max != null) params[`${field}_max`] = f.max
+    if ('start' in f && f.start) params[`${field}_start`] = f.start
+    if ('end' in f && f.end) params[`${field}_end`] = f.end
+  }
+
+  return params
 }

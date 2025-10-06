@@ -69,23 +69,23 @@ export function useDataTableSelection<
       selectedItems.value = selectedItems.value.filter((r, i) => 
         getRowKey(r, i, props.rowKey) !== rowKey
       )
-      emit('row-deselected', row, index)
+      emit('rowDeselected', row, index)
     } else {
       selectedItems.value = [...selectedItems.value, row]
-      emit('row-selected', row, index)
+      emit('rowSelected', row, index)
     }
   }
 
   const toggleAll = (event: Event) => {
     const target = event.target as HTMLInputElement
     selectedItems.value = target.checked ? [...props.rows] : []
-    emit('all-rows-selected', selectedItems.value)
+    emit('allRowsSelected', selectedItems.value)
   }
 
   const selectRow = (row: any, index: number) => {
     if (!isRowSelected(row, selectedItems.value, props.rowKey)) {
       selectedItems.value = [...selectedItems.value, row]
-      emit('row-selected', row, index)
+      emit('rowSelected', row, index)
     }
   }
 
@@ -94,17 +94,17 @@ export function useDataTableSelection<
     selectedItems.value = selectedItems.value.filter((r, i) => 
       getRowKey(r, i, props.rowKey) !== rowKey
     )
-    emit('row-deselected', row, index)
+    emit('rowDeselected', row, index)
   }
 
   const selectAll = () => {
     selectedItems.value = [...props.rows]
-    emit('all-rows-selected', selectedItems.value)
+    emit('allRowsSelected', selectedItems.value)
   }
 
   const deselectAll = () => {
     selectedItems.value = []
-    emit('all-rows-selected', [])
+    emit('allRowsSelected', [])
   }
 
   const clearSelection = () => {

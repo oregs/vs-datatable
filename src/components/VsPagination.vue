@@ -70,7 +70,7 @@
   }
   
   const props = defineProps<Props>();
-  const emit = defineEmits(['update:modelValue', 'page-changed']);
+  const emit = defineEmits(['update:modelValue', 'pageChanged']);
   
   const maxVisible = props.maxVisible ?? 3;
   
@@ -78,7 +78,7 @@
     get: () => props.modelValue,
     set: (value: number) => {
         emit('update:modelValue', value)
-        emit('page-changed', value);
+        emit('pageChanged', value);
     }
   });
   

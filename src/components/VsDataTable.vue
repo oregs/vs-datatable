@@ -166,7 +166,7 @@
                   { 'vs-row-clickable': hasRowClick },
                   { 'vs-row-selected': isRowSelected(item, selectedItems, rowKey) },
                 ]"
-                @click="$emit('row-click', item, index)"
+                @click="$emit('rowClick', item, index)"
               >
                 <!-- Expand toggle cell -->
                 <td v-if="expandable" class="vs-expand-column" @click.stop>
@@ -394,20 +394,20 @@ defineExpose({
 
 // Lifecycle hooks
 onMounted(() => {
-  emit('table:mounted')
+  emit('tableMounted')
   try {
-    emit('data-loaded', props.rows)
+    emit('dataLoaded', props.rows)
   } catch (err) {
-    emit('data-error', err)
+    emit('dataError', err)
   }
 })
 
 onUnmounted(() => {
-  emit('table:unmounted')
+  emit('tableUnmounted')
 })
 
 onBeforeMount(() => {
-  emit('table:before-mount')
+  emit('tableBeforeMount')
 })
 </script>
 

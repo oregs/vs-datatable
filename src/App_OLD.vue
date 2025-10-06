@@ -58,6 +58,7 @@
         @row-click="handleSercerRowClick"
         @rows-per-page-changed="handleServerRowsPerPage"
         @input-typed="handleServerInputTyped"
+        @filter-change="onServerFilterChange"
       />
     </section>
   </div>
@@ -67,7 +68,7 @@
 import { ref } from 'vue'
 // import VsDataTable from './index'
 import { VsDataTable } from './index'
-import type { ExpandEventPayload, CollapseEventPayload } from './index' 
+import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './index' 
 
 /**
  * ----------------------------------------------------------------
@@ -184,5 +185,14 @@ const handleServerRowsPerPage = (rowsPerPage: number) => {
 
 const handleServerInputTyped = (value: string) => {
   console.log(value)
+}
+
+async function onServerFilterChange(activeFilters: Record<string, ColumnFilter>) {
+  console.log('Server filters:', activeFilters)
+
+  // axios.get('/api/orders', { params: serializeFilters(activeFilters) })
+
+  // const response = await axios.get('/orders', { params: { filters: activeFilters } })
+  // rows.value = response.data
 }
 </script>
