@@ -3,7 +3,7 @@
     <h1>VsDataTable - Library Independent Design</h1>
 
     <!-- Basic Usage -->
-    <section>
+    <section class="vs-pb-xl">
       <!-- VSBody -->
       <VsDataTable
         ref="tableRef"
@@ -61,8 +61,8 @@
       <!-- END VSBody -->
     </section>
 
-        <!-- Server-side Pagination -->
-        <section>
+    <!-- Server-side Pagination -->
+    <section>
       <h2>Server-side Pagination</h2>
       <VsDataTable
         :columns="columns"
@@ -103,10 +103,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-// import VsDataTable from './index'
 import { VsDataTable } from './index'
 import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './index' 
-import DemoLayout from '@/views/DemoLayout.vue'
+// import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
 import { fetchPaymentMethods } from './api/mock/paymentMethods'
 

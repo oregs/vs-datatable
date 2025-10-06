@@ -14,6 +14,7 @@
   --vs-light: #f8f9fa;
   --vs-dark: #343a40;
   --vs-gray-800: #495057;
+  --vs-inactive: #cdcdcd;
 
   /* Table Colors */
   --vs-table-bg: #ffffff;
@@ -514,7 +515,7 @@
     }
 
     .vs-sort-icon svg {
-      fill: #e3e3e3; // default color
+      fill: var(--vs-inactive); // default color
     }
 
     .vs-sort-icon.vs-active svg {
@@ -990,7 +991,10 @@
 }
 .vs-column-filter.is-active {
   background-color: rgba(41, 128, 185, 0.06);
-  color: var(--vs-primary, #2d6cdf);
+  color: var(--vs-text-primary, #2d6cdf);
+}
+.vs-column-filter.in-active {
+  color: var(--vs-inactive);
 }
 .vs-header-content {
   display: flex;
