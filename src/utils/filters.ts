@@ -18,6 +18,12 @@ export function initFilter(
   type: ColumnFilter['type'],
   existing?: ColumnFilter
 ): ColumnFilter {
+  const base = {
+    type,
+    operator: existing?.operator,
+    value: existing?.value ?? null,
+  }
+
   switch (type) {
     case 'text': {
       const defaults: TextFilter = { type, value: '', operator: 'contains' }
@@ -25,7 +31,7 @@ export function initFilter(
     }
 
     case 'multi-select': {
-      const defaults: MultiSelectFilter = { type, value: [] }
+      const defaults: MultiSelectFilter = { type, value: [], operator: 'in' }
       return existing?.type === 'multi-select' ? { ...defaults, ...existing } : defaults
     }
 
@@ -40,7 +46,7 @@ export function initFilter(
     }
 
     case 'custom':
-      const defaults: CustomFilter = { type, value: null, custom: '', filterFn: undefined }
+      const defaults: CustomFilter = { type, value: null, operator: base.operator ?? 'equals', custom: '', filterFn: undefined }
       if (existing?.type === 'custom') {
         return { ...defaults, ...existing }
       }

@@ -61,6 +61,41 @@
       <!-- END VSBody -->
     </section>
 
+        <!-- Server-side Pagination -->
+        <section>
+      <h2>Server-side Pagination</h2>
+      <VsDataTable
+        :columns="columns"
+        :rows="rows"
+        :server-options="serverOptions"
+        :server-items-length="serverItemsLength"
+        :loading="loading"
+        @update:server-options="handleServerOptionsChange"
+        @sort-changed="handleServerSortChange"
+        @row-click="handleSercerRowClick"
+        @rows-per-page-changed="handleServerRowsPerPage"
+        @input-typed="handleServerInputTyped"
+        @filter-change="onServerFilterChange"
+      >
+        <!-- ✅ Custom filter slot for "Status" -->
+        <template #StatusFilterSlot="{ filter, apply, clear }">
+          <div class="vs-custom-filter">
+            <label class="vs-label">Status</label>
+            <select v-model="filter.value" class="vs-input vs-w-full">
+              <option disabled value="">-- Select Status --</option>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <div class="vs-flex vs-gap-2 vs-pt-sm">
+              <button class="vs-btn vs-btn-primary" @click="apply()">Apply</button>
+              <button class="vs-btn vs-btn-secondary" @click="clear()">Clear</button>
+            </div>
+          </div>
+        </template>
+      </VsDataTable>
+    </section>
+
   </div>
 
   <!-- <DemoLayout /> -->
@@ -70,7 +105,7 @@
 import { ref, onMounted } from 'vue'
 // import VsDataTable from './index'
 import { VsDataTable } from './index'
-import type { ExpandEventPayload, CollapseEventPayload } from './index' 
+import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './index' 
 import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
 import { fetchPaymentMethods } from './api/mock/paymentMethods'
@@ -159,6 +194,50 @@ function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
 
 function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
   console.log("Collapsed row:", row, index, rowId)
+}
+
+
+/**
+ * -------------------
+ * SERVER OPTIONS
+ *--------------------
+ */
+ const serverItemsLength = ref(20)
+ const serverOptions = ref({
+  page: 1,
+  rowsPerPage: 25,
+  sort: []
+})
+
+const handleSercerRowClick = (row: any, index: number) => {
+  console.log('Row clicked:', row, index)
+}
+
+const handleServerOptionsChange = (options: any) => {
+  console.log('Server options changed:', options)
+  serverOptions.value = options
+}
+
+const handleServerSortChange = ({ sort }: { sort: any[] }) => {
+  console.log('Sort changed:', sort)
+}
+
+const handleServerRowsPerPage = (rowsPerPage: number) => {
+  serverOptions.value = {...serverOptions.value, rowsPerPage}
+  console.log('RowsPerPage: ', rowsPerPage, serverOptions.value)
+}
+
+const handleServerInputTyped = (value: string) => {
+  console.log(value)
+}
+
+async function onServerFilterChange(activeFilters: Record<string, ColumnFilter>) {
+  console.log('Server filters:', activeFilters)
+
+  // axios.get('/api/orders', { params: serializeFilters(activeFilters) })
+
+  // const response = await axios.get('/orders', { params: { filters: activeFilters } })
+  // rows.value = response.data
 }
 
 onMounted(() => {

@@ -80,6 +80,7 @@ export interface TextFilter extends BaseFilter {
 
 export interface MultiSelectFilter extends BaseFilter {
   type: 'multi-select'
+  operator?: 'in' | 'notIn'
   value?: string[]
 }
 
@@ -101,6 +102,7 @@ export interface DateRangeFilter extends BaseFilter {
 
 export interface CustomFilter extends BaseFilter {
   type: 'custom'
+  operator?: string
   value?: any
   filterKey?: keyof typeof filterFns
   filterFn?: (cellValue: any, filterValue: any, row?: any) => boolean
