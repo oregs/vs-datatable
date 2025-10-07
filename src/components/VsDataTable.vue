@@ -22,6 +22,7 @@
     <div class="vs-table-container" :class="containerClass">
       <div ref="tableResponsiveRef" class="vs-table-wrapper">
         <table class="vs-table" :class="tableClass">
+
           <!-- Table Header -->
           <VsDataTableHeader
             :columns="columns"
@@ -115,6 +116,8 @@ import {
   onMounted,
   onUnmounted,
   onBeforeMount,
+  shallowRef,
+  watch
 } from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
@@ -150,6 +153,16 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   rowKey: 'id',
 })
 
+const internalRows = shallowRef(props.rows)
+
+watch(
+  () => props.rows,
+  (newVal) => {
+    internalRows.value = newVal
+  },
+  { deep: false }
+)
+
 const emit = defineEmits<DataTableEmits>()
 
 // Component setup
@@ -176,7 +189,7 @@ const {
   filters,
   setFilter,
   clearFilter,
-} = useDataTable(props, emit)
+} = useDataTable({ ...props, rows: internalRows.value }, emit)
 
 const {
   selectedItems,
