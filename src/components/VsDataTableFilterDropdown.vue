@@ -194,7 +194,6 @@ interface Props {
   field?: string,
   visible?: boolean
   operators?: string[]
-  anchorEl?: HTMLElement
   columnData: any[]
   asyncOptions?: () => Promise<string[]>
 }
