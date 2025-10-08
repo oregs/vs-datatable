@@ -29,8 +29,8 @@
       "import": "./dist/vs-datatable.es.js",
       "require": "./dist/vs-datatable.umd.js"
     },
-    "./style.css": "./dist/style.css",
-    "./style.scss": "./src/styles/index.scss",
+    "./index.css": "./dist/index.css",
+    "./index.scss": "./src/styles/index.scss",
     "./plugins/*": "./plugins/*"
   },
   "files": [
