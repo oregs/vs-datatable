@@ -5,6 +5,8 @@
     "moduleResolution": "Node",
     "strict": true,
     "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -12,7 +14,8 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "plugins/*": ["plugins/*"]
     },
     "types": ["vite/client", "node"],
   },
@@ -20,6 +23,6 @@
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.app.json" }
   ],
-  "include": ["src"],
+  "include": ["src", "plugins"],
   "exclude": ["node_modules", "dist", "eslint.config.ts", "vitest.config.ts"]
 }

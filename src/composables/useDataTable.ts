@@ -1,4 +1,4 @@
-import { type Ref, computed, ref, watch, shallowRef, unref, isRef } from 'vue'
+import { computed, ref, watch, shallowRef, unref, isRef } from 'vue'
 import { useDataTableSort } from '@/composables/useDataTableSort'
 import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
@@ -7,7 +7,7 @@ import { filterRowsByQuery, paginateRows, sortArray } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
 import { useColumnFilter } from '@/composables/useColumnFilter'
 
-export function useDataTable<T>(props: any, emit: any) {
+export function useDataTable(props: any, emit: any) {
 
   const rowsRef = isRef(props.rows) ? props.rows : shallowRef(props.rows)
 
@@ -22,7 +22,7 @@ export function useDataTable<T>(props: any, emit: any) {
 
   // --- Column filters
   const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(
-    computed(() => unref(rowsRef) as Record<string, any>[]),
+    computed(() => unref(rowsRef) as Record<string, unknown>[]),
     props.columns,
     {
       serverMode: !!props.serverOptions,

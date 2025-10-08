@@ -2,7 +2,7 @@
  * DataTable Sorting Composable
  */
 
-import {type Ref, ref, computed, watch, shallowRef } from 'vue'
+import {type Ref, ref, computed, watch } from 'vue'
 import type { Sort, SortHelpers } from '@/types/datatable'
 
 export function useDataTableSort<

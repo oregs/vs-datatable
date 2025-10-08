@@ -4,7 +4,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { libInjectCss } from 'vite-plugin-lib-inject-css'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
@@ -13,26 +12,25 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'plugins': fileURLToPath(new URL('./plugins', import.meta.url))
     },
   },
   build: {
     lib: {
-      // Entry point of your library
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'VsDataTable',
-      // Will output: vs-datatable.es.js, vs-datatable.umd.js
       fileName: (format) => `vs-datatable.${format}.js`,
     },
     rollupOptions: {
-      // Do not bundle Vue — expect it as a peer dependency
       external: ['vue'],
       output: {
-        exports: 'named', // prevent named+default warning
+        exports: 'named',
         globals: {
-          vue: 'Vue', // for UMD build
+          vue: 'Vue',
         },
       },
     },
-    cssCodeSplit: false,
+    cssCodeSplit: true,
+    emptyOutDir: true,
   },
 })

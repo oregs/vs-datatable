@@ -1,22 +1,20 @@
 <template>
   <div class="vs-datatable">
-    <div class="vs-layout-row">
-      <div class="vs-layout-start">
-        <!-- Search and Filter Area -->
-        <div v-if="showSearch" class="vs-search-container">
-          <VsSearch
-            v-model="searchQuery"
-            @input-typed="onInputTyped"
-            :placeholder="searchPlaceholder"
-            :class="searchClass"
-          />
-          <slot name="filterArea"></slot>
-        </div>
-      </div>
-      <div class="vs-layout-end">
-        <!-- <DropDownButton /> -->
-      </div>
-    </div>
+    <VsDataTableToolbar
+      :show-search="showSearch"
+      v-model:search-query="searchQuery"
+      @search="onInputTyped"
+      :search-placeholder="searchPlaceholder"
+      :search-class="searchClass"
+    >
+      <template #left>
+        <slot name="filterAreaLeft"></slot>
+      </template>
+
+      <template #right>
+        <slot name="filterAreaRight"></slot>
+      </template>
+    </VsDataTableToolbar>
 
     <!-- Table Container -->
     <div class="vs-table-container" :class="containerClass">
@@ -107,7 +105,6 @@
 
 <script setup lang="ts">
 import {
-  ref,
   computed,
   defineProps,
   defineEmits,
@@ -122,9 +119,9 @@ import {
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
 import VsRowsPerPage from './VsRowsPerPage.vue'
-import DropDownButton from './DropDownButton.vue'
 import VsDataTableHeader from './VsDataTableHeader.vue'
-import VsDataTableBody from './VsDataTableBody.vue'
+import VsDataTableBody from '@/components/VsDataTableBody.vue'
+import VsDataTableToolbar from '@/components/VsDataTableToolbar.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
