@@ -4,7 +4,6 @@
 
 import {type Ref, ref, computed, watch } from 'vue'
 import type { Sort, SortHelpers } from '@/types/datatable'
-import { sortArray, paginateRows, filterRowsByQuery } from '@/utils/datatable'
 
 export function useDataTableSort<
   T extends (event: any, ...args: any[]) => void
@@ -12,14 +11,9 @@ export function useDataTableSort<
   props: { sort?: Sort[]; serverOptions?: any; rows: any[], rowsPerPage: number },
   emit: T,
   page: Ref<number>,
-  // rowsPerPage: Ref<number>,
-  // searchQuery: Ref<string>,
-  // payload: {
-  //   isRowExpanded: any
-  // }
 ) {
   const vsInitialPage = ref<number>(1)
-  const localSort = ref<Sort[]>(props.sort ?? [])
+  const localSort = ref<Sort[]>(props.sort ? [...props.sort] : [])
 
   // Watch for external sort changes
   watch(
@@ -34,54 +28,23 @@ export function useDataTableSort<
   const activeSort = computed(() => 
     props.serverOptions?.sort ?? localSort.value ?? []
   )
-  
-  // processedRows
-  // const processedRows = computed(() => {
-  //   let resultRows = props.rows
-  
-  //   // Only apply client-side operations if not in server mode
-  //   if (!props.serverOptions) {
-  //     // Apply search filter
-  //     if (searchQuery.value) {
-  //       resultRows = filterRowsByQuery(resultRows, searchQuery.value)
-  //     }
-  
-  //     // Apply sorting
-  //     if (activeSort.value.length) {
-  //       resultRows = sortArray(resultRows, activeSort.value)
-  //     }
-  //   }
-  
-  //   resultRows.map(row => ({
-  //     ...row,
-  //     isExpanded: payload.isRowExpanded(row.id),
-  //   }))
-
-  //   return resultRows
-  // })
 
   // Sort helpers
   const isColumnSorted = (field: string): boolean => {
-    return activeSort.value.some((s: any) => s.field === field)
+    return activeSort.value.some((s: Sort) => s.field === field)
   }
 
   const getSortPriority = (field: string): number | null => {
-    const entry = activeSort.value.find((s: any) => s.field === field)
+    const entry = activeSort.value.find((s: Sort) => s.field === field)
     return entry ? entry.priority ?? null : null
   }
 
   const getSortOrder = (field: string): string | null => {
-    return activeSort.value.find((s: any) => s.field === field)?.order ?? null
+    return activeSort.value.find((s: Sort) => s.field === field)?.order ?? null
   }
 
   const handleSort = (field: string, event: MouseEvent) => {
-    let sort: Sort[] = []
-
-    if (props.serverOptions) {
-      sort = [...(props.serverOptions.sort ?? [])]
-    } else if (props.sort) {
-      sort = [...props.sort]
-    }
+    let sort = [...localSort.value]
 
     const index = sort.findIndex((s) => s.field === field)
 
@@ -105,11 +68,11 @@ export function useDataTableSort<
 
     sort = sort.map((s, i) => ({ ...s, priority: i + 1 }))
 
+    localSort.value = [...sort]
+
     if (props.serverOptions) {
-      // Server mode
       emit('update:serverOptions', { ...props.serverOptions, sort })
     } else {
-      // Client mode
       emit('update:sort', sort)
     }
 
@@ -125,7 +88,6 @@ export function useDataTableSort<
   }
 
   return {
-    // processedRows,
     activeSort,
     sortHelpers
   }

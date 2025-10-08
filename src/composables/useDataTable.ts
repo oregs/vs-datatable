@@ -1,4 +1,4 @@
-import { type Ref, computed, ref, watch } from 'vue'
+import { computed, ref, watch, shallowRef, unref, isRef } from 'vue'
 import { useDataTableSort } from '@/composables/useDataTableSort'
 import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
@@ -7,7 +7,10 @@ import { filterRowsByQuery, paginateRows, sortArray } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
 import { useColumnFilter } from '@/composables/useColumnFilter'
 
-export function useDataTable<T>(props: any, emit: any) {
+export function useDataTable(props: any, emit: any) {
+
+  const rowsRef = isRef(props.rows) ? props.rows : shallowRef(props.rows)
+
   // --- Pagination
   const page = ref<number>(1)
   const rowsPerPage = ref(props.serverOptions?.rowsPerPage ?? props.rowsPerPage)
@@ -19,7 +22,7 @@ export function useDataTable<T>(props: any, emit: any) {
 
   // --- Column filters
   const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(
-    ref(props.rows as Record<string, any>[]),
+    computed(() => unref(rowsRef) as Record<string, unknown>[]),
     props.columns,
     {
       serverMode: !!props.serverOptions,
@@ -81,20 +84,20 @@ export function useDataTable<T>(props: any, emit: any) {
     return resultRows
   })
 
-  // Reset page when filters change
-  watch(filters, () => {
-    page.value = 1
-  }, { deep: true })
-
-  // Reset page when search query changes
-  watch(searchQuery, () => {
-    page.value = 1
-  })
+  // Reset page when filters or search change
+  watch([filters, searchQuery], () => (page.value = 1), { deep: true })
 
   // --- Paginated rows
   const paginatedRows = computed(() =>
     paginateRows(processedRows.value, page.value, rowsPerPage.value)
   )
+
+  // --- Auto emit when large datasets change
+  watch(rowsRef, (newRows) => {
+    if (Array.isArray(newRows) && newRows.length > 1000) {
+      console.log(`[useDataTable] Large dataset updated (${newRows.length} rows)`)
+    }
+  })
 
   return {
     // Pagination
