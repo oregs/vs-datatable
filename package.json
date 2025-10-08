@@ -1,6 +1,6 @@
 {
   "name": "vs-datatable",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A lightweight Vue 3 datatable component with sorting, slots, and nested object support.",
   "type": "module",
   "private": false,
@@ -29,8 +29,8 @@
       "import": "./dist/vs-datatable.es.js",
       "require": "./dist/vs-datatable.umd.js"
     },
-    "./style.css": "./dist/style.css",
-    "./style.scss": "./src/styles/index.scss",
+    "./index.css": "./dist/index.css",
+    "./index.scss": "./src/styles/index.scss",
     "./plugins/*": "./plugins/*"
   },
   "files": [
