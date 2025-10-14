@@ -4,9 +4,9 @@
     ref="referenceRef"
     class="vs-column-filter"
     @click.stop="toggleDropdown"
-    :class="{ 
+    :class="{
       'is-active': hasValue(localFilter),
-      'in-active': !hasValue(localFilter)
+      'in-active': !hasValue(localFilter),
     }"
   >
     <svg
@@ -53,7 +53,22 @@
 
         <!-- Multi-select filter -->
         <div v-else-if="localFilter.type === 'multi-select'" class="vs-filter-multi">
-          <button v-if="asyncOptions" @click="loadAsyncOptions(true)">🔄 Reload</button>
+          <VsDFlex direction="row" class="mb-6 vs-align-center vs-justify-end">
+            <span v-if="asyncOptions" @click="loadAsyncOptions(true)" class="vs-cursor-pointer">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24px"
+                viewBox="0 -960 960 960"
+                width="24px"
+                fill="var(--vs-inactive)"
+              >
+                <path
+                  d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"
+                />
+              </svg>
+            </span>
+          </VsDFlex>
+
           <VsMultiSelect
             :isLoading="isLoading"
             :columnData="columnOrAsyncOptions"
@@ -191,7 +206,7 @@ import { useAsyncOption } from '@/composables/useAsyncOption'
 interface Props {
   modelValue?: ColumnFilter
   type: ColumnFilter['type']
-  field?: string,
+  field?: string
   visible?: boolean
   operators?: string[]
   columnData: any[]
@@ -213,7 +228,7 @@ const emit = defineEmits<{
 const { columnOrAsyncOptions, isLoading, clearCache, loadAsyncOptions } = useAsyncOption({
   asyncOptions: props.asyncOptions,
   columnData: props.columnData,
-  cacheKey: props.field
+  cacheKey: props.field,
 })
 
 // default operators per type
@@ -231,7 +246,7 @@ const defaultOperators: Record<ColumnFilter['type'], string[]> = {
   'multi-select': [],
   'number-range': ['between', 'equals', 'notEqual', 'greaterThan', 'lessThan', 'empty', 'notEmpty'],
   'date-range': ['between', 'equals', 'notEqual', 'before', 'after', 'empty', 'notEmpty'],
-  custom: []
+  custom: [],
 }
 
 function formatOperator(op: string) {
@@ -276,7 +291,7 @@ watch(
   async (val) => {
     isOpen.value = !!val
     if (isOpen.value) {
-      await nextTick() 
+      await nextTick()
       startPositioning()
 
       if (props.asyncOptions) {

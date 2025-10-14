@@ -14,25 +14,12 @@ export function useAsyncOption(props: {
   const showLoading = () => (isLoading.value = true)
   const hideLoading = () => (isLoading.value = false)
 
-  //   async function loadAsyncOptions() {
-  //     if (!props.asyncOptions) return
-  //     try {
-  //       showLoading()
-  //       const result = await props.asyncOptions()
-  //       columnOrAsyncOptions.value = Array.isArray(result) ? result : []
-  //     } catch (err) {
-  //       console.error('Failed to load async filter options:', err)
-  //     } finally {
-  //       hideLoading()
-  //     }
-  //   }
-
   async function loadAsyncOptions(forceRefresh = false) {
     if (!props.asyncOptions) return
 
     const cacheKey = props.cacheKey ?? 'default'
 
-    // ✅ Use cached options unless force refresh
+    // Use cached options unless force refresh
     if (!forceRefresh && optionsCache.has(cacheKey)) {
         columnOrAsyncOptions.value = optionsCache.get(cacheKey)!
       return
@@ -44,7 +31,7 @@ export function useAsyncOption(props: {
       const options = Array.isArray(result) ? result : []
       columnOrAsyncOptions.value = options
 
-      // ✅ Save to cache
+      // Save to cache
       optionsCache.set(cacheKey, options)
     } catch (err) {
       console.error('Failed to load async filter options:', err)

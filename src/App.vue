@@ -23,6 +23,10 @@
         @expand-row="onExpandRow"
         @collapse-row="onCollapseRow"
       >
+        <template #filterAreaRight>
+          <button type="button" class="vs-button vs-button-sm vs-button-primary">Testing</button>
+        </template>
+
         <template #cell-id="{ item }">#{{ item.id }}</template>
 
         <template #cell-date="{ item }">
@@ -104,7 +108,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { VsDataTable } from './index'
-import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './index' 
+import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './index'
+// import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
 // import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
 
@@ -147,7 +152,7 @@ const columns = ref<any[]>([
   { label: 'Customer', field: 'customer', width: '30', sortable: true, filter: { type: 'text' } },
   { label: 'Total', field: 'total', width: '15', sortable: true },
   { label: 'Status', field: 'status', width: '15', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
-  { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select' } }, // Remove 'asyncOptions' to use Column field value
+  { label: 'Payment', field: 'payment', width: '15', sortable: true, filter: { type: 'multi-select', asyncOptions: () => ['Cash', 'Card', 'Wallet', 'POS'] } }, // Remove 'asyncOptions' to use Column field value
   { label: 'Items', field: 'items', width: '15', sortable: true },
 ])
 
