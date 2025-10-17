@@ -20,6 +20,8 @@ export interface Column<T = any> {
     // options?: string[]
     // operators?: FilterOperator[]
   }
+  colHeaderClass?: string | string[] | Record<string, any>
+  sticky?: 'left' | 'right'
 }
 
 export interface Sort {
@@ -149,6 +151,7 @@ export interface DataTableProps {
   expanded?: (string | number)[]
   expandable?: boolean
   accordion?: boolean
+  stickyHeader?: boolean
 }
 
 export interface DataTableEmits {

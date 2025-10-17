@@ -16,6 +16,11 @@ export function useDataTable(props: any, emit: any) {
   const rowsPerPage = ref(props.serverOptions?.rowsPerPage ?? props.rowsPerPage)
   const searchQuery = ref<string>('')
 
+  const tableContainer = ref()
+  const tableResponsiveRef = ref<HTMLElement | null>(null)
+  const tableRef = ref()
+
+
   // --- Expandable rows
   const { isRowExpanded, toggleRowExpansion, getRowId, setRowLoading, isRowLoading } =
     useExpandable(props, emit)
@@ -129,5 +134,10 @@ export function useDataTable(props: any, emit: any) {
     filteredData,
     setFilter,
     clearFilter,
+
+    // Table Ref
+    tableContainer,
+    tableResponsiveRef,
+    tableRef,
   }
 }

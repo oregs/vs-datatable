@@ -1,5 +1,6 @@
 <template>
   <div class="vs-datatable">
+    <!-- Rest of your template -->
     <VsDataTableToolbar
       :show-search="showSearch"
       v-model:search-query="searchQuery"
@@ -17,12 +18,26 @@
     </VsDataTableToolbar>
 
     <!-- Table Container -->
-    <div class="vs-table-container" :class="containerClass">
-      <div ref="tableResponsiveRef" class="vs-table-wrapper">
-        <table class="vs-table" :class="tableClass">
-
+    <div
+      ref="tableContainer"
+      class="vs-table-container vs-position-relative vs-overflow-auto"
+      :class="[
+        containerClass,
+        {
+          'has-left-shadow': hasLeftShadow,
+          'has-right-shadow': hasRightShadow,
+        },
+      ]"
+    >
+      <div 
+        ref="tableResponsiveRef" 
+        class="vs-table-wrapper"
+        :class="{'vs-sticky-header-wrapper': stickyHeader}"
+      >
+        <table ref="tableRef" class="vs-table" :class="tableClass">
           <!-- Table Header -->
           <VsDataTableHeader
+            ref="headerRef"
             :columns="columns"
             :expandable="expandable"
             :is-item-selected-controlled="isItemSelectedControlled"
@@ -44,6 +59,7 @@
 
           <!-- Table Body -->
           <VsDataTableBody
+            ref="bodyRef"
             :loading="loading"
             :loading-text="loadingText"
             :no-data-text="noDataText"
@@ -72,7 +88,6 @@
               <slot :name="name" v-bind="slotProps" />
             </template>
           </VsDataTableBody>
-
         </table>
       </div>
     </div>
@@ -114,7 +129,9 @@ import {
   onUnmounted,
   onBeforeMount,
   shallowRef,
-  watch
+  watch,
+  ref,
+  nextTick,
 } from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
 import VsSearch from '@/components/VsSearch.vue'
@@ -128,6 +145,8 @@ import type { DataTableProps, DataTableEmits } from '@/types/datatable'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTableSelection } from '@/composables/useDataTableSelection'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns } from '@/utils/datatable'
+import { useStickyColumns } from '@/composables/useStickyColumns'
+import { useStickyHeader } from '@/composables/useStickyHeader'
 
 // Props and Emits
 const props = withDefaults(defineProps<DataTableProps>(), {
@@ -148,6 +167,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   maxVisiblePages: 5,
   rowsPerPage: 10,
   rowKey: 'id',
+  stickyHeader: false
 })
 
 const internalRows = shallowRef(props.rows)
@@ -165,6 +185,8 @@ const emit = defineEmits<DataTableEmits>()
 // Component setup
 const attrs = useAttrs()
 const hasRowClick = computed(() => !!attrs['onRowClick'])
+const headerRef = ref()
+const bodyRef = ref()
 
 // Use composables
 const {
@@ -186,6 +208,9 @@ const {
   filters,
   setFilter,
   clearFilter,
+  tableRef,
+  tableContainer,
+  tableResponsiveRef,
 } = useDataTable({ ...props, rows: internalRows.value }, emit)
 
 const {
@@ -202,15 +227,56 @@ const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
 
+// Use sticky columns on the main table
+const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
+  tableRef,
+  computed(() => props.columns)
+)
+
+const { refresh } = useStickyHeader(tableRef, {
+  enabled: props.stickyHeader,
+  maxHeight: '70vh',
+})
+
+// Refresh sticky when rows change (for dynamic content)
+watch(
+  () => paginatedRows.value,
+  () => {
+    nextTick(() => {
+      refreshSticky()
+    })
+  },
+  { deep: true }
+)
+
+// Refresh sticky when columns change
+watch(
+  () => props.columns,
+  () => {
+    nextTick(() => {
+      refreshSticky()
+    })
+  },
+  { deep: true }
+)
+
 // Expose
 defineExpose({
   toggleRowExpansion,
   setRowLoading,
+  refreshSticky,
 })
 
 // Lifecycle hooks
 onMounted(() => {
+  setTimeout(() => {
+    refreshSticky()
+  }, 100)
+
+  refresh()
+
   emit('tableMounted')
+
   try {
     emit('dataLoaded', props.rows)
   } catch (err) {

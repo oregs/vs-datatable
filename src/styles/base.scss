@@ -399,6 +399,137 @@
 .vs-transition-fast { transition: var(--vs-transition-fast) !important; }
 .vs-transition-none { transition: none !important; }
 
+/* Utility Classes */
+.vs-text-center {
+  text-align: center;
+}
+.vs-text-left {
+  text-align: left;
+}
+.vs-text-right {
+  text-align: right;
+}
+.vs-text-muted {
+  color: var(--vs-secondary);
+}
+.vs-text-primary {
+  color: var(--vs-primary);
+}
+.vs-text-success {
+  color: var(--vs-success);
+}
+.vs-text-danger {
+  color: var(--vs-danger);
+}
+.vs-text-warning {
+  color: var(--vs-warning);
+}
+
+.vs-bg-primary {
+  background-color: var(--vs-primary);
+}
+.vs-bg-success {
+  background-color: var(--vs-success);
+}
+.vs-bg-danger {
+  background-color: var(--vs-danger);
+}
+.vs-bg-warning {
+  background-color: var(--vs-warning);
+}
+.vs-bg-light {
+  background-color: var(--vs-light);
+}
+
+.vs-border {
+  border: 1px solid var(--vs-table-border);
+}
+.vs-border-top {
+  border-top: 1px solid var(--vs-table-border);
+}
+.vs-border-bottom {
+  border-bottom: 1px solid var(--vs-table-border);
+}
+.vs-border-left {
+  border-left: 1px solid var(--vs-table-border);
+}
+.vs-border-right {
+  border-right: 1px solid var(--vs-table-border);
+}
+
+.vs-rounded {
+  border-radius: var(--vs-border-radius);
+}
+.vs-rounded-sm {
+  border-radius: var(--vs-border-radius-sm);
+}
+.vs-rounded-lg {
+  border-radius: var(--vs-border-radius-lg);
+}
+
+.vs-shadow {
+  box-shadow: var(--vs-shadow);
+}
+.vs-shadow-sm {
+  box-shadow: var(--vs-shadow-sm);
+}
+.vs-shadow-lg {
+  box-shadow: var(--vs-shadow-lg);
+}
+
+/* Animation Classes */
+.vs-fade-in {
+  animation: vs-fade-in 0.3s ease-in-out;
+}
+
+@keyframes vs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vs-slide-in {
+  animation: vs-slide-in 0.3s ease-in-out;
+}
+
+@keyframes vs-slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* VS Button */
+.vs-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.vs-btn-primary {
+  background: #2d6cdf;
+  color: #fff;
+  border: none;
+}
+.vs-btn-secondary {
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+}
+
+/**
+*-------------------------------------------
+* Custom CSS
+*--------------------------------------------
+*/
+
 /* Reset and Base Styles */
 .vs-datatable {
   font-family: var(--vs-font-family);
@@ -957,28 +1088,6 @@
   stroke-width: 2.5;
 }
 
-/* VS Button */
-.vs-btn {
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.vs-btn-primary {
-  background: #2d6cdf;
-  color: #fff;
-  border: none;
-}
-.vs-btn-secondary {
-  background: #f5f5f5;
-  border: 1px solid #ccc;
-}
-// .vs-filter-range,
-// .vs-filter-date {
-//   display: flex;
-//   gap: 0.5rem;
-//   align-items: center;
-// }
-
 .vs-column-filter {
   display: inline-flex;
   align-items: center;
@@ -1023,111 +1132,63 @@
   }
 }
 
-/* Utility Classes */
-.vs-text-center {
-  text-align: center;
-}
-.vs-text-left {
-  text-align: left;
-}
-.vs-text-right {
-  text-align: right;
-}
-.vs-text-muted {
-  color: var(--vs-secondary);
-}
-.vs-text-primary {
-  color: var(--vs-primary);
-}
-.vs-text-success {
-  color: var(--vs-success);
-}
-.vs-text-danger {
-  color: var(--vs-danger);
-}
-.vs-text-warning {
-  color: var(--vs-warning);
+.vs-sticky-left {
+  position: sticky;
+  background: white;
+  z-index: 3;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.vs-bg-primary {
-  background-color: var(--vs-primary);
-}
-.vs-bg-success {
-  background-color: var(--vs-success);
-}
-.vs-bg-danger {
-  background-color: var(--vs-danger);
-}
-.vs-bg-warning {
-  background-color: var(--vs-warning);
-}
-.vs-bg-light {
-  background-color: var(--vs-light);
+.vs-sticky-right {
+  position: sticky;
+  background: white;
+  z-index: 3;
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.05);
 }
 
-.vs-border {
-  border: 1px solid var(--vs-table-border);
-}
-.vs-border-top {
-  border-top: 1px solid var(--vs-table-border);
-}
-.vs-border-bottom {
-  border-bottom: 1px solid var(--vs-table-border);
-}
-.vs-border-left {
-  border-left: 1px solid var(--vs-table-border);
-}
-.vs-border-right {
-  border-right: 1px solid var(--vs-table-border);
+/* Dynamic shadow indicator */
+.vs-table-container.has-left-shadow::before,
+.vs-table-container.has-right-shadow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  pointer-events: none;
+  z-index: 3;
 }
 
-.vs-rounded {
-  border-radius: var(--vs-border-radius);
-}
-.vs-rounded-sm {
-  border-radius: var(--vs-border-radius-sm);
-}
-.vs-rounded-lg {
-  border-radius: var(--vs-border-radius-lg);
+.vs-table-container.has-left-shadow::before {
+  left: 0;
+  box-shadow: inset 6px 0 6px -6px rgba(0, 0, 0, 0.1);
 }
 
-.vs-shadow {
-  box-shadow: var(--vs-shadow);
-}
-.vs-shadow-sm {
-  box-shadow: var(--vs-shadow-sm);
-}
-.vs-shadow-lg {
-  box-shadow: var(--vs-shadow-lg);
+.vs-table-container.has-right-shadow::after {
+  right: 0;
+  box-shadow: inset -6px 0 6px -6px rgba(0, 0, 0, 0.1);
 }
 
-/* Animation Classes */
-.vs-fade-in {
-  animation: vs-fade-in 0.3s ease-in-out;
+/* Sticky Header */
+.vs-sticky-header-wrapper {
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+  max-height: calc(100vh - 250px);
+  scrollbar-gutter: stable;
+  background-color: white;
 }
 
-@keyframes vs-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.vs-sticky-header-wrapper thead {
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  transition: transform 0.1s ease-out;
 }
 
-.vs-slide-in {
-  animation: vs-slide-in 0.3s ease-in-out;
-}
-
-@keyframes vs-slide-in {
-  from {
-    transform: translateX(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+.vs-sticky-header-wrapper thead th {
+  background: #fff; /* keeps header clean */
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }

@@ -1,5 +1,5 @@
 <template>
-  <tbody>
+  <tbody ref="bodyRef">
     <!-- Loading State -->
     <tr v-if="loading">
       <td :colspan="totalColumns" class="vs-loading">
@@ -84,13 +84,21 @@
         </td>
 
         <!-- Data Cells -->
-        <td v-for="column in columns" :key="column.field" :class="cellClass">
+        <td 
+          v-for="column in columns" 
+          :key="column.field"
+          :class="cellClass"
+          :data-field="column.field"
+        >
           <slot
             :name="`cell-${column.field}`"
             :item="item"
             :value="getValue(item, column.field)"
             :column="column"
             :index="index"
+            :class="[
+              column.sticky ? `vs-sticky-${column.sticky}` : '',
+            ]"
           >
             {{ getValue(item, column.field) }}
           </slot>
@@ -128,7 +136,7 @@
 
 <script setup lang="ts">
 import type { Column } from '@/types'
-import { defineProps, defineEmits, computed } from 'vue'
+import { defineProps, defineEmits, computed, ref } from 'vue'
 
 const props = defineProps<{
   loading: boolean
@@ -156,7 +164,7 @@ const props = defineProps<{
     item: unknown,
     selected: unknown[],
     key: string | ((item: unknown, index: number) => string | number)
-  ) => boolean
+  ) => boolean,
 }>()
 
 const emit = defineEmits<{
@@ -166,6 +174,8 @@ const emit = defineEmits<{
 const safeRowKey = computed(() => {
   return props.rowKey ?? 'id'
 })
+
+const bodyRef = ref<HTMLElement | null>(null)
 </script>
 
 <style scoped>

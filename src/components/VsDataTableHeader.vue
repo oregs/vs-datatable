@@ -1,5 +1,5 @@
 <template>
-  <thead>
+  <thead ref="headerRef">
     <tr>
       <!-- Expandable column header -->
       <th v-if="expandable" class="vs-expand-column" style="width: 5%"></th>
@@ -20,11 +20,17 @@
 
       <!-- Header Columns -->
       <th
-        v-for="column in columns"
+        v-for="(column, index) in columns"
         :key="column.field"
         @click="column.sortable ? sortHelpers.handleSort(column.field, $event) : null"
-        :style="{ width: column.width + '%' }"
-        :class="[column.sortable ? 'vs-sortable' : '', headerClass]"
+        :style="[{ width: column.width + '%' }]"
+        :data-field="column.field"
+        :class="[
+          headerClass,
+          column.colHeaderClass,
+          column.sortable ? 'vs-sortable' : '',
+          column.sticky ? `vs-sticky-${column.sticky}` : '',
+        ]"
       >
         <slot :name="`header-${column.field}`" :column="column">
           <div class="vs-header-content">
@@ -158,6 +164,8 @@ function handleCloseFilter(field: string) {
   // Only close if the current open filter matches
   if (openFilter.value === field) openFilter.value = null
 }
+
+const headerRef = ref<HTMLElement | null>(null)
 </script>
 
 <style scoped>
@@ -170,5 +178,4 @@ function handleCloseFilter(field: string) {
 .vs-header-label {
   flex: 1;
 }
-
 </style>
