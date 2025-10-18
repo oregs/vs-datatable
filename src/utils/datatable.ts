@@ -268,3 +268,24 @@ export function serializeFilters(filters: Record<string, ColumnFilter>) {
 
   return params
 }
+
+/**
+ * Flattens grouped columns into a single-level array.
+ * Handles nested `children` columns gracefully.
+ */
+export function getFlatColumns(columns: Column[] = []): Column[] {
+  const result: Column[] = []
+
+  const flatten = (cols: Column[]) => {
+    cols.forEach((col) => {
+      if (Array.isArray(col.children) && col.children.length) {
+        flatten(col.children)
+      } else {
+        result.push(col)
+      }
+    })
+  }
+
+  flatten(columns)
+  return result
+}

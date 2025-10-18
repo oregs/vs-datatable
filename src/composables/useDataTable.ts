@@ -3,7 +3,7 @@ import { useDataTableSort } from '@/composables/useDataTableSort'
 import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
 import { useDataTableSearch } from '@/composables/useDataTableSearch'
-import { filterRowsByQuery, paginateRows, sortArray } from '@/utils/datatable'
+import { filterRowsByQuery, getFlatColumns, paginateRows, sortArray } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
 import { useColumnFilter } from '@/composables/useColumnFilter'
 
@@ -28,7 +28,7 @@ export function useDataTable(props: any, emit: any) {
   // --- Column filters
   const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(
     computed(() => unref(rowsRef) as Record<string, unknown>[]),
-    props.columns,
+    getFlatColumns(unref(props.columns)),
     {
       serverMode: !!props.serverOptions,
       onServerFilter(activeFilters) {

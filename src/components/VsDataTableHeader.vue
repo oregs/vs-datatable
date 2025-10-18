@@ -3,20 +3,10 @@
     <!-- 🟢 CHANGE: Added Group Header Row (if columns have children) -->
     <tr v-if="hasGroups">
       <!-- Expandable column -->
-      <th
-        v-if="expandable"
-        class="vs-expand-column"
-        rowspan="2"
-        style="width: 5%"
-      ></th>
+      <th v-if="expandable" class="vs-expand-column" rowspan="2" style="width: 5%"></th>
 
       <!-- Checkbox Column -->
-      <th
-        v-if="isItemSelectedControlled"
-        class="vs-checkbox-column"
-        rowspan="2"
-        style="width: 5%"
-      >
+      <th v-if="isItemSelectedControlled" class="vs-checkbox-column" rowspan="2" style="width: 5%">
         <div class="vs-checkbox">
           <input
             type="checkbox"
@@ -44,11 +34,7 @@
     <!-- Normal Header Row -->
     <tr>
       <!-- Expandable column header (shown only if not in group mode) -->
-      <th
-        v-if="expandable && !hasGroups"
-        class="vs-expand-column"
-        style="width: 5%"
-      ></th>
+      <th v-if="expandable && !hasGroups" class="vs-expand-column" style="width: 5%"></th>
 
       <!-- Checkbox Column (shown only if not in group mode) -->
       <th
@@ -70,101 +56,108 @@
 
       <!-- Header Columns -->
       <!-- 🟢 CHANGE: now loops over flatColumns (instead of props.columns) -->
-      <th
-        v-for="(column, index) in flatColumns"
-        :key="column.field"
-        @click="column.sortable ? sortHelpers.handleSort(column.field, $event) : null"
-        :style="[{ width: column.width + '%' }]"
-        :data-field="column.field"
-        :class="[
-          headerClass,
-          column.colHeaderClass,
-          column.sortable ? 'vs-sortable' : '',
-          column.sticky ? `vs-sticky-${column.sticky}` : '',
-        ]"
-      >
-        <slot :name="`header-${column.field}`" :column="column">
-          <div class="vs-header-content">
-            <span class="vs-header-label">{{ column.label }}</span>
+      <template v-for="(column, index) in flatColumns">
+        <th
+          v-if="column && column.field"
+          :key="column.field"
+          @click="column.sortable ? sortHelpers.handleSort(column.field, $event) : null"
+          :style="[{ width: column.width + '%' }]"
+          :data-field="column.field"
+          :class="[
+            headerClass,
+            column.colHeaderClass,
+            column.sortable ? 'vs-sortable' : '',
+            column.sticky ? `vs-sticky-${column.sticky}` : '',
+          ]"
+        >
+          <slot :name="`header-${column.field}`" :column="column">
+            <div class="vs-header-content">
+              <span class="vs-header-label">{{ column.label }}</span>
 
-            <!-- Sort Icons -->
-            <div v-if="column.sortable" class="vs-sort-icons">
-              <span
-                class="vs-sort-icon vs-sort-asc"
-                :class="{
-                  'vs-active':
-                    sortHelpers.isColumnSorted(column.field) &&
-                    sortHelpers.getSortOrder(column.field) === 'asc',
-                }"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                  fill="var(--vs-gray-800)"
+              <!-- Sort Icons -->
+              <div v-if="column.sortable" class="vs-sort-icons">
+                <span
+                  class="vs-sort-icon vs-sort-asc"
+                  :class="{
+                    'vs-active':
+                      sortHelpers.isColumnSorted(column.field) &&
+                      sortHelpers.getSortOrder(column.field) === 'asc',
+                  }"
                 >
-                  <path d="m280-400 200-200 200 200H280Z" />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                    fill="var(--vs-gray-800)"
+                  >
+                    <path d="m280-400 200-200 200 200H280Z" />
+                  </svg>
+                </span>
+
+                <span
+                  class="vs-sort-icon vs-sort-desc"
+                  :class="{
+                    'vs-active':
+                      sortHelpers.isColumnSorted(column.field) &&
+                      sortHelpers.getSortOrder(column.field) === 'desc',
+                  }"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="24px"
+                  >
+                    <path d="M480-360 280-560h400L480-360Z" />
+                  </svg>
+                </span>
+              </div>
+
+              <!-- Priority Badge -->
+              <span
+                v-if="sortHelpers.getSortPriority(column.field) !== null"
+                class="vs-sort-priority"
+              >
+                {{ sortHelpers.getSortPriority(column.field) }}
               </span>
 
-              <span
-                class="vs-sort-icon vs-sort-desc"
-                :class="{
-                  'vs-active':
-                    sortHelpers.isColumnSorted(column.field) &&
-                    sortHelpers.getSortOrder(column.field) === 'desc',
-                }"
+              <!-- Column Filter -->
+              <VsDataTableFilterDropdown
+                v-if="column.filter"
+                :type="column.filter.type"
+                :async-options="column.filter.asyncOptions"
+                :field="column.field"
+                :operators="column.filter.operators"
+                v-model="localFilters[column.field]"
+                :visible="openFilter === column.field"
+                :column-data="column.field ? rows.map((r) => r[column.field as string]) : []"
+                @apply="
+                  (val) => {
+                    if (column.field) emit('applyFilter', column.field, val)
+                  }
+                "
+                @clear="
+                  () => {
+                    if (column.field) emit('clearFilter', column.field)
+                  }
+                "
+                @close="handleCloseFilter(column.field)"
+                @open="handleOpenFilter(column.field)"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="24px"
-                >
-                  <path d="M480-360 280-560h400L480-360Z" />
-                </svg>
-              </span>
+                <template v-if="column.filter.custom" #custom="{ filter, apply, clear }">
+                  <slot
+                    :name="column.filter.custom"
+                    :filter="filter"
+                    :apply="apply"
+                    :clear="clear"
+                  />
+                </template>
+              </VsDataTableFilterDropdown>
             </div>
-
-            <!-- Priority Badge -->
-            <span
-              v-if="sortHelpers.getSortPriority(column.field) !== null"
-              class="vs-sort-priority"
-            >
-              {{ sortHelpers.getSortPriority(column.field) }}
-            </span>
-
-            <!-- Column Filter -->
-            <VsDataTableFilterDropdown
-              v-if="column.filter"
-              :type="column.filter.type"
-              :async-options="column.filter.asyncOptions"
-              :field="column.field"
-              :operators="column.filter.operators"
-              v-model="localFilters[column.field]"
-              :visible="openFilter === column.field"
-              :column-data="rows.map((r) => r[column.field])"
-              @apply="
-                (val) => {
-                  emit('applyFilter', column.field, val)
-                }
-              "
-              @clear="
-                () => {
-                  emit('clearFilter', column.field)
-                }
-              "
-              @close="handleCloseFilter(column.field)"
-              @open="handleOpenFilter(column.field)"
-            >
-              <template v-if="column.filter.custom" #custom="{ filter, apply, clear }">
-                <slot :name="column.filter.custom" :filter="filter" :apply="apply" :clear="clear" />
-              </template>
-            </VsDataTableFilterDropdown>
-          </div>
-        </slot>
-      </th>
+          </slot>
+        </th>
+      </template>
     </tr>
   </thead>
 </template>
@@ -218,16 +211,14 @@ function handleCloseFilter(field: string) {
 const headerRef = ref<HTMLElement | null>(null)
 
 /* 🟢 CHANGE: Computed logic for grouped headers */
-const hasGroups = computed(() =>
-  props.columns.some((col) => col.children && col.children.length)
-)
+const hasGroups = computed(() => props.columns.some((col) => col.children && col.children.length))
 
 const groupedColumns = computed(() =>
   props.columns
     .filter((col) => col.children && col.children.length)
     .map((col) => ({
       label: col.label,
-      colspan: col.children.length,
+      colspan: (col.children ?? []).length,
       children: col.children,
     }))
 )
@@ -239,16 +230,6 @@ const flatColumns = computed(() => {
   )
 })
 </script>
-
-<style scoped>
-/* 🟢 CHANGE: Optional style for grouped header */
-.vs-group-header {
-  background: var(--vs-table-header-bg, #f9fafb);
-  font-weight: 600;
-  border-bottom: 1px solid #ddd;
-}
-</style>
-
 
 <style scoped>
 .vs-header-content {
