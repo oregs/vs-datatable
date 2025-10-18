@@ -25,6 +25,7 @@ export function useStickyColumns(
     if (!rows?.length) return
 
     const firstRow = rows[0]
+    if (!firstRow) return
     const allCells = Array.from(firstRow.children) as HTMLElement[]
 
     // 1. Detect if we have any manual sticky columns

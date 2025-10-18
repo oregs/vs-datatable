@@ -84,25 +84,28 @@
         </td>
 
         <!-- Data Cells -->
-        <td 
-          v-for="column in columns" 
-          :key="column.field"
-          :class="cellClass"
-          :data-field="column.field"
-        >
-          <slot
-            :name="`cell-${column.field}`"
-            :item="item"
-            :value="getValue(item, column.field)"
-            :column="column"
-            :index="index"
-            :class="[
-              column.sticky ? `vs-sticky-${column.sticky}` : '',
-            ]"
-          >
-            {{ getValue(item, column.field) }}
-          </slot>
-        </td>
+        <!-- ✅ CHANGED: now uses flatColumns -->
+         <template  v-for="column in flatColumns">
+           <td 
+             v-if="column && column.field"
+            :key="column.field"
+             :class="cellClass"
+             :data-field="column.field"
+           >
+             <slot
+               :name="`cell-${column.field}`"
+               :item="item"
+               :value="getValue(item, column.field)"
+               :column="column"
+               :index="index"
+               :class="[
+                 column.sticky ? `vs-sticky-${column.sticky}` : '',
+               ]"
+             >
+               {{ getValue(item, column.field) }}
+             </slot>
+           </td>
+         </template>
       </tr>
 
       <!-- Expanded content -->
@@ -149,7 +152,7 @@ const props = defineProps<{
   isItemSelectedControlled: boolean
   selectedItems: Record<string, unknown>[]
   tablename: string
-  columns: Column[]
+  columns: (Column | { title: string; children: Column[] })[] // ✅ CHANGED: support groups
   rowKey?: string | ((item: unknown, index: number) => string | number)
   rowClass?: string | string[] | Record<string, unknown>
   cellClass?: string | string[] | Record<string, unknown>
@@ -171,11 +174,19 @@ const emit = defineEmits<{
   (e: 'row-click', item: unknown, index: number): void
 }>()
 
-const safeRowKey = computed(() => {
-  return props.rowKey ?? 'id'
-})
+const safeRowKey = computed(() => props.rowKey ?? 'id')
 
 const bodyRef = ref<HTMLElement | null>(null)
+
+/**
+ * ✅ CHANGED: Flatten grouped columns
+ * This ensures tbody aligns perfectly with grouped thead
+ */
+const flatColumns = computed(() => {
+  return props.columns.flatMap(col =>
+    'children' in col ? col.children : [col]
+  )
+})
 </script>
 
 <style scoped>

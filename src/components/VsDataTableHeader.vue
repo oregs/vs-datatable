@@ -1,11 +1,61 @@
 <template>
   <thead ref="headerRef">
-    <tr>
-      <!-- Expandable column header -->
-      <th v-if="expandable" class="vs-expand-column" style="width: 5%"></th>
+    <!-- 🟢 CHANGE: Added Group Header Row (if columns have children) -->
+    <tr v-if="hasGroups">
+      <!-- Expandable column -->
+      <th
+        v-if="expandable"
+        class="vs-expand-column"
+        rowspan="2"
+        style="width: 5%"
+      ></th>
 
       <!-- Checkbox Column -->
-      <th v-if="isItemSelectedControlled" class="vs-checkbox-column" style="width: 5%">
+      <th
+        v-if="isItemSelectedControlled"
+        class="vs-checkbox-column"
+        rowspan="2"
+        style="width: 5%"
+      >
+        <div class="vs-checkbox">
+          <input
+            type="checkbox"
+            :id="tablename + '-main-checkbox'"
+            :checked="isAllChecked"
+            :indeterminate="isSomeChecked"
+            @change="toggleAll"
+          />
+          <label :for="tablename + '-main-checkbox'"></label>
+        </div>
+      </th>
+
+      <!-- 🟢 CHANGE: Group Headers -->
+      <th
+        v-for="group in groupedColumns"
+        :key="group.label"
+        :colspan="group.colspan"
+        class="vs-group-header"
+        :style="{ textAlign: 'center' }"
+      >
+        {{ group.label }}
+      </th>
+    </tr>
+
+    <!-- Normal Header Row -->
+    <tr>
+      <!-- Expandable column header (shown only if not in group mode) -->
+      <th
+        v-if="expandable && !hasGroups"
+        class="vs-expand-column"
+        style="width: 5%"
+      ></th>
+
+      <!-- Checkbox Column (shown only if not in group mode) -->
+      <th
+        v-if="isItemSelectedControlled && !hasGroups"
+        class="vs-checkbox-column"
+        style="width: 5%"
+      >
         <div class="vs-checkbox">
           <input
             type="checkbox"
@@ -19,8 +69,9 @@
       </th>
 
       <!-- Header Columns -->
+      <!-- 🟢 CHANGE: now loops over flatColumns (instead of props.columns) -->
       <th
-        v-for="(column, index) in columns"
+        v-for="(column, index) in flatColumns"
         :key="column.field"
         @click="column.sortable ? sortHelpers.handleSort(column.field, $event) : null"
         :style="[{ width: column.width + '%' }]"
@@ -161,12 +212,43 @@ function handleOpenFilter(field: string) {
 }
 
 function handleCloseFilter(field: string) {
-  // Only close if the current open filter matches
   if (openFilter.value === field) openFilter.value = null
 }
 
 const headerRef = ref<HTMLElement | null>(null)
+
+/* 🟢 CHANGE: Computed logic for grouped headers */
+const hasGroups = computed(() =>
+  props.columns.some((col) => col.children && col.children.length)
+)
+
+const groupedColumns = computed(() =>
+  props.columns
+    .filter((col) => col.children && col.children.length)
+    .map((col) => ({
+      label: col.label,
+      colspan: col.children.length,
+      children: col.children,
+    }))
+)
+
+const flatColumns = computed(() => {
+  if (!hasGroups.value) return props.columns
+  return props.columns.flatMap((col) =>
+    col.children && col.children.length ? col.children : [col]
+  )
+})
 </script>
+
+<style scoped>
+/* 🟢 CHANGE: Optional style for grouped header */
+.vs-group-header {
+  background: var(--vs-table-header-bg, #f9fafb);
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+}
+</style>
+
 
 <style scoped>
 .vs-header-content {

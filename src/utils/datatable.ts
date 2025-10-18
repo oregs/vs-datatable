@@ -11,8 +11,13 @@ import type { ColumnFilter } from '@/types/datatable'
  * @param path - The path to the value (e.g., 'user.profile.name')
  * @returns The value at the path or empty string
  */
-export function getValue(obj: any, path: string): any {
-  return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
+// export function getValue(obj: any, path: string): any {
+//   return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
+// }
+
+export const getValue = (row: any, field?: string) => {
+  if (!field) return '' // ✅ Prevent undefined field error
+  return field.split('.').reduce((acc, key) => acc && acc[key], row)
 }
 
 /**

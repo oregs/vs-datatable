@@ -323,7 +323,6 @@ function toggleDropdown() {
 function applyFilter() {
   emit('update:modelValue', { ...localFilter.value })
   emit('apply', { ...localFilter.value })
-  // closeDropdown()
 }
 
 function clearFilter() {
