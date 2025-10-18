@@ -141,3 +141,18 @@ export function useDataTable(props: any, emit: any) {
     tableRef,
   }
 }
+
+
+
+// <th
+// v-for="column in nonGroupedColumns"
+// :key="column.field"
+// class="vs-group-header"
+// rowspan="2"
+// :style="{ 
+//   width: column.width + '%',
+//   textAlign: 'center'
+// }"
+// >
+// {{ column.label }}
+// </th>
