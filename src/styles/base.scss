@@ -565,7 +565,7 @@
   background-color: var(--vs-table-bg);
 
   thead {
-    background-color: var(--vs-table-header-bg);
+    background-color: var(--vs-table-bg); // Changed from "--vs-table-header-bg"
 
     th {
       padding: var(--vs-spacing-md);
@@ -584,6 +584,17 @@
       &:last-child {
         border-top-right-radius: var(--vs-border-radius);
       }
+    }
+
+    th::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 25%;
+      bottom: 25%;
+      width: 1px;
+      opacity: 0.6; 
+      pointer-events: none;
     }
   }
 
@@ -615,7 +626,51 @@
       }
     }
   }
+
+  .vs-expand-column {
+    width: 2px;
+    border-right: 1px solid var(--vs-border-color, #e5e7eb);
+  }
+  
+  /* Column Grouping */
+  .vs-group-header {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .vs-group-header::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 30%;
+    bottom: 30%;
+    width: 2px;
+    background-color: var(--vs-border-color, #d1d5db);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .vs-header-cell {
+    background: var(--vs-table-header-bg, #fff);
+    font-weight: 500;
+    white-space: nowrap;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--vs-border-color, #e5e7eb);
+  }
 }
+
+/* Remove double line on last column */
+.vs-table th:last-child,
+.vs-table .vs-group-header:last-child {
+  border-right: none;
+}
+
+// .vs-table th:last-child::after {
+//   display: none;
+// }
 
 /* Sortable Headers */
 .vs-sortable {
@@ -1191,22 +1246,4 @@
   position: sticky;
   top: 0;
   z-index: 2;
-}
-
-/* Column Grouping */
-.vs-group-header {
-  // background: var(--vs-table-header-bg, #f9fafb);
-  font-weight: 600;
-  border-bottom: 1px solid #ddd;
-  background-color: var(--vs-table-header-bg, #fafafa);
-  border-bottom: 1px solid var(--vs-border-color, #e5e7eb);
-}
-
-.vs-header-cell {
-  background: var(--vs-table-header-bg, #fff);
-  font-weight: 500;
-  white-space: nowrap;
-  text-align: left;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--vs-border-color, #e5e7eb);
 }
