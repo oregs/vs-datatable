@@ -1,6 +1,6 @@
 <template>
   <thead ref="headerRef">
-    <!-- 🟢 CHANGE: Added Group Header Row (if columns have children) -->
+    <!-- Group Header Row -->
     <tr v-if="hasGroups">
       <!-- Expandable column -->
       <th v-if="expandable" class="vs-expand-column" rowspan="2" style="width: 5%"></th>
@@ -19,7 +19,7 @@
         </div>
       </th>
 
-      <!-- 🟢 CHANGE: Group Headers -->
+      <!-- Group Headers -->
       <th
         v-for="group in groupedColumns"
         :key="group.label"
@@ -30,115 +30,30 @@
         {{ group.label }}
       </th>
 
-      <!-- 🟢 FIX: Non-grouped columns as rowspan="2" in group header row -->
-      <template v-for="column in nonGroupedColumns">
-        <th
-          v-if="column && column.field"
-          :key="column.field"
-          @click="column.sortable ? sortHelpers.handleSort(column.field, $event) : null"
-          :style="[{ 
-            width: column.width + '%',
-            textAlign: 'center'
-          }]"
-          :data-field="column.field"
-          rowspan="2"
-          class="vs-group-header"
-          :class="[
-            headerClass,
-            column.colHeaderClass,
-            column.sortable ? 'vs-sortable' : '',
-            column.sticky ? `vs-sticky-${column.sticky}` : '',
-          ]"
+      <!-- Non-grouped columns as rowspan="2" in group header row -->
+      <template v-for="column in nonGroupedColumns" :key="column.field">
+        <HeaderCell
+          :column="column"
+          :rows="rows"
+          :rowspan="2"
+          :sort-helpers="sortHelpers"
+          :filters="localFilters"
+          :open-filter="openFilter"
+          :header-class="headerClass"
+          :tablename="tablename"
+          v-bind="$attrs"
+          @apply-filter="(field, val) => emit('applyFilter', field, val)"
+          @clear-filter="(field) => emit('clearFilter', field)"
+          @open-filter="handleOpenFilter"
+          @close-filter="handleCloseFilter"
+          @update:filters="(filters) => emit('update:filters', filters)"
         >
-          <slot :name="`header-${column.field}`" :column="column">
-            <div class="vs-header-content">
-              <span class="vs-header-label">{{ column.label }}</span>
-  
-              <!-- Sort Icons -->
-              <div v-if="column.sortable" class="vs-sort-icons">
-                <span
-                  class="vs-sort-icon vs-sort-asc"
-                  :class="{
-                    'vs-active':
-                      sortHelpers.isColumnSorted(column.field) &&
-                      sortHelpers.getSortOrder(column.field) === 'asc',
-                  }"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                    fill="var(--vs-gray-800)"
-                  >
-                    <path d="m280-400 200-200 200 200H280Z" />
-                  </svg>
-                </span>
-  
-                <span
-                  class="vs-sort-icon vs-sort-desc"
-                  :class="{
-                    'vs-active':
-                      sortHelpers.isColumnSorted(column.field) &&
-                      sortHelpers.getSortOrder(column.field) === 'desc',
-                  }"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                  >
-                    <path d="M480-360 280-560h400L480-360Z" />
-                  </svg>
-                </span>
-              </div>
-  
-              <!-- Priority Badge -->
-              <span
-                v-if="sortHelpers.getSortPriority(column.field) !== null"
-                class="vs-sort-priority"
-              >
-                {{ sortHelpers.getSortPriority(column.field) }}
-              </span>
-  
-              <!-- Column Filter -->
-              <VsDataTableFilterDropdown
-                v-if="column.filter"
-                :type="column.filter.type"
-                :async-options="column.filter.asyncOptions"
-                :field="column.field"
-                :operators="column.filter.operators"
-                v-model="localFilters[column.field]"
-                :visible="openFilter === column.field"
-                :column-data="column.field ? rows.map((r) => r[column.field as string]) : []"
-                @apply="
-                  (val) => {
-                    if (column.field) emit('applyFilter', column.field, val)
-                  }
-                "
-                @clear="
-                  () => {
-                    if (column.field) emit('clearFilter', column.field)
-                  }
-                "
-                @close="handleCloseFilter(column.field)"
-                @open="handleOpenFilter(column.field)"
-              >
-                <template v-if="column.filter.custom" #custom="{ filter, apply, clear }">
-                  <slot
-                    :name="column.filter.custom"
-                    :filter="filter"
-                    :apply="apply"
-                    :clear="clear"
-                  />
-                </template>
-              </VsDataTableFilterDropdown>
-            </div>
-          </slot>
-        </th>
+          <!-- Pass through all header slots -->
+          <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+            <slot :name="slotName" v-bind="slotProps" />
+          </template>
+        </HeaderCell>
       </template>
-
     </tr>
 
     <!-- Normal Header Row -->
@@ -164,109 +79,29 @@
         </div>
       </th>
 
-      <!-- Header Columns -->
-      <!-- 🟢 CHANGE: Only show grouped columns' children in the second row -->
-      <template v-for="column in flatColumns">
-        <th
-          v-if="column && column.field && isGroupedColumnChild(column)"
-          :key="column.field"
-          @click="column.sortable ? sortHelpers.handleSort(column.field, $event) : null"
-          :style="[{ width: column.width + '%' }]"
-          :data-field="column.field"
-          :class="[
-            headerClass,
-            column.colHeaderClass,
-            column.sortable ? 'vs-sortable' : '',
-            column.sticky ? `vs-sticky-${column.sticky}` : '',
-          ]"
+      <!-- Header Columns - Only show grouped columns' children in the second row -->
+      <template v-for="column in flatColumns" :key="column.field">
+        <HeaderCell
+          v-if="column.field && isGroupedColumnChild(column)"
+          :column="column"
+          :rows="rows"
+          :sort-helpers="sortHelpers"
+          :filters="localFilters"
+          :open-filter="openFilter"
+          :header-class="headerClass"
+          :tablename="tablename"
+          v-bind="$attrs"
+          @apply-filter="(field, val) => emit('applyFilter', field, val)"
+          @clear-filter="(field) => emit('clearFilter', field)"
+          @open-filter="handleOpenFilter"
+          @close-filter="handleCloseFilter"
+          @update:filters="(filters) => emit('update:filters', filters)"
         >
-          <slot :name="`header-${column.field}`" :column="column">
-            <div class="vs-header-content">
-              <span class="vs-header-label">{{ column.label }}</span>
-
-              <!-- Sort Icons -->
-              <div v-if="column.sortable" class="vs-sort-icons">
-                <span
-                  class="vs-sort-icon vs-sort-asc"
-                  :class="{
-                    'vs-active':
-                      sortHelpers.isColumnSorted(column.field) &&
-                      sortHelpers.getSortOrder(column.field) === 'asc',
-                  }"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                    fill="var(--vs-gray-800)"
-                  >
-                    <path d="m280-400 200-200 200 200H280Z" />
-                  </svg>
-                </span>
-
-                <span
-                  class="vs-sort-icon vs-sort-desc"
-                  :class="{
-                    'vs-active':
-                      sortHelpers.isColumnSorted(column.field) &&
-                      sortHelpers.getSortOrder(column.field) === 'desc',
-                  }"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="24px"
-                    viewBox="0 -960 960 960"
-                    width="24px"
-                  >
-                    <path d="M480-360 280-560h400L480-360Z" />
-                  </svg>
-                </span>
-              </div>
-
-              <!-- Priority Badge -->
-              <span
-                v-if="sortHelpers.getSortPriority(column.field) !== null"
-                class="vs-sort-priority"
-              >
-                {{ sortHelpers.getSortPriority(column.field) }}
-              </span>
-
-              <!-- Column Filter -->
-              <VsDataTableFilterDropdown
-                v-if="column.filter"
-                :type="column.filter.type"
-                :async-options="column.filter.asyncOptions"
-                :field="column.field"
-                :operators="column.filter.operators"
-                v-model="localFilters[column.field]"
-                :visible="openFilter === column.field"
-                :column-data="column.field ? rows.map((r) => r[column.field as string]) : []"
-                @apply="
-                  (val) => {
-                    if (column.field) emit('applyFilter', column.field, val)
-                  }
-                "
-                @clear="
-                  () => {
-                    if (column.field) emit('clearFilter', column.field)
-                  }
-                "
-                @close="handleCloseFilter(column.field)"
-                @open="handleOpenFilter(column.field)"
-              >
-                <template v-if="column.filter.custom" #custom="{ filter, apply, clear }">
-                  <slot
-                    :name="column.filter.custom"
-                    :filter="filter"
-                    :apply="apply"
-                    :clear="clear"
-                  />
-                </template>
-              </VsDataTableFilterDropdown>
-            </div>
-          </slot>
-        </th>
+          <!-- Pass through all header slots -->
+          <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+            <slot :name="slotName" v-bind="slotProps" />
+          </template>
+        </HeaderCell>
       </template>
     </tr>
   </thead>
@@ -275,7 +110,7 @@
 <script setup lang="ts">
 import type { Column, Row, SortHelpers } from '@/types'
 import { computed, ref } from 'vue'
-import VsDataTableFilterDropdown from './VsDataTableFilterDropdown.vue'
+import HeaderCell from '@/components/ui/HeaderCell.vue'
 
 const props = defineProps<{
   columns: Column[]
@@ -311,7 +146,7 @@ const localFilters = computed({
 const openFilter = ref<string | null>(null)
 
 function handleOpenFilter(field: string) {
-  openFilter.value = field // auto closes other filters
+  openFilter.value = field
 }
 
 function handleCloseFilter(field: string) {
@@ -320,7 +155,7 @@ function handleCloseFilter(field: string) {
 
 const headerRef = ref<HTMLElement | null>(null)
 
-/* 🟢 CHANGE: Computed logic for grouped headers */
+// Computed properties
 const hasGroups = computed(() => props.columns.some((col) => col.children && col.children.length))
 
 const groupedColumns = computed(() =>
@@ -333,7 +168,6 @@ const groupedColumns = computed(() =>
     }))
 )
 
-// 🟢 FIX: Identify non-grouped columns
 const nonGroupedColumns = computed(() =>
   props.columns.filter((col) => !col.children || !col.children.length)
 )
@@ -345,7 +179,6 @@ const flatColumns = computed(() => {
   )
 })
 
-// 🟢 FIX: Helper to check if a column is a child of a grouped column
 function isGroupedColumnChild(column: Column): boolean {
   if (!hasGroups.value) return true
   return props.columns.some(

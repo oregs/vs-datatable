@@ -61,9 +61,29 @@ export function isRowSelected(
  * @param hasCheckbox - Whether checkbox column is present
  * @returns Total number of columns
  */
-export function calculateTotalColumns(columns: Column[], hasCheckbox: boolean, hasExtendable: boolean): number {
-  return columns.length + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
+export function calculateTotalColumns(
+  columns: Column[],
+  hasCheckbox: boolean,
+  hasExtendable: boolean
+): number {
+  const countLeafColumns = (cols: Column[]): number => {
+    return cols.reduce((count, col) => {
+      if (col.children && col.children.length > 0) {
+        // Only count child columns, not the parent
+        return count + countLeafColumns(col.children)
+      }
+      return count + 1
+    }, 0)
+  }
+
+  const totalColumns = countLeafColumns(columns)
+
+  return totalColumns + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
 }
+
+// export function calculateTotalColumns(columns: Column[], hasCheckbox: boolean, hasExtendable: boolean): number {
+//   return columns.length + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
+// }
 
 /**
  * Sort array of objects by multiple criteria
