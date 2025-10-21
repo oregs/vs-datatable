@@ -3,10 +3,22 @@
     <!-- Group Header Row -->
     <tr v-if="hasGroups">
       <!-- Expandable column -->
-      <th v-if="expandable" class="vs-expand-column" rowspan="2" style="width: 5%"></th>
+      <th
+        v-if="expandable"
+        class="vs-expand-column"
+        rowspan="2"
+        style="width: 5%"
+        data-field="_expand"
+      ></th>
 
       <!-- Checkbox Column -->
-      <th v-if="isItemSelectedControlled" class="vs-checkbox-column" rowspan="2" style="width: 5%">
+      <th
+        v-if="isItemSelectedControlled"
+        class="vs-checkbox-column"
+        rowspan="2"
+        style="width: 5%"
+        data-field="_checkbox"
+      >
         <div class="vs-checkbox">
           <input
             type="checkbox"
@@ -24,6 +36,7 @@
         v-for="group in groupedColumns"
         :key="group.label"
         :colspan="group.colspan"
+        :data-field="`group-${group.label}`"
         class="vs-group-header"
         :style="{ textAlign: 'center' }"
       >
@@ -59,13 +72,19 @@
     <!-- Normal Header Row -->
     <tr>
       <!-- Expandable column header (shown only if not in group mode) -->
-      <th v-if="expandable && !hasGroups" class="vs-expand-column" style="width: 5%"></th>
+      <th
+        v-if="expandable && !hasGroups"
+        class="vs-expand-column"
+        style="width: 5%"
+        data-field="_expand"
+      ></th>
 
       <!-- Checkbox Column (shown only if not in group mode) -->
       <th
         v-if="isItemSelectedControlled && !hasGroups"
         class="vs-checkbox-column"
         style="width: 5%"
+        data-field="_checkbox"
       >
         <div class="vs-checkbox">
           <input
@@ -79,10 +98,10 @@
         </div>
       </th>
 
-      <!-- Header Columns - Only show grouped columns' children in the second row -->
+      <!-- Header Columns - Use the same flatColumns structure as the body -->
       <template v-for="column in flatColumns" :key="column.field">
         <HeaderCell
-          v-if="column.field && isGroupedColumnChild(column)"
+          v-if="column.field && shouldRenderInSecondRow(column)"
           :column="column"
           :rows="rows"
           :sort-helpers="sortHelpers"
@@ -172,21 +191,34 @@ const nonGroupedColumns = computed(() =>
   props.columns.filter((col) => !col.children || !col.children.length)
 )
 
+// 🟢 CRITICAL FIX: Use the same flattening logic as VsDataTableBody.vue
 const flatColumns = computed(() => {
-  if (!hasGroups.value) return props.columns
-  return props.columns.flatMap((col) =>
+  return props.columns.flatMap(col =>
     col.children && col.children.length ? col.children : [col]
   )
 })
 
-function isGroupedColumnChild(column: Column): boolean {
+// 🟢 FIX: Updated logic to determine which columns should render in second row
+function shouldRenderInSecondRow(column: Column): boolean {
   if (!hasGroups.value) return true
+  
+  // In grouped mode, only render children of grouped columns in the second row
+  // Non-grouped columns are already rendered in the first row with rowspan="2"
   return props.columns.some(
-    parentCol => 
+    (parentCol) =>
       parentCol.children && 
-      parentCol.children.some(child => child.field === column.field)
+      parentCol.children.some((child) => child.field === column.field)
   )
 }
+
+// Debug: Log the column structure
+// watch(flatColumns, (newVal) => {
+//   console.log('[VsDataTableHeader] Flat columns:', newVal.map(c => ({
+//     field: c.field,
+//     label: c.label,
+//     sticky: c.sticky
+//   })))
+// }, { immediate: true })
 </script>
 
 <style scoped>

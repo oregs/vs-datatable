@@ -144,7 +144,7 @@ import VsDataTableToolbar from '@/components/VsDataTableToolbar.vue'
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTableSelection } from '@/composables/useDataTableSelection'
-import { getValue, getRowKey, isRowSelected, calculateTotalColumns } from '@/utils/datatable'
+import { getValue, getRowKey, isRowSelected, calculateTotalColumns, getFlatColumns } from '@/utils/datatable'
 import { useStickyColumns } from '@/composables/useStickyColumns'
 import { useStickyHeader } from '@/composables/useStickyHeader'
 
@@ -231,6 +231,7 @@ const totalColumns = computed(() =>
 const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
   tableRef,
   computed(() => props.columns)
+  // computed(() => getFlatColumns(props.columns))
 )
 
 const { refresh } = useStickyHeader(tableRef, {

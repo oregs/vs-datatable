@@ -124,6 +124,50 @@
 //           const cell = cells[index]
 //           if (!cell) return
 
+//           cell.style.position = 'sticky'
+//           cell.style.right = `${rightOffset}px`
+//           cell.style.zIndex = '3'
+//           cell.style.background = 'inherit'
+//           cell.classList.add('vs-sticky-right')
+          
+//           rightOffset += cell.offsetWidth
+//         })
+//       })
+//     }
+
+//     updateShadows()
+//   }
+
+//   const refreshSticky = async () => {
+//     await nextTick()
+//     setTimeout(() => {
+//       try {
+//         setupSticky()
+//       } catch (err) {
+//         console.warn('[useStickyColumns] refreshSticky failed:', err)
+//       }
+//     }, 30)
+//   }
+
+//   onMounted(async () => {
+//     await nextTick()
+//     await refreshSticky()
+//     const scrollEl = tableRef.value?.parentElement
+//     scrollEl?.addEventListener('scroll', updateShadows)
+//     updateShadows()
+//   })
+
+//   onBeforeUnmount(() => {
+//     const scrollEl = tableRef.value?.parentElement
+//     scrollEl?.removeEventListener('scroll', updateShadows)
+//   })
+
+//   watch(columns, refreshSticky, { deep: true })
+
+//   return { hasLeftShadow, hasRightShadow, refreshSticky }
+// }
+
+
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import type { Ref } from 'vue'
 import type { Column } from '@/types'
@@ -144,11 +188,9 @@ export function useStickyColumns(
       scrollEl.scrollWidth - scrollEl.clientWidth - scrollEl.scrollLeft > 1
   }
 
-  const setupSticky = async () => {
+  const setupSticky = () => {
     const table = tableRef.value
     if (!table) return
-
-    await nextTick()
 
     const rows = Array.from(table.querySelectorAll('tr')) as HTMLElement[]
     if (!rows?.length) return
@@ -269,11 +311,17 @@ export function useStickyColumns(
       }
     })
 
-    // Prepare set of group->first-child mapping for quick lookup
-    const groupFirstChildField = new Map<string, string | undefined>()
+    // Apply sticky styles to ALL rows
+    // -------------------------------
+    // We'll use the body-based offsets (leftOffsets/rightOffsets) for both body and header,
+    // but resolve header cells to the correct body column index (accounts for grouped headers).
+    const stickyChildFields = new Set<string>()
+    // If a parent group is sticky, mark its children so we skip applying sticky to them individually
     columns.value.forEach(col => {
-      if (col.children?.length) {
-        groupFirstChildField.set(col.label, col.children[0]?.field)
+      if (col.children?.length && col.sticky) {
+        col.children.forEach(child => {
+          if (child.field) stickyChildFields.add(child.field)
+        })
       }
     })
 
@@ -281,73 +329,76 @@ export function useStickyColumns(
     const resolveHeaderFieldIndex = (field: string | null): number | undefined => {
       if (!field) return undefined
 
-      // Group header field pattern: 'group-<label>'
+      // Group header (we render with data-field=`group-${group.label}`)
       if (field.startsWith('group-')) {
         const groupLabel = field.replace(/^group-/, '')
-        const firstChildField = groupFirstChildField.get(groupLabel)
+        // Find the parent column by label and pick the first child's field
+        const parent = columns.value.find(c => c.children && c.children.length && c.label === groupLabel)
+        const firstChildField = parent?.children?.[0]?.field
         if (!firstChildField) return undefined
         return fieldToIndex.get(firstChildField)
       }
 
-      // Normal header or child header -> map directly to body index
+      // Normal header / child header -> map directly to body index
       return fieldToIndex.get(field)
     }
 
-    rows.forEach((row) => {
+    rows.forEach((row, rowIndex) => {
+      const cells = Array.from(row.children) as HTMLElement[]
+      const isHeaderRow = row.closest('thead') !== null
+
       // Apply left sticky
-      rows.forEach((row) => {
-        const cells = Array.from(row.children) as HTMLElement[]
-        const isHeaderRow = row.closest('thead') !== null
-      
-        cells.forEach(cell => {
-          const field = cell.getAttribute('data-field')
-          if (!field) return
-      
-          // Resolve header/child/group field → body cell index
-          const resolvedIndex = resolveHeaderFieldIndex(field)
-          if (resolvedIndex === undefined) return
-      
-          // Check if this field should be sticky-left
-          if (!uniqueLeftIndexes.includes(resolvedIndex)) return
-      
-          // Get its offset based on body cell
-          const offset = leftOffsets.get(resolvedIndex) || 0
-      
+      uniqueLeftIndexes.forEach(index => {
+        const cell = cells[index]
+        if (!cell) return
+
+        // If header row, map header cell field to body index to get a correct offset
+        if (isHeaderRow) {
+          const headerField = cell.getAttribute('data-field')
+          const resolvedIndex = resolveHeaderFieldIndex(headerField)
+
+          // If the header cell is a child of a sticky group, skip (group header will handle it)
+          if (headerField && stickyChildFields.has(headerField)) return
+
+          const offset = resolvedIndex !== undefined ? (leftOffsets.get(resolvedIndex) || 0) : (leftOffsets.get(index) || 0)
           cell.style.position = 'sticky'
           cell.style.left = `${offset}px`
-          cell.style.zIndex = isHeaderRow ? '4' : '3'
+          cell.style.zIndex = '4'
           cell.classList.add('vs-sticky-left')
-          cell.style.background = 'var(--vs-table-bg, #fff)'
-        })
+        } else {
+          // Body rows - apply using already-correct body index
+          const offset = leftOffsets.get(index) || 0
+          cell.style.position = 'sticky'
+          cell.style.left = `${offset}px`
+          cell.style.zIndex = '3'
+          cell.classList.add('vs-sticky-left')
+        }
       })
 
       // Apply right sticky
-      rows.forEach((row) => {
-        const cells = Array.from(row.children) as HTMLElement[]
-        const isHeaderRow = row.closest('thead') !== null
+      uniqueRightIndexes.forEach(index => {
+        const cell = cells[index]
+        if (!cell) return
 
-        cells.forEach(cell => {
-          const field = cell.getAttribute('data-field')
-          if (!field) return
+        if (isHeaderRow) {
+          const headerField = cell.getAttribute('data-field')
+          const resolvedIndex = resolveHeaderFieldIndex(headerField)
 
-          // Resolve header or body field to its body index
-          const resolvedIndex = resolveHeaderFieldIndex(field)
-          if (resolvedIndex === undefined) return
+          if (headerField && stickyChildFields.has(headerField)) return
 
-          // Check if this field's column is marked as right-sticky
-          if (!uniqueRightIndexes.includes(resolvedIndex)) return
-
-          // Use the correct offset based on the body cell
-          const offset = rightOffsets.get(resolvedIndex) || 0
-
+          const offset = resolvedIndex !== undefined ? (rightOffsets.get(resolvedIndex) || 0) : (rightOffsets.get(index) || 0)
           cell.style.position = 'sticky'
           cell.style.right = `${offset}px`
-          cell.style.zIndex = isHeaderRow ? '4' : '3'
+          cell.style.zIndex = '4'
           cell.classList.add('vs-sticky-right')
-          cell.style.background = 'var(--vs-table-bg, #fff)'
-        })
+        } else {
+          const offset = rightOffsets.get(index) || 0
+          cell.style.position = 'sticky'
+          cell.style.right = `${offset}px`
+          cell.style.zIndex = '3'
+          cell.classList.add('vs-sticky-right')
+        }
       })
-      
     })
 
     updateShadows()
