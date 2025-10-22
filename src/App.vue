@@ -138,23 +138,23 @@ const itemSelected = ref<any[]>([])
 // ])
 
 const columns = ref<any[]>([
-  { label: 'Customer', field: 'customer', sortable: true, filter: { type: 'text' }, sticky: 'left' },
+  { label: 'Customer', field: 'customer', sortable: true, filter: { type: 'text' } },
   { label: 'Email', field: 'email', sortable: true, filter: { type: 'text' } },
   { label: 'Phone', field: 'phone', sortable: true },
   { label: 'Discount', field: 'discount', sortable: true },
   {
     label: 'Order Info',
-    
+    // sticky: 'right',
     children: [
       { label: 'Order', field: 'id', sortable: true, filter: { type: 'number-range', operators: ['between', 'equals', 'notEqual'] } },
       { label: 'Date', field: 'date', sortable: true, filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] } },
     ],
   },
   { label: 'Items', field: 'items', sortable: true },
-  { label: 'Location', field: 'location', sortable: true, sticky: 'left' },
+  { label: 'Location', field: 'location', sortable: true },
   { label: 'Notes', field: 'notes' },
   { label: 'Payment', field: 'payment', sortable: true, filter: { type: 'multi-select', asyncOptions: () => ['Cash', 'Card', 'Wallet', 'POS'] } }, // Remove 'asyncOptions' to use Column field value
-  { label: 'Shipping', field: 'shipping', sortable: true, sticky: 'right' },
+  { label: 'Shipping', field: 'shipping', sortable: true },
   { label: 'Status', field: 'status', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
   { label: 'Tax', field: 'tax', sortable: true },
   { label: 'Total', field: 'total', sortable: true },

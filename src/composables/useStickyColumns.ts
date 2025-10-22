@@ -10,14 +10,19 @@
 //   const hasLeftShadow = ref<boolean>(false)
 //   const hasRightShadow = ref<boolean>(false)
   
+//   // prevent recursive updates
+//   let isApplyingStyles = false
+
 //   const updateShadows = () => {
+//     if (isApplyingStyles) return
+    
 //     const scrollEl = tableRef.value?.parentElement
 //     const table = tableRef.value
 //     if (!scrollEl || !table) return
   
 //     const scrollLeft = scrollEl.scrollLeft
 //     const maxScrollLeft = scrollEl.scrollWidth - scrollEl.clientWidth
-
+  
 //     console.log('ScrollLeft: ', scrollLeft, 'MaxScrollLeft: ', maxScrollLeft);
   
 //     // Shadows
@@ -31,31 +36,46 @@
 //       table.querySelectorAll('.vs-sticky-right')
 //     ) as HTMLElement[]
   
-//     // Reset all
-//     leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-//     rightStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-  
+//     // Don't reset z-index for all cells - only update based on scroll position
+//     // The proper z-index layering is already set in applyStickyStyles
+    
 //     // ---------------- LEFT STICKY ----------------
 //     if (scrollLeft > 0) {
-//       leftStickyCells.forEach(cell => (cell.style.zIndex = '4'))
+//       // Only update left sticky cells when scrolled
+//       leftStickyCells.forEach(cell => {
+//         // Preserve header z-index (4) vs body z-index (3)
+//         const isHeader = cell.closest('thead') !== null
+//         cell.style.zIndex = isHeader ? '5' : '4' // Higher when active
+//       })
 //     } else {
-//       leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
+//       // Reset to base z-index when not scrolled
+//       leftStickyCells.forEach(cell => {
+//         const isHeader = cell.closest('thead') !== null
+//         cell.style.zIndex = isHeader ? '4' : '3' // Base z-index
+//       })
 //     }
   
 //     // ---------------- RIGHT STICKY ----------------
 //     if (rightStickyCells.length) {
 //       const firstRight = rightStickyCells[0]
 //       const rightBoundary = table.offsetWidth - firstRight.offsetLeft
-//       const scrollRight =
-//         scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
+//       const scrollRight = scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
   
-//       // When we’re close enough to the right end
+//       // When we're close enough to the right end
 //       if (scrollRight <= rightBoundary + 5) {
-//         rightStickyCells.forEach(cell => (cell.style.zIndex = '4'))
+//         rightStickyCells.forEach(cell => {
+//           const isHeader = cell.closest('thead') !== null
+//           cell.style.zIndex = isHeader ? '5' : '4' // Higher when active
+//         })
+//       } else {
+//         // Reset to base z-index when not at right edge
+//         rightStickyCells.forEach(cell => {
+//           const isHeader = cell.closest('thead') !== null
+//           cell.style.zIndex = isHeader ? '4' : '3' // Base z-index
+//         })
 //       }
 //     }
 //   }
-
 
 //   const getTableRows = (): HTMLElement[] => {
 //     const table = tableRef.value
@@ -140,28 +160,45 @@
 //     return offsets
 //   }
 
-//   const createGroupFirstChildFieldMap = (columns: Column[]): Map<string, string | undefined> => {
-//     const groupMap = new Map<string, string | undefined>()
+//   // Create map for both first child (for left sticky) and last child (for right sticky)
+//   const createGroupChildFieldMap = (columns: Column[]): { 
+//     firstChild: Map<string, string | undefined>; 
+//     lastChild: Map<string, string | undefined> 
+//   } => {
+//     const firstChildMap = new Map<string, string | undefined>()
+//     const lastChildMap = new Map<string, string | undefined>()
+    
 //     columns.forEach(col => {
 //       if (col.children?.length) {
-//         groupMap.set(col.label, col.children[0]?.field)
+//         firstChildMap.set(col.label, col.children[0]?.field)
+//         lastChildMap.set(col.label, col.children[col.children.length - 1]?.field)
 //       }
 //     })
-//     return groupMap
+    
+//     return { firstChild: firstChildMap, lastChild: lastChildMap }
 //   }
 
+//   // Updated to handle both left and right sticky for group headers
 //   const resolveHeaderFieldIndex = (
 //     field: string | null, 
 //     fieldToIndex: Map<string, number>, 
-//     groupFirstChildField: Map<string, string | undefined>
+//     groupChildField: { firstChild: Map<string, string | undefined>; lastChild: Map<string, string | undefined> },
+//     direction: 'left' | 'right'
 //   ): number | undefined => {
 //     if (!field) return undefined
 
 //     // Group header field pattern: 'group-<label>'
 //     if (field.startsWith('group-')) {
 //       const groupLabel = field.replace(/^group-/, '')
-//       const firstChildField = groupFirstChildField.get(groupLabel)
-//       return firstChildField ? fieldToIndex.get(firstChildField) : undefined
+      
+//       // Use first child for left sticky, last child for right sticky
+//       if (direction === 'left') {
+//         const firstChildField = groupChildField.firstChild.get(groupLabel)
+//         return firstChildField ? fieldToIndex.get(firstChildField) : undefined
+//       } else {
+//         const lastChildField = groupChildField.lastChild.get(groupLabel)
+//         return lastChildField ? fieldToIndex.get(lastChildField) : undefined
+//       }
 //     }
 
 //     // Normal header or child header
@@ -177,6 +214,8 @@
 //         cell.style.right = ''
 //         cell.style.zIndex = ''
 //         cell.style.background = ''
+//         cell.style.minWidth = ''
+//         cell.style.width = ''
 //         cell.classList.remove('vs-sticky-left', 'vs-sticky-right')
 //       })
 //     })
@@ -188,32 +227,42 @@
 //     offsets: Map<number, number>,
 //     direction: 'left' | 'right',
 //     fieldToIndex: Map<string, number>,
-//     groupFirstChildField: Map<string, string | undefined>
+//     groupChildField: { firstChild: Map<string, string | undefined>; lastChild: Map<string, string | undefined> }
 //   ) => {
-//     rows.forEach(row => {
-//       const cells = Array.from(row.children) as HTMLElement[]
-//       const isHeaderRow = row.closest('thead') !== null
+//     if (isApplyingStyles) return
+//     isApplyingStyles = true
 
-//       cells.forEach(cell => {
-//         const field = cell.getAttribute('data-field')
-//         if (!field) return
+//     try {
+//       rows.forEach(row => {
+//         const cells = Array.from(row.children) as HTMLElement[]
+//         const isHeaderRow = row.closest('thead') !== null
 
-//         const resolvedIndex = resolveHeaderFieldIndex(field, fieldToIndex, groupFirstChildField)
-//         if (resolvedIndex === undefined || !stickyIndexes.includes(resolvedIndex)) return
+//         cells.forEach(cell => {
+//           const field = cell.getAttribute('data-field')
+//           if (!field) return
 
-//         const offset = offsets.get(resolvedIndex) || 0
-//         const zIndex = isHeaderRow ? '4' : '3'
+//           // Pass direction parameter
+//           const resolvedIndex = resolveHeaderFieldIndex(field, fieldToIndex, groupChildField, direction)
+//           if (resolvedIndex === undefined || !stickyIndexes.includes(resolvedIndex)) return
 
-//         cell.style.position = 'sticky'
-//         cell.style[direction] = `${offset}px`
-//         cell.style.zIndex = zIndex
-//         cell.classList.add(`vs-sticky-${direction}`)
-//         cell.style.background = 'var(--vs-table-bg, #fff)'
+//           const offset = offsets.get(resolvedIndex) || 0
+//           const zIndex = isHeaderRow ? '4' : '3'
+
+//           cell.style.position = 'sticky'
+//           cell.style[direction] = `${offset}px`
+//           cell.style.zIndex = zIndex
+//           cell.classList.add(`vs-sticky-${direction}`)
+//           cell.style.background = 'var(--vs-table-bg, #fff)'
+//         })
 //       })
-//     })
+//     } finally {
+//       isApplyingStyles = false
+//     }
 //   }
 
 //   const setupSticky = async () => {
+//     if (isApplyingStyles) return
+    
 //     const rows = getTableRows()
 //     if (!rows.length) return
 
@@ -224,24 +273,24 @@
 //     const fieldToIndex = createFieldToIndexMap(bodyCells)
 //     const stickyIndexes = getStickyIndexes(bodyCells, fieldToIndex, columns.value)
 
-//     console.log('[useStickyColumns] Sticky columns:', {
-//       left: stickyIndexes.left.map(idx => ({ index: idx, field: columns.value[idx]?.field })),
-//       right: stickyIndexes.right.map(idx => ({ index: idx, field: columns.value[idx]?.field }))
-//     })
-
 //     clearStickyStyles(rows)
 
 //     const leftOffsets = calculateOffsets(bodyCells, stickyIndexes.left, 'left')
 //     const rightOffsets = calculateOffsets(bodyCells, stickyIndexes.right, 'right')
-//     const groupFirstChildField = createGroupFirstChildFieldMap(columns.value)
+    
+//     // Use the new group child field map
+//     const groupChildField = createGroupChildFieldMap(columns.value)
 
-//     applyStickyStyles(rows, stickyIndexes.left, leftOffsets, 'left', fieldToIndex, groupFirstChildField)
-//     applyStickyStyles(rows, stickyIndexes.right, rightOffsets, 'right', fieldToIndex, groupFirstChildField)
+//     // Pass direction to applyStickyStyles calls
+//     applyStickyStyles(rows, stickyIndexes.left, leftOffsets, 'left', fieldToIndex, groupChildField)
+//     applyStickyStyles(rows, stickyIndexes.right, rightOffsets, 'right', fieldToIndex, groupChildField)
 
 //     updateShadows()
 //   }
 
 //   const refreshSticky = async () => {
+//     if (isApplyingStyles) return
+    
 //     await nextTick()
 //     setTimeout(() => {
 //       try {
@@ -273,11 +322,17 @@
 
 //   onBeforeUnmount(cleanupEventListeners)
 
-//   watch([columns, hasGroups], refreshSticky, { deep: true })
+//   // Throttle the watch to prevent excessive updates
+//   let refreshTimeout: NodeJS.Timeout | null = null
+//   watch([columns, hasGroups], () => {
+//     if (refreshTimeout) clearTimeout(refreshTimeout)
+//     refreshTimeout = setTimeout(() => {
+//       refreshSticky()
+//     }, 100)
+//   }, { deep: true })
 
 //   return { hasLeftShadow, hasRightShadow, refreshSticky }
 // }
-
 
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import type { Ref } from 'vue'
@@ -291,9 +346,9 @@ export function useStickyColumns(
   const hasLeftShadow = ref<boolean>(false)
   const hasRightShadow = ref<boolean>(false)
   
-  // 🟢 FIX: Add flag to prevent recursive updates
+  // prevent recursive updates
   let isApplyingStyles = false
-  
+
   const updateShadows = () => {
     if (isApplyingStyles) return
     
@@ -303,7 +358,7 @@ export function useStickyColumns(
   
     const scrollLeft = scrollEl.scrollLeft
     const maxScrollLeft = scrollEl.scrollWidth - scrollEl.clientWidth
-
+  
     console.log('ScrollLeft: ', scrollLeft, 'MaxScrollLeft: ', maxScrollLeft);
   
     // Shadows
@@ -317,27 +372,43 @@ export function useStickyColumns(
       table.querySelectorAll('.vs-sticky-right')
     ) as HTMLElement[]
   
-    // Reset all
-    leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-    rightStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-  
+    // Don't reset z-index for all cells - only update based on scroll position
+    // The proper z-index layering is already set in applyStickyStyles
+    
     // ---------------- LEFT STICKY ----------------
     if (scrollLeft > 0) {
-      leftStickyCells.forEach(cell => (cell.style.zIndex = '4'))
+      // Only update left sticky cells when scrolled
+      leftStickyCells.forEach(cell => {
+        // Preserve header z-index (4) vs body z-index (3)
+        const isHeader = cell.closest('thead') !== null
+        cell.style.zIndex = isHeader ? '5' : '4' // Higher when active
+      })
     } else {
-      leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
+      // Reset to base z-index when not scrolled
+      leftStickyCells.forEach(cell => {
+        const isHeader = cell.closest('thead') !== null
+        cell.style.zIndex = isHeader ? '4' : '3' // Base z-index
+      })
     }
   
     // ---------------- RIGHT STICKY ----------------
     if (rightStickyCells.length) {
       const firstRight = rightStickyCells[0]
       const rightBoundary = table.offsetWidth - firstRight.offsetLeft
-      const scrollRight =
-        scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
+      const scrollRight = scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
   
       // When we're close enough to the right end
       if (scrollRight <= rightBoundary + 5) {
-        rightStickyCells.forEach(cell => (cell.style.zIndex = '4'))
+        rightStickyCells.forEach(cell => {
+          const isHeader = cell.closest('thead') !== null
+          cell.style.zIndex = isHeader ? '5' : '4' // Higher when active
+        })
+      } else {
+        // Reset to base z-index when not at right edge
+        rightStickyCells.forEach(cell => {
+          const isHeader = cell.closest('thead') !== null
+          cell.style.zIndex = isHeader ? '4' : '3' // Base z-index
+        })
       }
     }
   }
@@ -365,6 +436,24 @@ export function useStickyColumns(
     return fieldToIndex
   }
 
+  // Check if any column has sticky set
+  const hasStickyColumns = (columns: Column[]): boolean => {
+    for (const col of columns) {
+      if (col.children?.length) {
+        // Check child columns
+        if (col.children.some(child => child.sticky === 'left' || child.sticky === 'right')) {
+          return true
+        }
+      } else {
+        // Check main column
+        if (col.sticky === 'left' || col.sticky === 'right') {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
   const getStickyIndexes = (
     bodyCells: HTMLElement[], 
     fieldToIndex: Map<string, number>, 
@@ -373,13 +462,18 @@ export function useStickyColumns(
     const leftIndexes: number[] = []
     const rightIndexes: number[] = []
 
-    // Always include expandable and checkbox columns as left sticky
-    bodyCells.forEach((cell, index) => {
-      if (cell.classList.contains('vs-expand-column') || 
-          cell.classList.contains('vs-checkbox-column')) {
-        leftIndexes.push(index)
-      }
-    })
+    // Check if any columns have sticky set
+    const hasManualStickyColumns = hasStickyColumns(columns)
+
+    // Only include expandable and checkbox columns as left sticky if there are other sticky columns
+    if (hasManualStickyColumns) {
+      bodyCells.forEach((cell, index) => {
+        if (cell.classList.contains('vs-expand-column') || 
+            cell.classList.contains('vs-checkbox-column')) {
+          leftIndexes.push(index)
+        }
+      })
+    }
 
     // Add manual sticky columns based on actual DOM field order
     columns.forEach(col => {
@@ -425,7 +519,7 @@ export function useStickyColumns(
     return offsets
   }
 
-  // 🟢 FIX: Create map for both first child (for left sticky) and last child (for right sticky)
+  // Create map for both first child (for left sticky) and last child (for right sticky)
   const createGroupChildFieldMap = (columns: Column[]): { 
     firstChild: Map<string, string | undefined>; 
     lastChild: Map<string, string | undefined> 
@@ -443,7 +537,7 @@ export function useStickyColumns(
     return { firstChild: firstChildMap, lastChild: lastChildMap }
   }
 
-  // 🟢 FIX: Updated to handle both left and right sticky for group headers
+  // Updated to handle both left and right sticky for group headers
   const resolveHeaderFieldIndex = (
     field: string | null, 
     fieldToIndex: Map<string, number>, 
@@ -456,7 +550,7 @@ export function useStickyColumns(
     if (field.startsWith('group-')) {
       const groupLabel = field.replace(/^group-/, '')
       
-      // 🟢 FIX: Use first child for left sticky, last child for right sticky
+      // Use first child for left sticky, last child for right sticky
       if (direction === 'left') {
         const firstChildField = groupChildField.firstChild.get(groupLabel)
         return firstChildField ? fieldToIndex.get(firstChildField) : undefined
@@ -486,7 +580,6 @@ export function useStickyColumns(
     })
   }
 
-  // 🟢 FIX: Simplified applyStickyStyles without width calculations that cause recursion
   const applyStickyStyles = (
     rows: HTMLElement[],
     stickyIndexes: number[],
@@ -507,7 +600,7 @@ export function useStickyColumns(
           const field = cell.getAttribute('data-field')
           if (!field) return
 
-          // 🟢 FIX: Pass direction parameter
+          // Pass direction parameter
           const resolvedIndex = resolveHeaderFieldIndex(field, fieldToIndex, groupChildField, direction)
           if (resolvedIndex === undefined || !stickyIndexes.includes(resolvedIndex)) return
 
@@ -519,9 +612,6 @@ export function useStickyColumns(
           cell.style.zIndex = zIndex
           cell.classList.add(`vs-sticky-${direction}`)
           cell.style.background = 'var(--vs-table-bg, #fff)'
-
-          // 🟢 FIX: Remove width calculations that can cause recursion
-          // Group headers should naturally span their colspan without manual width setting
         })
       })
     } finally {
@@ -542,22 +632,20 @@ export function useStickyColumns(
     const fieldToIndex = createFieldToIndexMap(bodyCells)
     const stickyIndexes = getStickyIndexes(bodyCells, fieldToIndex, columns.value)
 
-    console.log('[useStickyColumns] Sticky columns:', {
-      left: stickyIndexes.left.map(idx => ({ index: idx, field: columns.value[idx]?.field })),
-      right: stickyIndexes.right.map(idx => ({ index: idx, field: columns.value[idx]?.field }))
-    })
-
     clearStickyStyles(rows)
 
-    const leftOffsets = calculateOffsets(bodyCells, stickyIndexes.left, 'left')
-    const rightOffsets = calculateOffsets(bodyCells, stickyIndexes.right, 'right')
-    
-    // 🟢 FIX: Use the new group child field map
-    const groupChildField = createGroupChildFieldMap(columns.value)
+    // Only apply sticky styles if there are sticky columns
+    if (stickyIndexes.left.length > 0 || stickyIndexes.right.length > 0) {
+      const leftOffsets = calculateOffsets(bodyCells, stickyIndexes.left, 'left')
+      const rightOffsets = calculateOffsets(bodyCells, stickyIndexes.right, 'right')
+      
+      // Use the new group child field map
+      const groupChildField = createGroupChildFieldMap(columns.value)
 
-    // 🟢 FIX: Pass direction to applyStickyStyles calls
-    applyStickyStyles(rows, stickyIndexes.left, leftOffsets, 'left', fieldToIndex, groupChildField)
-    applyStickyStyles(rows, stickyIndexes.right, rightOffsets, 'right', fieldToIndex, groupChildField)
+      // Pass direction to applyStickyStyles calls
+      applyStickyStyles(rows, stickyIndexes.left, leftOffsets, 'left', fieldToIndex, groupChildField)
+      applyStickyStyles(rows, stickyIndexes.right, rightOffsets, 'right', fieldToIndex, groupChildField)
+    }
 
     updateShadows()
   }
@@ -596,7 +684,7 @@ export function useStickyColumns(
 
   onBeforeUnmount(cleanupEventListeners)
 
-  // 🟢 FIX: Throttle the watch to prevent excessive updates
+  // Throttle the watch to prevent excessive updates
   let refreshTimeout: NodeJS.Timeout | null = null
   watch([columns, hasGroups], () => {
     if (refreshTimeout) clearTimeout(refreshTimeout)
