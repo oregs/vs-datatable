@@ -147,6 +147,7 @@ import { useDataTableSelection } from '@/composables/useDataTableSelection'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns, getFlatColumns } from '@/utils/datatable'
 import { useStickyColumns } from '@/composables/useStickyColumns'
 import { useStickyHeader } from '@/composables/useStickyHeader'
+import { useStickyResizeSync } from '@/composables/useStickyResizeSync'
 
 // Props and Emits
 const props = withDefaults(defineProps<DataTableProps>(), {
@@ -231,8 +232,9 @@ const totalColumns = computed(() =>
 const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
   tableRef,
   computed(() => props.columns)
-  // computed(() => getFlatColumns(props.columns))
 )
+
+useStickyResizeSync(tableRef, refreshSticky)
 
 const { refresh } = useStickyHeader(tableRef, {
   enabled: props.stickyHeader,
@@ -274,7 +276,7 @@ onMounted(() => {
     refreshSticky()
   }, 100)
 
-  refresh()
+  // refresh()
 
   emit('tableMounted')
 
