@@ -1,4 +1,4 @@
-import { onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { onMounted, onBeforeUnmount, nextTick, type Ref } from 'vue'
 
 export function useStickyResizeSync(
   tableRef: Ref<HTMLElement | null>,

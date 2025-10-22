@@ -113,34 +113,14 @@ import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './i
 // import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
 // import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
+import orders from '@/data/orders.json'
 
 /**
  * ----------------------------------------------------------------
  * VSTable
  * ----------------------------------------------------------------
  */
- const rows = ref<any[]>([
-  { id: 1, date: '2025-11-26 22:11', customer: 'Rwanda Lee', total: 391.0, status: 'Completed', payment: 'Credit Card', items: 3 },
-  { id: 2, date: '2025-07-27 21:23', customer: 'Bolu', total: 398.0, status: 'Completed', payment: 'PayPal', items: 5 },
-  { id: 3, date: '2025-07-28 13:23', customer: 'Temilade', total: 393.0, status: 'Processing', payment: 'Bank Transfer', items: 2 },
-  { id: 4, date: '2025-11-29 08:45', customer: 'Samuel O.', total: 210.5, status: 'Completed', payment: 'Credit Card', items: 1 },
-  { id: 5, date: '2025-11-30 14:19', customer: 'Grace Adeniyi', total: 145.75, status: 'Cancelled', payment: 'Cash', items: 4 },
-  { id: 6, date: '2025-12-01 18:34', customer: 'Michael Obi', total: 500.0, status: 'Completed', payment: 'Credit Card', items: 6 },
-  { id: 7, date: '2025-12-02 11:05', customer: 'Ada Lovelace', total: 315.25, status: 'Processing', payment: 'PayPal', items: 3 },
-  { id: 8, date: '2025-10-03 16:42', customer: 'Chinedu Okafor', total: 260.0, status: 'Completed', payment: 'Bank Transfer', items: 2 },
-  { id: 9, date: '2023-12-04 19:55', customer: 'Fatima Bello', total: 425.0, status: 'Completed', payment: 'Credit Card', items: 5 },
-  { id: 10, date: '2023-10-05 09:14', customer: 'John Smith', total: 180.99, status: 'Completed', payment: 'PayPal', items: 1 },
-  { id: 11, date: '2023-08-06 13:32', customer: 'Mary Johnson', total: 222.49, status: 'Processing', payment: 'Credit Card', items: 3 },
-  { id: 12, date: '2023-08-07 15:47', customer: 'Ibrahim Musa', total: 355.75, status: 'Completed', payment: 'Cash', items: 4 },
-  { id: 13, date: '2025-05-08 18:23', customer: 'Olivia Brown', total: 412.0, status: 'Completed', payment: 'Credit Card', items: 7 },
-  { id: 14, date: '2025-06-09 10:11', customer: 'Emeka Uche', total: 295.3, status: 'Cancelled', payment: 'PayPal', items: 2 },
-  { id: 15, date: '2025-09-10 17:50', customer: 'Sophia Davis', total: 389.0, status: 'Completed', payment: 'Bank Transfer', items: 3 },
-  { id: 16, date: '2025-12-11 20:25', customer: 'David Wilson', total: 476.2, status: 'Processing', payment: 'Credit Card', items: 6 },
-  { id: 17, date: '2025-12-12 12:41', customer: 'Ngozi Okeke', total: 150.0, status: 'Completed', payment: 'Cash', items: 1 },
-  { id: 18, date: '2025-12-13 09:07', customer: 'Daniel James', total: 233.4, status: 'Completed', payment: 'PayPal', items: 2 },
-  { id: 19, date: '2025-12-14 11:53', customer: 'Helen George', total: 325.6, status: 'Completed', payment: 'Credit Card', items: 4 },
-  { id: 20, date: '2025-12-15 19:39', customer: 'Anthony Clark', total: 410.8, status: 'Processing', payment: 'Bank Transfer', items: 5 }
-]);
+ const rows = ref<any[]>(orders.rows);
 
 const tableRef = ref<any>(null)
 const expanded = ref<number[]>([])
@@ -158,19 +138,26 @@ const itemSelected = ref<any[]>([])
 // ])
 
 const columns = ref<any[]>([
+  { label: 'Customer', field: 'customer', sortable: true, filter: { type: 'text' }, sticky: 'left' },
+  { label: 'Email', field: 'email', sortable: true, filter: { type: 'text' } },
+  { label: 'Phone', field: 'phone', sortable: true },
+  { label: 'Discount', field: 'discount', sortable: true },
   {
     label: 'Order Info',
-    sticky: 'left',
+    
     children: [
       { label: 'Order', field: 'id', sortable: true, filter: { type: 'number-range', operators: ['between', 'equals', 'notEqual'] } },
       { label: 'Date', field: 'date', sortable: true, filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] } },
     ],
   },
-  { label: 'Customer', field: 'customer', sortable: true, filter: { type: 'text' } },
-  { label: 'Total', field: 'total', sortable: true, sticky: 'left' },
-  { label: 'Status', field: 'status', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
-  { label: 'Payment', field: 'payment', sortable: true, filter: { type: 'multi-select', asyncOptions: () => ['Cash', 'Card', 'Wallet', 'POS'] } }, // Remove 'asyncOptions' to use Column field value
   { label: 'Items', field: 'items', sortable: true },
+  { label: 'Location', field: 'location', sortable: true, sticky: 'left' },
+  { label: 'Notes', field: 'notes' },
+  { label: 'Payment', field: 'payment', sortable: true, filter: { type: 'multi-select', asyncOptions: () => ['Cash', 'Card', 'Wallet', 'POS'] } }, // Remove 'asyncOptions' to use Column field value
+  { label: 'Shipping', field: 'shipping', sortable: true, sticky: 'right' },
+  { label: 'Status', field: 'status', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
+  { label: 'Tax', field: 'tax', sortable: true },
+  { label: 'Total', field: 'total', sortable: true },
 ])
 
 const onPageUpdated = (newPage: number) => {

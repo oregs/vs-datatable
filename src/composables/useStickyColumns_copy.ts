@@ -9,53 +9,14 @@
 // ) {
 //   const hasLeftShadow = ref<boolean>(false)
 //   const hasRightShadow = ref<boolean>(false)
-  
+
 //   const updateShadows = () => {
 //     const scrollEl = tableRef.value?.parentElement
-//     const table = tableRef.value
-//     if (!scrollEl || !table) return
-  
-//     const scrollLeft = scrollEl.scrollLeft
-//     const maxScrollLeft = scrollEl.scrollWidth - scrollEl.clientWidth
-
-//     console.log('ScrollLeft: ', scrollLeft, 'MaxScrollLeft: ', maxScrollLeft);
-  
-//     // Shadows
-//     hasLeftShadow.value = scrollLeft > 0
-//     hasRightShadow.value = scrollLeft < maxScrollLeft - 1
-  
-//     const leftStickyCells = Array.from(
-//       table.querySelectorAll('.vs-sticky-left')
-//     ) as HTMLElement[]
-//     const rightStickyCells = Array.from(
-//       table.querySelectorAll('.vs-sticky-right')
-//     ) as HTMLElement[]
-  
-//     // Reset all
-//     leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-//     rightStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-  
-//     // ---------------- LEFT STICKY ----------------
-//     if (scrollLeft > 0) {
-//       leftStickyCells.forEach(cell => (cell.style.zIndex = '4'))
-//     } else {
-//       leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-//     }
-  
-//     // ---------------- RIGHT STICKY ----------------
-//     if (rightStickyCells.length) {
-//       const firstRight = rightStickyCells[0]
-//       const rightBoundary = table.offsetWidth - firstRight.offsetLeft
-//       const scrollRight =
-//         scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
-  
-//       // When we’re close enough to the right end
-//       if (scrollRight <= rightBoundary + 5) {
-//         rightStickyCells.forEach(cell => (cell.style.zIndex = '4'))
-//       }
-//     }
+//     if (!scrollEl) return
+//     hasLeftShadow.value = scrollEl.scrollLeft > 0
+//     hasRightShadow.value =
+//       scrollEl.scrollWidth - scrollEl.scrollLeft > scrollEl.clientWidth + 1
 //   }
-
 
 //   const getTableRows = (): HTMLElement[] => {
 //     const table = tableRef.value
@@ -290,56 +251,48 @@ export function useStickyColumns(
 ) {
   const hasLeftShadow = ref<boolean>(false)
   const hasRightShadow = ref<boolean>(false)
-  
-  // 🟢 FIX: Add flag to prevent recursive updates
-  let isApplyingStyles = false
-  
-  const updateShadows = () => {
-    if (isApplyingStyles) return
-    
-    const scrollEl = tableRef.value?.parentElement
-    const table = tableRef.value
-    if (!scrollEl || !table) return
-  
-    const scrollLeft = scrollEl.scrollLeft
-    const maxScrollLeft = scrollEl.scrollWidth - scrollEl.clientWidth
 
-    console.log('ScrollLeft: ', scrollLeft, 'MaxScrollLeft: ', maxScrollLeft);
-  
-    // Shadows
-    hasLeftShadow.value = scrollLeft > 0
-    hasRightShadow.value = scrollLeft < maxScrollLeft - 1
-  
-    const leftStickyCells = Array.from(
-      table.querySelectorAll('.vs-sticky-left')
-    ) as HTMLElement[]
-    const rightStickyCells = Array.from(
-      table.querySelectorAll('.vs-sticky-right')
-    ) as HTMLElement[]
-  
-    // Reset all
-    leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-    rightStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-  
-    // ---------------- LEFT STICKY ----------------
-    if (scrollLeft > 0) {
-      leftStickyCells.forEach(cell => (cell.style.zIndex = '4'))
-    } else {
-      leftStickyCells.forEach(cell => (cell.style.zIndex = '3'))
-    }
-  
-    // ---------------- RIGHT STICKY ----------------
-    if (rightStickyCells.length) {
-      const firstRight = rightStickyCells[0]
-      const rightBoundary = table.offsetWidth - firstRight.offsetLeft
-      const scrollRight =
-        scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
-  
-      // When we're close enough to the right end
-      if (scrollRight <= rightBoundary + 5) {
-        rightStickyCells.forEach(cell => (cell.style.zIndex = '4'))
-      }
-    }
+  let resizeObserver: ResizeObserver | null = null
+  let resizeTimeout: number | null = null
+  let lastScrollLeft = 0
+  let isScrollingLeft = false
+
+  const updateShadows = () => {
+    const scrollEl = tableRef.value?.parentElement
+    if (!scrollEl) return
+    
+    // Determine scroll direction
+    const currentScrollLeft = scrollEl.scrollLeft
+    isScrollingLeft = currentScrollLeft < lastScrollLeft
+    lastScrollLeft = currentScrollLeft
+    
+    hasLeftShadow.value = currentScrollLeft > 0
+    hasRightShadow.value =
+      scrollEl.scrollWidth - currentScrollLeft > scrollEl.clientWidth + 1
+
+    // Update z-index based on scroll direction
+    updateStickyZIndex()
+  }
+
+  const updateStickyZIndex = () => {
+    const rows = getTableRows()
+    if (!rows.length) return
+
+    rows.forEach(row => {
+      const cells = Array.from(row.children) as HTMLElement[]
+      const isHeaderRow = row.closest('thead') !== null
+      const baseZIndex = isHeaderRow ? '4' : '3'
+
+      cells.forEach(cell => {
+        if (cell.classList.contains('vs-sticky-left')) {
+          // When scrolling left, reduce z-index of left sticky columns
+          cell.style.zIndex = isScrollingLeft ? '1' : baseZIndex
+        } else if (cell.classList.contains('vs-sticky-right')) {
+          // When scrolling right, reduce z-index of right sticky columns
+          cell.style.zIndex = !isScrollingLeft ? '1' : baseZIndex
+        }
+      })
+    })
   }
 
   const getTableRows = (): HTMLElement[] => {
@@ -425,45 +378,28 @@ export function useStickyColumns(
     return offsets
   }
 
-  // 🟢 FIX: Create map for both first child (for left sticky) and last child (for right sticky)
-  const createGroupChildFieldMap = (columns: Column[]): { 
-    firstChild: Map<string, string | undefined>; 
-    lastChild: Map<string, string | undefined> 
-  } => {
-    const firstChildMap = new Map<string, string | undefined>()
-    const lastChildMap = new Map<string, string | undefined>()
-    
+  const createGroupFirstChildFieldMap = (columns: Column[]): Map<string, string | undefined> => {
+    const groupMap = new Map<string, string | undefined>()
     columns.forEach(col => {
       if (col.children?.length) {
-        firstChildMap.set(col.label, col.children[0]?.field)
-        lastChildMap.set(col.label, col.children[col.children.length - 1]?.field)
+        groupMap.set(col.label, col.children[0]?.field)
       }
     })
-    
-    return { firstChild: firstChildMap, lastChild: lastChildMap }
+    return groupMap
   }
 
-  // 🟢 FIX: Updated to handle both left and right sticky for group headers
   const resolveHeaderFieldIndex = (
     field: string | null, 
     fieldToIndex: Map<string, number>, 
-    groupChildField: { firstChild: Map<string, string | undefined>; lastChild: Map<string, string | undefined> },
-    direction: 'left' | 'right'
+    groupFirstChildField: Map<string, string | undefined>
   ): number | undefined => {
     if (!field) return undefined
 
     // Group header field pattern: 'group-<label>'
     if (field.startsWith('group-')) {
       const groupLabel = field.replace(/^group-/, '')
-      
-      // 🟢 FIX: Use first child for left sticky, last child for right sticky
-      if (direction === 'left') {
-        const firstChildField = groupChildField.firstChild.get(groupLabel)
-        return firstChildField ? fieldToIndex.get(firstChildField) : undefined
-      } else {
-        const lastChildField = groupChildField.lastChild.get(groupLabel)
-        return lastChildField ? fieldToIndex.get(lastChildField) : undefined
-      }
+      const firstChildField = groupFirstChildField.get(groupLabel)
+      return firstChildField ? fieldToIndex.get(firstChildField) : undefined
     }
 
     // Normal header or child header
@@ -479,59 +415,45 @@ export function useStickyColumns(
         cell.style.right = ''
         cell.style.zIndex = ''
         cell.style.background = ''
-        cell.style.minWidth = ''
-        cell.style.width = ''
         cell.classList.remove('vs-sticky-left', 'vs-sticky-right')
       })
     })
   }
 
-  // 🟢 FIX: Simplified applyStickyStyles without width calculations that cause recursion
   const applyStickyStyles = (
     rows: HTMLElement[],
     stickyIndexes: number[],
     offsets: Map<number, number>,
     direction: 'left' | 'right',
     fieldToIndex: Map<string, number>,
-    groupChildField: { firstChild: Map<string, string | undefined>; lastChild: Map<string, string | undefined> }
+    groupFirstChildField: Map<string, string | undefined>
   ) => {
-    if (isApplyingStyles) return
-    isApplyingStyles = true
+    rows.forEach(row => {
+      const cells = Array.from(row.children) as HTMLElement[]
+      const isHeaderRow = row.closest('thead') !== null
 
-    try {
-      rows.forEach(row => {
-        const cells = Array.from(row.children) as HTMLElement[]
-        const isHeaderRow = row.closest('thead') !== null
+      cells.forEach(cell => {
+        const field = cell.getAttribute('data-field')
+        if (!field) return
 
-        cells.forEach(cell => {
-          const field = cell.getAttribute('data-field')
-          if (!field) return
+        const resolvedIndex = resolveHeaderFieldIndex(field, fieldToIndex, groupFirstChildField)
+        if (resolvedIndex === undefined || !stickyIndexes.includes(resolvedIndex)) return
 
-          // 🟢 FIX: Pass direction parameter
-          const resolvedIndex = resolveHeaderFieldIndex(field, fieldToIndex, groupChildField, direction)
-          if (resolvedIndex === undefined || !stickyIndexes.includes(resolvedIndex)) return
+        const offset = offsets.get(resolvedIndex) || 0
+        const baseZIndex = isHeaderRow ? '4' : '3'
+        // Initial z-index - will be adjusted during scroll
+        const initialZIndex = direction === 'left' ? baseZIndex : '1'
 
-          const offset = offsets.get(resolvedIndex) || 0
-          const zIndex = isHeaderRow ? '4' : '3'
-
-          cell.style.position = 'sticky'
-          cell.style[direction] = `${offset}px`
-          cell.style.zIndex = zIndex
-          cell.classList.add(`vs-sticky-${direction}`)
-          cell.style.background = 'var(--vs-table-bg, #fff)'
-
-          // 🟢 FIX: Remove width calculations that can cause recursion
-          // Group headers should naturally span their colspan without manual width setting
-        })
+        cell.style.position = 'sticky'
+        cell.style[direction] = `${offset}px`
+        cell.style.zIndex = initialZIndex
+        cell.classList.add(`vs-sticky-${direction}`)
+        cell.style.background = 'var(--vs-table-bg, #fff)'
       })
-    } finally {
-      isApplyingStyles = false
-    }
+    })
   }
 
   const setupSticky = async () => {
-    if (isApplyingStyles) return
-    
     const rows = getTableRows()
     if (!rows.length) return
 
@@ -551,20 +473,15 @@ export function useStickyColumns(
 
     const leftOffsets = calculateOffsets(bodyCells, stickyIndexes.left, 'left')
     const rightOffsets = calculateOffsets(bodyCells, stickyIndexes.right, 'right')
-    
-    // 🟢 FIX: Use the new group child field map
-    const groupChildField = createGroupChildFieldMap(columns.value)
+    const groupFirstChildField = createGroupFirstChildFieldMap(columns.value)
 
-    // 🟢 FIX: Pass direction to applyStickyStyles calls
-    applyStickyStyles(rows, stickyIndexes.left, leftOffsets, 'left', fieldToIndex, groupChildField)
-    applyStickyStyles(rows, stickyIndexes.right, rightOffsets, 'right', fieldToIndex, groupChildField)
+    applyStickyStyles(rows, stickyIndexes.left, leftOffsets, 'left', fieldToIndex, groupFirstChildField)
+    applyStickyStyles(rows, stickyIndexes.right, rightOffsets, 'right', fieldToIndex, groupFirstChildField)
 
     updateShadows()
   }
 
   const refreshSticky = async () => {
-    if (isApplyingStyles) return
-    
     await nextTick()
     setTimeout(() => {
       try {
@@ -596,14 +513,7 @@ export function useStickyColumns(
 
   onBeforeUnmount(cleanupEventListeners)
 
-  // 🟢 FIX: Throttle the watch to prevent excessive updates
-  let refreshTimeout: NodeJS.Timeout | null = null
-  watch([columns, hasGroups], () => {
-    if (refreshTimeout) clearTimeout(refreshTimeout)
-    refreshTimeout = setTimeout(() => {
-      refreshSticky()
-    }, 100)
-  }, { deep: true })
+  watch([columns, hasGroups], refreshSticky, { deep: true })
 
   return { hasLeftShadow, hasRightShadow, refreshSticky }
 }

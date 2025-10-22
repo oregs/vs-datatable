@@ -1245,11 +1245,11 @@
   background: var(--vs-table-bg, #fff);
   position: sticky;
   top: 0;
-  z-index: 2;
+  // z-index: 2;
 }
 
 .vs-group-header.vs-sticky-left,
 .vs-group-header.vs-sticky-right {
   background: var(--vs-table-bg, #fff);
-  z-index: 5 !important;
+  // z-index: 5 !important;
 }

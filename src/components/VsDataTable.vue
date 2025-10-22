@@ -228,6 +228,10 @@ const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
 
+// const hasLeftShadow = ref(false)
+// const hasRightShadow = ref(false)  
+// const refreshSticky = () => {}
+
 // Use sticky columns on the main table
 const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
   tableRef,

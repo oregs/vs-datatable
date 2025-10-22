@@ -31,21 +31,11 @@
         </div>
       </th>
 
-      <!-- Group Headers -->
-      <th
-        v-for="group in groupedColumns"
-        :key="group.label"
-        :colspan="group.colspan"
-        :data-field="`group-${group.label}`"
-        class="vs-group-header"
-        :style="{ textAlign: 'center' }"
-      >
-        {{ group.label }}
-      </th>
-
-      <!-- Non-grouped columns as rowspan="2" in group header row -->
-      <template v-for="column in nonGroupedColumns" :key="column.field">
+      <!-- Render ALL columns in order, handling groups and non-groups properly -->
+      <template v-for="column in props.columns" :key="column.field || column.label">
+        <!-- Non-grouped column -->
         <HeaderCell
+          v-if="!column.children || !column.children.length"
           :column="column"
           :rows="rows"
           :rowspan="2"
@@ -61,11 +51,21 @@
           @close-filter="handleCloseFilter"
           @update:filters="(filters) => emit('update:filters', filters)"
         >
-          <!-- Pass through all header slots -->
           <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
             <slot :name="slotName" v-bind="slotProps" />
           </template>
         </HeaderCell>
+
+        <!-- Grouped column -->
+        <th
+          v-else
+          :colspan="column.children.length"
+          :data-field="`group-${column.label}`"
+          class="vs-group-header"
+          :style="{ textAlign: 'center' }"
+        >
+          {{ column.label }}
+        </th>
       </template>
     </tr>
 
@@ -98,10 +98,10 @@
         </div>
       </th>
 
-      <!-- Header Columns - Use the same flatColumns structure as the body -->
+      <!-- Header Columns - Only render children of grouped columns in second row -->
       <template v-for="column in flatColumns" :key="column.field">
         <HeaderCell
-          v-if="column.field && shouldRenderInSecondRow(column)"
+          v-if="column.field && isGroupedColumnChild(column)"
           :column="column"
           :rows="rows"
           :sort-helpers="sortHelpers"
@@ -116,7 +116,6 @@
           @close-filter="handleCloseFilter"
           @update:filters="(filters) => emit('update:filters', filters)"
         >
-          <!-- Pass through all header slots -->
           <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
             <slot :name="slotName" v-bind="slotProps" />
           </template>
@@ -177,48 +176,31 @@ const headerRef = ref<HTMLElement | null>(null)
 // Computed properties
 const hasGroups = computed(() => props.columns.some((col) => col.children && col.children.length))
 
-const groupedColumns = computed(() =>
-  props.columns
-    .filter((col) => col.children && col.children.length)
-    .map((col) => ({
-      label: col.label,
-      colspan: (col.children ?? []).length,
-      children: col.children,
-    }))
-)
-
-const nonGroupedColumns = computed(() =>
-  props.columns.filter((col) => !col.children || !col.children.length)
-)
-
-// 🟢 CRITICAL FIX: Use the same flattening logic as VsDataTableBody.vue
+// 🟢 FIX: Updated flatColumns to maintain proper order
 const flatColumns = computed(() => {
-  return props.columns.flatMap(col =>
-    col.children && col.children.length ? col.children : [col]
-  )
+  const flattened: Column[] = []
+  
+  props.columns.forEach(col => {
+    if (col.children && col.children.length) {
+      flattened.push(...col.children)
+    } else {
+      flattened.push(col)
+    }
+  })
+  
+  return flattened
 })
 
-// 🟢 FIX: Updated logic to determine which columns should render in second row
-function shouldRenderInSecondRow(column: Column): boolean {
+// 🟢 NEW: Check if a column is a child of a grouped column
+function isGroupedColumnChild(column: Column): boolean {
   if (!hasGroups.value) return true
   
-  // In grouped mode, only render children of grouped columns in the second row
-  // Non-grouped columns are already rendered in the first row with rowspan="2"
   return props.columns.some(
-    (parentCol) =>
+    parentCol => 
       parentCol.children && 
-      parentCol.children.some((child) => child.field === column.field)
+      parentCol.children.some(child => child.field === column.field)
   )
 }
-
-// Debug: Log the column structure
-// watch(flatColumns, (newVal) => {
-//   console.log('[VsDataTableHeader] Flat columns:', newVal.map(c => ({
-//     field: c.field,
-//     label: c.label,
-//     sticky: c.sticky
-//   })))
-// }, { immediate: true })
 </script>
 
 <style scoped>
