@@ -88,13 +88,22 @@
               <slot :name="name" v-bind="slotProps" />
             </template>
           </VsDataTableBody>
+
+          <!-- Table Footer -->
+          <VsDataTableFooter
+            v-if="showFooter"
+            :columns="columns"
+            :rows="paginatedRows"
+            :expandable="expandable"
+            :is-item-selected-controlled="isItemSelectedControlled"
+          />
         </table>
       </div>
     </div>
 
     <!-- Pagination and Info -->
-    <div v-if="showFooter" class="vs-table-footer">
-      <div class="vs-footer-left">
+    <div v-if="showPagination" class="vs-table-pagination">
+      <div class="vs-pagination-left">
         <!-- Rows per page -->
         <VsRowsPerPage v-model="rowsPerPage" @rows-per-page-changed="handleRowsPerPage" />
         <!-- Divider -->
@@ -134,11 +143,11 @@ import {
   nextTick,
 } from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
-import VsSearch from '@/components/VsSearch.vue'
 import VsRowsPerPage from './VsRowsPerPage.vue'
 import VsDataTableHeader from './VsDataTableHeader.vue'
 import VsDataTableBody from '@/components/VsDataTableBody.vue'
 import VsDataTableToolbar from '@/components/VsDataTableToolbar.vue'
+import VsDataTableFooter from '@/components/VsDataTableFooter.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
@@ -168,7 +177,8 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   maxVisiblePages: 5,
   rowsPerPage: 10,
   rowKey: 'id',
-  stickyHeader: false
+  stickyHeader: false,
+  showPagination: true
 })
 
 const internalRows = shallowRef(props.rows)
@@ -309,19 +319,8 @@ onBeforeMount(() => {
   overflow: var(--vs-table-wrapper-overflow);
 }
 
-.vs-table-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--vs-spacing-sm) 0;
-}
-
 .vs-table-info {
   color: var(--vs-secondary);
   font-size: var(--vs-font-size-md);
-}
-
-.vs-search-container {
-  margin-bottom: var(--vs-spacing-sm);
 }
 </style>

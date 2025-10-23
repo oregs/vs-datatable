@@ -24,6 +24,11 @@ export interface Column<T = any> {
   sticky?: 'left' | 'right'
   title?: string
   children?: Column[]
+  hidden?: boolean,
+  footerClass?: string | string[] | Record<string, any>
+  footerStyle?: string | string[] | Record<string, any>
+  footerValue?: string | ((rows: Record<string, any>[]) => any)
+  footerFormatter?: (value: any, column: Column<T>) => string
 }
 
 export interface Sort {
@@ -154,6 +159,7 @@ export interface DataTableProps {
   expandable?: boolean
   accordion?: boolean
   stickyHeader?: boolean
+  showPagination?: boolean
 }
 
 export interface DataTableEmits {

@@ -1,5 +1,5 @@
 <template>
-  <div class="app" style="padding: 20px;">
+  <div class="app" style="padding: 20px">
     <h1>VsDataTable - Library Independent Design</h1>
 
     <!-- Basic Usage -->
@@ -100,7 +100,6 @@
         </template>
       </VsDataTable>
     </section>
-
   </div>
 
   <!-- <DemoLayout /> -->
@@ -109,7 +108,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { VsDataTable } from './index'
-import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter } from './index'
+import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from './index'
 // import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
 // import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
@@ -120,7 +119,7 @@ import orders from '@/data/orders.json'
  * VSTable
  * ----------------------------------------------------------------
  */
- const rows = ref<any[]>(orders.rows);
+const rows = ref<any[]>(orders.rows)
 
 const tableRef = ref<any>(null)
 const expanded = ref<number[]>([])
@@ -138,7 +137,13 @@ const itemSelected = ref<any[]>([])
 // ])
 
 const columns = ref<any[]>([
-  { label: 'Customer', field: 'customer', sortable: true, filter: { type: 'text' } },
+  {
+    label: 'Customer',
+    field: 'customer',
+    sortable: true,
+    filter: { type: 'text' },
+    footerValue: 'Total',
+  },
   { label: 'Email', field: 'email', sortable: true, filter: { type: 'text' } },
   { label: 'Phone', field: 'phone', sortable: true },
   { label: 'Discount', field: 'discount', sortable: true },
@@ -146,18 +151,48 @@ const columns = ref<any[]>([
     label: 'Order Info',
     // sticky: 'right',
     children: [
-      { label: 'Order', field: 'id', sortable: true, filter: { type: 'number-range', operators: ['between', 'equals', 'notEqual'] } },
-      { label: 'Date', field: 'date', sortable: true, filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] } },
+      {
+        label: 'Order',
+        field: 'id',
+        sortable: true,
+        filter: { type: 'number-range', operators: ['between', 'equals', 'notEqual'] },
+      },
+      {
+        label: 'Date',
+        field: 'date',
+        sortable: true,
+        filter: { type: 'date-range', operators: ['between', 'equals', 'before', 'after'] },
+      },
     ],
   },
   { label: 'Items', field: 'items', sortable: true },
   { label: 'Location', field: 'location', sortable: true },
   { label: 'Notes', field: 'notes' },
-  { label: 'Payment', field: 'payment', sortable: true, filter: { type: 'multi-select', asyncOptions: () => ['Cash', 'Card', 'Wallet', 'POS'] } }, // Remove 'asyncOptions' to use Column field value
+  {
+    label: 'Payment',
+    field: 'payment',
+    sortable: true,
+    filter: { type: 'multi-select', asyncOptions: () => ['Cash', 'Card', 'Wallet', 'POS'] },
+  }, // Remove 'asyncOptions' to use Column field value
   { label: 'Shipping', field: 'shipping', sortable: true },
-  { label: 'Status', field: 'status', sortable: true, filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' }, },
-  { label: 'Tax', field: 'tax', sortable: true },
-  { label: 'Total', field: 'total', sortable: true },
+  {
+    label: 'Status',
+    field: 'status',
+    sortable: true,
+    filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' },
+  },
+  { 
+    label: 'Tax', 
+    field: 'tax', 
+    sortable: true,
+    footerValue: (rows: Row[]) => rows.reduce((sum, r) => sum + Number(r.tax || 0), 0),
+    footerFormatter: (val: number) => val.toFixed(2),
+  },
+  {
+    label: 'Total',
+    field: 'total',
+    sortable: true,
+  },
 ])
 
 const onPageUpdated = (newPage: number) => {
@@ -190,9 +225,9 @@ function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
   tableRef.value?.setRowLoading(rowId, true)
   // Example: make API call here
   fetch(`/api/details/${rowId}`)
-    .then(res => res.json())
-    .then(data => {
-      console.log("Row details:", data)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log('Row details:', data)
     })
     .finally(() => {
       tableRef.value?.setRowLoading(rowId, false)
@@ -200,20 +235,19 @@ function onExpandRow({ row, index, rowId }: ExpandEventPayload) {
 }
 
 function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
-  console.log("Collapsed row:", row, index, rowId)
+  console.log('Collapsed row:', row, index, rowId)
 }
-
 
 /**
  * -------------------
  * SERVER OPTIONS
  *--------------------
  */
- const serverItemsLength = ref(20)
- const serverOptions = ref({
+const serverItemsLength = ref(20)
+const serverOptions = ref({
   page: 1,
   rowsPerPage: 25,
-  sort: []
+  sort: [],
 })
 
 const handleSercerRowClick = (row: any, index: number) => {
@@ -230,7 +264,7 @@ const handleServerSortChange = ({ sort }: { sort: any[] }) => {
 }
 
 const handleServerRowsPerPage = (rowsPerPage: number) => {
-  serverOptions.value = {...serverOptions.value, rowsPerPage}
+  serverOptions.value = { ...serverOptions.value, rowsPerPage }
   console.log('RowsPerPage: ', rowsPerPage, serverOptions.value)
 }
 
