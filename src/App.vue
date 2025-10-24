@@ -23,6 +23,7 @@
         @expand-row="onExpandRow"
         @collapse-row="onCollapseRow"
         stickyHeader
+        stickyFooter
       >
         <template #filterAreaRight>
           <button type="button" class="vs-button vs-button-sm vs-button-primary">Testing</button>
@@ -38,7 +39,7 @@
           {{ item.customer }}
         </template>
 
-        <template #cell-total="{ item }"> ${{ item.total.toFixed(2) }} </template>
+        <!-- <template #cell-total="{ item }"> ${{ item.total.toFixed(2) }} </template> -->
 
         <template #row-expanded="{ item }">
           <!-- <div>
@@ -165,7 +166,24 @@ const columns = ref<any[]>([
       },
     ],
   },
-  { label: 'Items', field: 'items', sortable: true },
+  {
+    label: 'Sales Data',
+    children: [
+      {
+        label: 'Price',
+        field: 'price',
+        sortable: true,
+        footerValue: (rows: any[]) => rows.reduce((sum, row) => sum + Number(row.price || 0), 0),
+        footerFormatter: (value: number) => `$${value.toFixed(2)}`,
+      },
+      {
+        label: 'Items',
+        field: 'items',
+        sortable: true,
+        footerValue: (rows: any[]) => rows.reduce((sum, row) => sum + Number(row.items || 0), 0),
+      },
+    ],
+  },
   { label: 'Location', field: 'location', sortable: true },
   { label: 'Notes', field: 'notes' },
   {
@@ -187,12 +205,7 @@ const columns = ref<any[]>([
     sortable: true,
     footerValue: (rows: Row[]) => rows.reduce((sum, r) => sum + Number(r.tax || 0), 0),
     footerFormatter: (val: number) => val.toFixed(2),
-  },
-  {
-    label: 'Total',
-    field: 'total',
-    sortable: true,
-  },
+  }
 ])
 
 const onPageUpdated = (newPage: number) => {

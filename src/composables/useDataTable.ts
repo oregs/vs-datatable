@@ -6,8 +6,20 @@ import { useDataTableSearch } from '@/composables/useDataTableSearch'
 import { filterRowsByQuery, getFlatColumns, paginateRows, sortArray } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
 import { useColumnFilter } from '@/composables/useColumnFilter'
+import { useStickyHeader } from '@/composables/useStickyHeader'
+import { useStickyFooter } from '@/composables/useStickyFooter'
 
-export function useDataTable(props: any, emit: any) {
+interface UseStickyTableOptions {
+  header?: boolean
+  footer?: boolean
+  maxHeight?: string | number
+}
+
+export function useDataTable(
+  props: any, 
+  emit: any, 
+  options: UseStickyTableOptions = {}
+) {
 
   const rowsRef = isRef(props.rows) ? props.rows : shallowRef(props.rows)
 
@@ -19,7 +31,6 @@ export function useDataTable(props: any, emit: any) {
   const tableContainer = ref()
   const tableResponsiveRef = ref<HTMLElement | null>(null)
   const tableRef = ref()
-
 
   // --- Expandable rows
   const { isRowExpanded, toggleRowExpansion, getRowId, setRowLoading, isRowLoading } =
@@ -51,7 +62,16 @@ export function useDataTable(props: any, emit: any) {
     rowsPerPage,
     computed(() => processedRows.value)
   )
+
+  // --- Row Per Page
   const { handleRowsPerPage } = useDataTableRowsPerPage(props, emit, page, rowsPerPage)
+
+  // --- Sticky Header and Footer
+  const { header = true, footer = true, maxHeight = 'calc(100vh - 100px)' } = options
+
+  const headerControl = useStickyHeader(tableRef, { enabled: header, maxHeight })
+  const footerControl = useStickyFooter(tableRef, { enabled: footer, maxHeight })
+
 
   // --- Processed rows: apply filters, search, then sort
   const filteredAndSearched = computed(() => {
@@ -139,20 +159,15 @@ export function useDataTable(props: any, emit: any) {
     tableContainer,
     tableResponsiveRef,
     tableRef,
+
+    // Sticky Header and Footer
+    refresh() {
+      headerControl.refresh?.()
+      footerControl.refresh?.()
+    },
+    cleanup() {
+      headerControl.cleanup?.()
+      footerControl.cleanup?.()
+    },
   }
 }
-
-
-
-// <th
-// v-for="column in nonGroupedColumns"
-// :key="column.field"
-// class="vs-group-header"
-// rowspan="2"
-// :style="{ 
-//   width: column.width + '%',
-//   textAlign: 'center'
-// }"
-// >
-// {{ column.label }}
-// </th>

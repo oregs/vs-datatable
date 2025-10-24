@@ -159,6 +159,7 @@ export interface DataTableProps {
   expandable?: boolean
   accordion?: boolean
   stickyHeader?: boolean
+  stickyFooter?: boolean
   showPagination?: boolean
 }
 

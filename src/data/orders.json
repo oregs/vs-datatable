@@ -11,10 +11,10 @@
             "notes": "Priority shipping",
             "payment": "Credit Card",
             "phone": "+1-555-0101",
+            "price": 125.0,
             "shipping": 15.0,
             "status": "Completed",
-            "tax": 31.28,
-            "total": 391.0
+            "tax": 31.28
         },
         {
             "customer": "Bolu",
@@ -27,10 +27,10 @@
             "notes": "Gift wrapping requested",
             "payment": "PayPal",
             "phone": "+1-555-0102",
+            "price": 79.6,
             "shipping": 25.0,
             "status": "Completed",
-            "tax": 31.84,
-            "total": 398.0
+            "tax": 31.84
         },
         {
             "customer": "Temilade",
@@ -43,10 +43,10 @@
             "notes": "Contact before delivery",
             "payment": "Bank Transfer",
             "phone": "+1-555-0103",
+            "price": 196.5,
             "shipping": 12.0,
             "status": "Processing",
-            "tax": 31.44,
-            "total": 393.0
+            "tax": 31.44
         },
         {
             "customer": "Samuel O.",
@@ -59,10 +59,10 @@
             "notes": "Fragile item",
             "payment": "Credit Card",
             "phone": "+1-555-0104",
+            "price": 210.5,
             "shipping": 8.0,
             "status": "Completed",
-            "tax": 16.84,
-            "total": 210.5
+            "tax": 16.84
         },
         {
             "customer": "Grace Adeniyi",
@@ -75,10 +75,10 @@
             "notes": "Customer requested cancellation",
             "payment": "Cash",
             "phone": "+1-555-0105",
+            "price": 36.44,
             "shipping": 18.0,
             "status": "Cancelled",
-            "tax": 11.66,
-            "total": 145.75
+            "tax": 11.66
         },
         {
             "customer": "Michael Obi",
@@ -91,10 +91,10 @@
             "notes": "Express delivery",
             "payment": "Credit Card",
             "phone": "+1-555-0106",
+            "price": 83.33,
             "shipping": 30.0,
             "status": "Completed",
-            "tax": 40.0,
-            "total": 500.0
+            "tax": 40.0
         },
         {
             "customer": "Ada Lovelace",
@@ -107,10 +107,10 @@
             "notes": "Tech products",
             "payment": "PayPal",
             "phone": "+1-555-0107",
+            "price": 105.08,
             "shipping": 14.0,
             "status": "Processing",
-            "tax": 25.22,
-            "total": 315.25
+            "tax": 25.22
         },
         {
             "customer": "Chinedu Okafor",
@@ -123,10 +123,10 @@
             "notes": "Business order",
             "payment": "Bank Transfer",
             "phone": "+1-555-0108",
+            "price": 130.0,
             "shipping": 10.0,
             "status": "Completed",
-            "tax": 20.8,
-            "total": 260.0
+            "tax": 20.8
         },
         {
             "customer": "Fatima Bello",
@@ -139,10 +139,10 @@
             "notes": "International shipping",
             "payment": "Credit Card",
             "phone": "+1-555-0109",
+            "price": 85.0,
             "shipping": 35.0,
             "status": "Completed",
-            "tax": 34.0,
-            "total": 425.0
+            "tax": 34.0
         },
         {
             "customer": "John Smith",
@@ -155,10 +155,10 @@
             "notes": "Regular customer",
             "payment": "PayPal",
             "phone": "+1-555-0110",
+            "price": 180.99,
             "shipping": 9.0,
             "status": "Completed",
-            "tax": 14.48,
-            "total": 180.99
+            "tax": 14.48
         },
         {
             "customer": "Mary Johnson",
@@ -171,10 +171,10 @@
             "notes": "Backorder item",
             "payment": "Credit Card",
             "phone": "+1-555-0111",
+            "price": 74.16,
             "shipping": 16.0,
             "status": "Processing",
-            "tax": 17.8,
-            "total": 222.49
+            "tax": 17.8
         },
         {
             "customer": "Ibrahim Musa",
@@ -187,10 +187,10 @@
             "notes": "Local pickup",
             "payment": "Cash",
             "phone": "+1-555-0112",
+            "price": 88.94,
             "shipping": 22.0,
             "status": "Completed",
-            "tax": 28.46,
-            "total": 355.75
+            "tax": 28.46
         },
         {
             "customer": "Olivia Brown",
@@ -203,10 +203,10 @@
             "notes": "Bulk order",
             "payment": "Credit Card",
             "phone": "+1-555-0113",
+            "price": 58.86,
             "shipping": 28.0,
             "status": "Completed",
-            "tax": 32.96,
-            "total": 412.0
+            "tax": 32.96
         },
         {
             "customer": "Emeka Uche",
@@ -219,10 +219,10 @@
             "notes": "Payment failed",
             "payment": "PayPal",
             "phone": "+1-555-0114",
+            "price": 147.65,
             "shipping": 20.0,
             "status": "Cancelled",
-            "tax": 23.62,
-            "total": 295.3
+            "tax": 23.62
         },
         {
             "customer": "Sophia Davis",
@@ -235,10 +235,10 @@
             "notes": "Special instructions",
             "payment": "Bank Transfer",
             "phone": "+1-555-0115",
+            "price": 129.67,
             "shipping": 24.0,
             "status": "Completed",
-            "tax": 31.12,
-            "total": 389.0
+            "tax": 31.12
         },
         {
             "customer": "David Wilson",
@@ -251,10 +251,10 @@
             "notes": "Split shipment",
             "payment": "Credit Card",
             "phone": "+1-555-0116",
+            "price": 79.37,
             "shipping": 32.0,
             "status": "Processing",
-            "tax": 38.1,
-            "total": 476.2
+            "tax": 38.1
         },
         {
             "customer": "Ngozi Okeke",
@@ -267,10 +267,10 @@
             "notes": "Small package",
             "payment": "Cash",
             "phone": "+1-555-0117",
+            "price": 150.0,
             "shipping": 7.0,
             "status": "Completed",
-            "tax": 12.0,
-            "total": 150.0
+            "tax": 12.0
         },
         {
             "customer": "Daniel James",
@@ -283,10 +283,10 @@
             "notes": "Digital products",
             "payment": "PayPal",
             "phone": "+1-555-0118",
+            "price": 116.7,
             "shipping": 13.0,
             "status": "Completed",
-            "tax": 18.67,
-            "total": 233.4
+            "tax": 18.67
         },
         {
             "customer": "Helen George",
@@ -299,10 +299,10 @@
             "notes": "Insurance required",
             "payment": "Credit Card",
             "phone": "+1-555-0119",
+            "price": 81.4,
             "shipping": 19.0,
             "status": "Completed",
-            "tax": 26.05,
-            "total": 325.6
+            "tax": 26.05
         },
         {
             "customer": "Anthony Clark",
@@ -315,10 +315,10 @@
             "notes": "Customs clearance needed",
             "payment": "Bank Transfer",
             "phone": "+1-555-0120",
+            "price": 82.16,
             "shipping": 26.0,
             "status": "Processing",
-            "tax": 32.86,
-            "total": 410.8
+            "tax": 32.86
         }
     ]
 }

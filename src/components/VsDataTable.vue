@@ -156,6 +156,7 @@ import { useDataTableSelection } from '@/composables/useDataTableSelection'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns, getFlatColumns } from '@/utils/datatable'
 import { useStickyColumns } from '@/composables/useStickyColumns'
 import { useStickyHeader } from '@/composables/useStickyHeader'
+import { useStickyFooter } from '@/composables/useStickyFooter'
 import { useStickyResizeSync } from '@/composables/useStickyResizeSync'
 
 // Props and Emits
@@ -178,6 +179,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   rowsPerPage: 10,
   rowKey: 'id',
   stickyHeader: false,
+  stickyFooter: false,
   showPagination: true
 })
 
@@ -222,7 +224,13 @@ const {
   tableRef,
   tableContainer,
   tableResponsiveRef,
-} = useDataTable({ ...props, rows: internalRows.value }, emit)
+  refresh,
+  cleanup,
+} = useDataTable(
+  { ...props, rows: internalRows.value }, 
+  emit, 
+  { header: props.stickyHeader, footer: props.stickyFooter }
+)
 
 const {
   selectedItems,
@@ -250,10 +258,17 @@ const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
 
 useStickyResizeSync(tableRef, refreshSticky)
 
-const { refresh } = useStickyHeader(tableRef, {
-  enabled: props.stickyHeader,
-  maxHeight: '70vh',
-})
+// const { refresh } = useStickyHeader(tableRef, {
+//   enabled: props.stickyHeader,
+//   maxHeight: '80vh',
+// })
+
+// const { refreshFooter } = useStickyFooter(tableRef, {
+//   enabled: props.stickyFooter,
+//   maxHeight: '80vh',
+// })
+
+
 
 // Refresh sticky when rows change (for dynamic content)
 watch(
@@ -290,7 +305,7 @@ onMounted(() => {
     refreshSticky()
   }, 100)
 
-  // refresh()
+  refresh()
 
   emit('tableMounted')
 
@@ -317,6 +332,11 @@ onBeforeMount(() => {
 
 .vs-table-wrapper {
   overflow: var(--vs-table-wrapper-overflow);
+}
+
+.vs-table tfoot {
+  border-top: 1px solid var(--vs-border-color, #ddd);
+  background-color: var(--vs-table-footer-bg, var(--vs-table-header-bg, #fff));
 }
 
 .vs-table-info {
