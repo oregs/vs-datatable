@@ -1,36 +1,26 @@
 <template>
-  <tfoot v-if="visibleColumns.length">
+  <tfoot v-if="footerCells.length">
     <tr class="vs-footer-row">
       <!-- Auto-detect expand / checkbox columns -->
       <td v-if="expandable" class="vs-footer-cell vs-expand-column"></td>
       <td v-if="isItemSelectedControlled" class="vs-footer-cell vs-checkbox-column"></td>
 
-      <!-- Render grouped and leaf columns -->
-      <template v-for="(col, index) in visibleColumns" :key="index">
-        <!-- Parent group columns (no field, have children) -->
+      <!-- Render ONLY leaf columns in footer -->
+      <template v-for="(cell, index) in footerCells" :key="index">
         <td
-          v-if="col.children && col.children.length"
-          :data-field="col.field || col.label"
-          class="vs-footer-cell vs-footer-group"
-          :colspan="countLeafColumns(col)"
-        ></td>
-
-        <!-- Leaf columns -->
-        <td
-          v-else
-          :data-field="col.field || col.label"
+          :data-field="cell.field"
           class="vs-footer-cell"
-          :class="col.footerClass || ''"
-          :style="col.footerStyle || {}"
+          :class="cell.footerClass || ''"
+          :style="cell.footerStyle || {}"
         >
           <slot
-            v-if="col.field"
-            :name="`footer-${col.field}`"
-            :column="col"
-            :value="footerValues[col.field]"
+            v-if="cell.hasFooter"
+            :name="`footer-${cell.field}`"
+            :column="cell"
+            :value="cell.footerValue"
             :rows="rows"
           >
-            {{ formatFooterValue(col, footerValues[col.field]) }}
+            {{ cell.formattedValue }}
           </slot>
         </td>
       </template>
@@ -50,84 +40,78 @@ const props = defineProps<{
 }>()
 
 /**
- * 🔹 Utility: count leaf columns under a group
+ * 🔹 Get all leaf columns in correct order (ignores group headers)
  */
-function countLeafColumns(col: Column): number {
-  if (!col.children || !col.children.length) return 1
-  return col.children.reduce((sum, child) => sum + countLeafColumns(child), 0)
-}
-
-/**
- * 🔹 Recursive flatten
- */
-function flattenColumns(cols: Column[]): Column[] {
-  const result: Column[] = []
-  for (const col of cols) {
-    if (col.children && col.children.length) {
-      result.push(...flattenColumns(col.children))
-    } else {
-      result.push(col)
+const footerCells = computed(() => {
+  const leafColumns: Column[] = []
+  
+  function collectLeafColumns(columns: Column[]) {
+    for (const col of columns) {
+      if (col.hidden) continue
+      
+      if (col.children && col.children.length) {
+        // This is a group column - process its children but don't add it to footer
+        collectLeafColumns(col.children)
+      } else {
+        // This is a leaf column - add to footer
+        leafColumns.push(col)
+      }
     }
   }
-  return result
-}
-
-/**
- * Compute only visible columns (keep parent structure)
- */
-function filterVisibleColumns(cols: Column[]): Column[] {
-  return cols
-    .filter((c) => !c.hidden)
-    .map((c) => ({
-      ...c,
-      children: c.children ? filterVisibleColumns(c.children) : undefined,
-    }))
-}
-
-const visibleColumns = computed(() => filterVisibleColumns(props.columns))
-const flatColumns = computed(() => flattenColumns(visibleColumns.value))
-
-/**
- * Compute footer values
- */
-const footerValues = computed(() => {
-  const result: Record<string, any> = {}
-
-  for (const col of flatColumns.value) {
-    if (!col.field) continue
-    let value: any = null
-
+  
+  collectLeafColumns(props.columns)
+  
+  // Calculate footer values for each leaf column
+  return leafColumns.map(col => {
+    const hasFooter = col.footerValue !== undefined
+    let footerValue: any = null
+    
     if (typeof col.footerValue === 'function') {
       try {
-        value = col.footerValue(props.rows)
+        footerValue = col.footerValue(props.rows)
       } catch (err) {
         console.warn(`Error computing footerValue for column "${col.field}"`, err)
       }
     } else if (col.footerValue !== undefined) {
-      value = col.footerValue
+      footerValue = col.footerValue
     }
-
-    result[col.field] = value
-  }
-
-  return result
+    
+    return {
+      ...col,
+      hasFooter,
+      footerValue,
+      formattedValue: formatValue(col, footerValue)
+    }
+  })
 })
 
 /**
- * Apply formatter (optional)
+ * 🔹 Format a value using column formatter
  */
-function formatFooterValue(col: Column, value: any) {
+function formatValue(col: Column, value: any): string {
+  if (value == null) return ''
+  
   if (col.footerFormatter) {
     try {
       return col.footerFormatter(value, col)
     } catch (err) {
       console.warn(`Error in footerFormatter for column "${col.field}"`, err)
-      return value
+      return String(value)
     }
   }
-
-  if (typeof value === 'number') return value.toLocaleString()
-  return value ?? ''
+  
+  if (typeof value === 'number') {
+    // Special handling for currency
+    if (col.field === 'price') {
+      return `$${value.toFixed(2)}`
+    }
+    if (col.field === 'tax') {
+      return value.toFixed(2)
+    }
+    return value.toLocaleString()
+  }
+  
+  return String(value)
 }
 </script>
 
@@ -139,12 +123,8 @@ function formatFooterValue(col: Column, value: any) {
 }
 .vs-footer-cell {
   padding: 0.75rem;
-  text-align: right;
   color: var(--vs-footer-text, #333);
   white-space: nowrap;
-}
-.vs-footer-group {
-  background: var(--vs-footer-bg, #fafafa);
 }
 .vs-expand-column,
 .vs-checkbox-column {

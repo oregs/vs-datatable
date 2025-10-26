@@ -258,17 +258,6 @@ const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
 
 useStickyResizeSync(tableRef, refreshSticky)
 
-// const { refresh } = useStickyHeader(tableRef, {
-//   enabled: props.stickyHeader,
-//   maxHeight: '80vh',
-// })
-
-// const { refreshFooter } = useStickyFooter(tableRef, {
-//   enabled: props.stickyFooter,
-//   maxHeight: '80vh',
-// })
-
-
 
 // Refresh sticky when rows change (for dynamic content)
 watch(
@@ -300,11 +289,12 @@ defineExpose({
 })
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async () => {
   setTimeout(() => {
     refreshSticky()
   }, 100)
 
+  await nextTick()
   refresh()
 
   emit('tableMounted')
