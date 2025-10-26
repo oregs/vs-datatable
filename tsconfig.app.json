@@ -9,6 +9,6 @@
       "outDir": "dist",
       "paths": { "@/*": ["./src/*"] }
     },  
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/App_OLD.vue", "plugins/export"],
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue","plugins/export", "src/**/*.json"],
   "exclude": ["src/**/__tests__/*"]
 }

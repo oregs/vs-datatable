@@ -117,18 +117,14 @@ function formatValue(col: Column, value: any): string {
 
 <style scoped>
 .vs-footer-row {
-  background: var(--vs-footer-bg, #fafafa);
+  background: var(--vs-table-footer-bg, #fafafa);
   font-weight: 600;
   border-top: 1px solid var(--vs-border-color, #ddd);
 }
 .vs-footer-cell {
   padding: 0.75rem;
-  color: var(--vs-footer-text, #333);
+  color: var(--vs-table-footer-text, #333);
   white-space: nowrap;
-}
-.vs-expand-column,
-.vs-checkbox-column {
-  text-align: center;
-  width: 40px;
+  background: var(--vs-table-footer-bg, #fff);
 }
 </style>

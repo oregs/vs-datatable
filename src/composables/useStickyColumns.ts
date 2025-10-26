@@ -58,7 +58,9 @@ export function useStickyColumns(
     // ---------------- RIGHT STICKY ----------------
     if (rightStickyCells.length) {
       const firstRight = rightStickyCells[0]
-      const rightBoundary = table.offsetWidth - firstRight.offsetLeft
+      const rightBoundary = firstRight
+        ? table.offsetWidth - firstRight.offsetLeft
+        : table.offsetWidth
       const scrollRight = scrollEl.scrollWidth - (scrollLeft + scrollEl.clientWidth)
   
       // When we're close enough to the right end
@@ -88,7 +90,7 @@ export function useStickyColumns(
 
   const getBodyCells = (bodyRows: HTMLElement[]): HTMLElement[] => {
     const firstBodyRow = bodyRows[0]
-    return firstBodyRow ? Array.from(firstBodyRow.children) : []
+    return firstBodyRow ? Array.from(firstBodyRow.children) as HTMLElement[] : []
   }
 
   const createFieldToIndexMap = (bodyCells: HTMLElement[]): Map<string, number> => {
@@ -349,7 +351,7 @@ export function useStickyColumns(
   onBeforeUnmount(cleanupEventListeners)
 
   // Throttle the watch to prevent excessive updates
-  let refreshTimeout: NodeJS.Timeout | null = null
+  let refreshTimeout: ReturnType<typeof setTimeout> | null = null
   watch([columns, hasGroups], () => {
     if (refreshTimeout) clearTimeout(refreshTimeout)
     refreshTimeout = setTimeout(() => {
