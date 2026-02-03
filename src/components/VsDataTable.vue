@@ -88,13 +88,22 @@
               <slot :name="name" v-bind="slotProps" />
             </template>
           </VsDataTableBody>
+
+          <!-- Table Footer -->
+          <VsDataTableFooter
+            v-if="showFooter"
+            :columns="columns"
+            :rows="paginatedRows"
+            :expandable="expandable"
+            :is-item-selected-controlled="isItemSelectedControlled"
+          />
         </table>
       </div>
     </div>
 
     <!-- Pagination and Info -->
-    <div v-if="showFooter" class="vs-table-footer">
-      <div class="vs-footer-left">
+    <div v-if="showPagination" class="vs-table-pagination">
+      <div class="vs-pagination-left">
         <!-- Rows per page -->
         <VsRowsPerPage v-model="rowsPerPage" @rows-per-page-changed="handleRowsPerPage" />
         <!-- Divider -->
@@ -134,11 +143,11 @@ import {
   nextTick,
 } from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
-import VsSearch from '@/components/VsSearch.vue'
 import VsRowsPerPage from './VsRowsPerPage.vue'
 import VsDataTableHeader from './VsDataTableHeader.vue'
 import VsDataTableBody from '@/components/VsDataTableBody.vue'
 import VsDataTableToolbar from '@/components/VsDataTableToolbar.vue'
+import VsDataTableFooter from '@/components/VsDataTableFooter.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
@@ -147,6 +156,7 @@ import { useDataTableSelection } from '@/composables/useDataTableSelection'
 import { getValue, getRowKey, isRowSelected, calculateTotalColumns, getFlatColumns } from '@/utils/datatable'
 import { useStickyColumns } from '@/composables/useStickyColumns'
 import { useStickyHeader } from '@/composables/useStickyHeader'
+import { useStickyFooter } from '@/composables/useStickyFooter'
 import { useStickyResizeSync } from '@/composables/useStickyResizeSync'
 
 // Props and Emits
@@ -168,7 +178,9 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   maxVisiblePages: 5,
   rowsPerPage: 10,
   rowKey: 'id',
-  stickyHeader: false
+  stickyHeader: false,
+  stickyFooter: false,
+  showPagination: true
 })
 
 const internalRows = shallowRef(props.rows)
@@ -212,7 +224,13 @@ const {
   tableRef,
   tableContainer,
   tableResponsiveRef,
-} = useDataTable({ ...props, rows: internalRows.value }, emit)
+  refresh,
+  cleanup,
+} = useDataTable(
+  { ...props, rows: internalRows.value }, 
+  emit, 
+  { header: props.stickyHeader, footer: props.stickyFooter }
+)
 
 const {
   selectedItems,
@@ -240,10 +258,6 @@ const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
 
 useStickyResizeSync(tableRef, refreshSticky)
 
-const { refresh } = useStickyHeader(tableRef, {
-  enabled: props.stickyHeader,
-  maxHeight: '70vh',
-})
 
 // Refresh sticky when rows change (for dynamic content)
 watch(
@@ -275,12 +289,13 @@ defineExpose({
 })
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async () => {
   setTimeout(() => {
     refreshSticky()
   }, 100)
 
-  // refresh()
+  await nextTick()
+  refresh()
 
   emit('tableMounted')
 
@@ -309,19 +324,13 @@ onBeforeMount(() => {
   overflow: var(--vs-table-wrapper-overflow);
 }
 
-.vs-table-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--vs-spacing-sm) 0;
+.vs-table tfoot {
+  border-top: 1px solid var(--vs-border-color, #ddd);
+  background-color: var(--vs-table-footer-bg, var(--vs-table-header-bg, #fff));
 }
 
 .vs-table-info {
   color: var(--vs-secondary);
   font-size: var(--vs-font-size-md);
-}
-
-.vs-search-container {
-  margin-bottom: var(--vs-spacing-sm);
 }
 </style>
