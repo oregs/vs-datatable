@@ -105,6 +105,8 @@ export function hasValue(filter: ColumnFilter): boolean {
 }
 
 export function applyColumnFilter(row: any, col: Column, filter: ColumnFilter): boolean {
+  if (!col.field) return true
+
   switch (filter.type) {
     case 'text': {
       const cellValue = String(row[col.field] ?? '').toLowerCase()
@@ -166,6 +168,7 @@ export function applyColumnFilter(row: any, col: Column, filter: ColumnFilter): 
     }
 
     case 'date-range': {
+      if (!col.field) return true
       const date = new Date(String(row[col.field]))
       // if (isNaN(date.getTime())) return false
       const value = filter.value ?? null
@@ -206,7 +209,9 @@ export function applyColumnFilter(row: any, col: Column, filter: ColumnFilter): 
     }
 
     case 'custom':
+      if (!col.field) return true
       const cellValue = row[col.field]
+
       if (typeof filter.filterFn === 'function') {
         return filter.filterFn(cellValue, filter.value, row)
       }

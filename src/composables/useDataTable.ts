@@ -3,7 +3,7 @@ import { useDataTableSort } from '@/composables/useDataTableSort'
 import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
 import { useDataTableSearch } from '@/composables/useDataTableSearch'
-import { filterRowsByQuery, paginateRows, sortArray } from '@/utils/datatable'
+import { filterRowsByQuery, getFlatColumns, paginateRows, sortArray } from '@/utils/datatable'
 import { useExpandable } from '@/composables/useExpandable'
 import { useColumnFilter } from '@/composables/useColumnFilter'
 
@@ -16,6 +16,11 @@ export function useDataTable(props: any, emit: any) {
   const rowsPerPage = ref(props.serverOptions?.rowsPerPage ?? props.rowsPerPage)
   const searchQuery = ref<string>('')
 
+  const tableContainer = ref()
+  const tableResponsiveRef = ref<HTMLElement | null>(null)
+  const tableRef = ref()
+
+
   // --- Expandable rows
   const { isRowExpanded, toggleRowExpansion, getRowId, setRowLoading, isRowLoading } =
     useExpandable(props, emit)
@@ -23,7 +28,7 @@ export function useDataTable(props: any, emit: any) {
   // --- Column filters
   const { filters, filteredData, setFilter, clearFilter } = useColumnFilter(
     computed(() => unref(rowsRef) as Record<string, unknown>[]),
-    props.columns,
+    getFlatColumns(unref(props.columns)),
     {
       serverMode: !!props.serverOptions,
       onServerFilter(activeFilters) {
@@ -129,5 +134,25 @@ export function useDataTable(props: any, emit: any) {
     filteredData,
     setFilter,
     clearFilter,
+
+    // Table Ref
+    tableContainer,
+    tableResponsiveRef,
+    tableRef,
   }
 }
+
+
+
+// <th
+// v-for="column in nonGroupedColumns"
+// :key="column.field"
+// class="vs-group-header"
+// rowspan="2"
+// :style="{ 
+//   width: column.width + '%',
+//   textAlign: 'center'
+// }"
+// >
+// {{ column.label }}
+// </th>

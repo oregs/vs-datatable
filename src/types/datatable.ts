@@ -6,7 +6,7 @@ import { type Ref, type ComputedRef } from 'vue'
 
 export interface Column<T = any> {
   label: string
-  field: keyof T & string
+  field?: keyof T & string
   width?: string
   sortable?: boolean
   isKey?: boolean
@@ -20,6 +20,10 @@ export interface Column<T = any> {
     // options?: string[]
     // operators?: FilterOperator[]
   }
+  colHeaderClass?: string | string[] | Record<string, any>
+  sticky?: 'left' | 'right'
+  title?: string
+  children?: Column[]
 }
 
 export interface Sort {
@@ -149,6 +153,7 @@ export interface DataTableProps {
   expanded?: (string | number)[]
   expandable?: boolean
   accordion?: boolean
+  stickyHeader?: boolean
 }
 
 export interface DataTableEmits {

@@ -27,10 +27,13 @@ export function useColumnFilter<T extends Record<string, any>>(
   const filters = ref<Record<string, ColumnFilter>>({})
 
   const filteredData = computed(() => {
+    console.log('InitFilter Filtered:', data.value)
+
     if (options?.serverMode) return data.value 
 
     return data.value.filter((row) => {
-      return columns.every((col) => {
+      return columns.every((col) => {   
+        if (!col.field) return true     
         const filter = filters.value[col.field]
         if (!filter || !filter.type) return true
 
@@ -130,9 +133,9 @@ export function useColumnFilter<T extends Record<string, any>>(
     { deep: true }
   )
   
-  
   // Set or update a filter
   function setFilter(columnKey: string, filter?: ColumnFilter, type?: ColumnFilter['type']) {
+    
     if (filter) {
       filters.value[columnKey] = initFilter(filter.type, filter)
     } else if (type) {
