@@ -23,9 +23,9 @@
   ],
   "main": "./dist/vs-datatable.umd.js",
   "module": "./dist/vs-datatable.es.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/vs-datatable.es.js",
       "require": "./dist/vs-datatable.umd.js"
     },
