@@ -25,6 +25,7 @@ export function useDataTablePagination<
   const totalRecords = computed<number>({
     get: () => (props.serverItemsLength !== undefined ? props.serverItemsLength : processedRows.value.length),
     set: (newValue: number) => {
+      console.log('serverItemsLength: ', newValue)
       if (props.serverItemsLength !== undefined) {
         emit('update:serverItemsLength', newValue)
       }

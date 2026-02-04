@@ -72,7 +72,7 @@
       <h2>Server-side Pagination</h2>
       <VsDataTable
         :columns="columns"
-        :rows="rows"
+        :rows="serverRows"
         :server-options="serverOptions"
         :server-items-length="serverItemsLength"
         :loading="loading"
@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { VsDataTable } from './index'
 import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from './index'
 // import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
@@ -256,10 +256,11 @@ function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
  * SERVER OPTIONS
  *--------------------
  */
-const serverItemsLength = ref(20)
+const serverRows = reactive([])
+const serverItemsLength = ref(0)
 const serverOptions = ref({
   page: 1,
-  rowsPerPage: 25,
+  rowsPerPage: 10,
   sort: [],
 })
 
@@ -294,8 +295,35 @@ async function onServerFilterChange(activeFilters: Record<string, ColumnFilter>)
   // rows.value = response.data
 }
 
+async function fetchData() {
+  loading.value = true
+
+  try {
+    // Simulate API call
+    await new Promise(resolve => {
+      setTimeout(() => {
+        resolve(true)
+      }, 500)
+    })
+
+    const response = orders.rows
+    // console.log(response)
+    Object.assign(serverRows, response)
+
+    serverItemsLength.value = response.length
+
+    serverOptions.value = { ...serverOptions.value, page: 1 }
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  // ✅ Custom Status Filter
+  fetchData()
+
+  // Custom Status Filter
   filterFns.statusFilter = (row, field, filter) => {
     if (!filter.value?.length) return true
     return filter.value.includes(row[field])

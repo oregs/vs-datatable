@@ -1,4 +1,4 @@
-import { computed, ref, watch, shallowRef, unref, isRef } from 'vue'
+import { computed, ref, watch, shallowRef, unref, isRef, type Ref } from 'vue'
 import { useDataTableSort } from '@/composables/useDataTableSort'
 import { useDataTablePagination } from '@/composables/useDataTablePagination'
 import { useDataTableRowsPerPage } from '@/composables/useDataTableRowsPerPage'
@@ -18,10 +18,12 @@ interface UseStickyTableOptions {
 export function useDataTable(
   props: any, 
   emit: any, 
-  options: UseStickyTableOptions = {}
+  options: UseStickyTableOptions = {},
+  internalRows?: Ref<any[]>
 ) {
 
-  const rowsRef = isRef(props.rows) ? props.rows : shallowRef(props.rows)
+  // const rowsRef = isRef(props.rows) ? props.rows : shallowRef(props.rows)
+   const rowsRef = internalRows || (isRef(props.rows) ? props.rows : shallowRef(props.rows))
 
   // --- Pagination
   const page = ref<number>(1)

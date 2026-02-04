@@ -227,9 +227,10 @@ const {
   refresh,
   cleanup,
 } = useDataTable(
-  { ...props, rows: internalRows.value }, 
+  props,
   emit, 
-  { header: props.stickyHeader, footer: props.stickyFooter }
+  { header: props.stickyHeader, footer: props.stickyFooter },
+  internalRows
 )
 
 const {

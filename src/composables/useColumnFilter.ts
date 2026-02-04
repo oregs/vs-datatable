@@ -27,7 +27,7 @@ export function useColumnFilter<T extends Record<string, any>>(
   const filters = ref<Record<string, ColumnFilter>>({})
 
   const filteredData = computed(() => {
-    console.log('InitFilter Filtered:', data.value)
+    // console.log('InitFilter Filtered:', data.value)
 
     if (options?.serverMode) return data.value 
 
