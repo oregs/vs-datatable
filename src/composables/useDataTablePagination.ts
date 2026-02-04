@@ -2,7 +2,7 @@
  * DataTable Pagination Composable
  */
 
-import { type Ref, ref, computed } from 'vue'
+import { type Ref, ref, computed, watch } from 'vue'
 import type { PaginationHelpers, RecordRange } from '@/types/datatable'
 import { calculateRecordRange } from '@/utils/datatable'
 

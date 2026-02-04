@@ -76,7 +76,7 @@
         :server-options="serverOptions"
         :server-items-length="serverItemsLength"
         :loading="loading"
-        @update:server-options="handleServerOptionsChange"
+        @update:server-options="fetchData"
         @sort-changed="handleServerSortChange"
         @row-click="handleSercerRowClick"
         @rows-per-page-changed="handleServerRowsPerPage"
@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, watch } from 'vue'
 import { VsDataTable } from './index'
 import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from './index'
 // import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
@@ -256,7 +256,7 @@ function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
  * SERVER OPTIONS
  *--------------------
  */
-const serverRows = reactive([])
+const serverRows = ref([])
 const serverItemsLength = ref(0)
 const serverOptions = ref({
   page: 1,
@@ -270,7 +270,7 @@ const handleSercerRowClick = (row: any, index: number) => {
 
 const handleServerOptionsChange = (options: any) => {
   console.log('Server options changed:', options)
-  serverOptions.value = options
+  // serverOptions.value = options
 }
 
 const handleServerSortChange = ({ sort }: { sort: any[] }) => {
@@ -295,24 +295,29 @@ async function onServerFilterChange(activeFilters: Record<string, ColumnFilter>)
   // rows.value = response.data
 }
 
-async function fetchData() {
+async function fetchData(options: any) {
   loading.value = true
 
   try {
-    // Simulate API call
-    await new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
+    const { page, rowsPerPage } = options
 
-    const response = orders.rows
-    // console.log(response)
-    Object.assign(serverRows, response)
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 500))
 
-    serverItemsLength.value = response.length
+    // TOTAL DATA (mock database)
+    const allRows = orders.rows
 
-    serverOptions.value = { ...serverOptions.value, page: 1 }
+    // SERVER-SIDE pagination logic
+    const start = (page - 1) * rowsPerPage
+    const end = start + rowsPerPage
+    const paginatedRows = allRows.slice(start, end)
+
+    // Only send current page rows to datatable
+    serverRows.value = paginatedRows
+
+    // Send total count separately (VERY important)
+    serverItemsLength.value = allRows.length
+    // serverOptions.value = options
   } catch (error) {
     console.error('Failed to fetch data:', error)
   } finally {
@@ -320,8 +325,9 @@ async function fetchData() {
   }
 }
 
+
 onMounted(() => {
-  fetchData()
+  fetchData(serverOptions.value)
 
   // Custom Status Filter
   filterFns.statusFilter = (row, field, filter) => {

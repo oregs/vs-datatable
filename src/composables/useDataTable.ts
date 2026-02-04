@@ -89,23 +89,23 @@ export function useDataTable(
 
   const processedRows = computed(() => {
     let resultRows = filteredAndSearched.value
-  
-    // Only apply client-side operations if not in server mode
+    
+    // In server mode, don't apply client-side operations
     if (!props.serverOptions) {
       // Apply search filter
       if (searchQuery.value) {
         resultRows = filterRowsByQuery(resultRows, searchQuery.value)
       }
-  
+      
       // Apply sorting
       if (activeSort.value.length) {
         resultRows = sortArray(resultRows, activeSort.value)
       }
     }
-  
+    
     resultRows = resultRows.map((row, index) => ({
       ...row,
-      isExpanded: isRowExpanded(row, index), // pass index here
+      isExpanded: isRowExpanded(row, index),
     }))
 
     return resultRows
@@ -115,9 +115,15 @@ export function useDataTable(
   watch([filters, searchQuery], () => (page.value = 1), { deep: true })
 
   // --- Paginated rows
-  const paginatedRows = computed(() =>
-    paginateRows(processedRows.value, page.value, rowsPerPage.value)
-  )
+  const paginatedRows = computed(() => {
+    // In server mode, server sends exactly one page of data
+    if (props.serverOptions) {
+      return processedRows.value // Server already paginated
+    }
+    
+    // Client mode: paginate locally
+    return paginateRows(processedRows.value, page.value, rowsPerPage.value)
+  })
 
   // --- Auto emit when large datasets change
   watch(rowsRef, (newRows) => {
