@@ -256,7 +256,7 @@ function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
  * SERVER OPTIONS
  *--------------------
  */
-const serverRows = ref([])
+const serverRows = ref<any[]>([])
 const serverItemsLength = ref(0)
 const serverOptions = ref({
   page: 1,
