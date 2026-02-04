@@ -1,5 +1,6 @@
 <template>
   <div class="vs-datatable">
+    <!-- Rest of your template -->
     <VsDataTableToolbar
       :show-search="showSearch"
       v-model:search-query="searchQuery"
@@ -17,12 +18,26 @@
     </VsDataTableToolbar>
 
     <!-- Table Container -->
-    <div class="vs-table-container" :class="containerClass">
-      <div ref="tableResponsiveRef" class="vs-table-wrapper">
-        <table class="vs-table" :class="tableClass">
-
+    <div
+      ref="tableContainer"
+      class="vs-table-container vs-position-relative vs-overflow-auto"
+      :class="[
+        containerClass,
+        {
+          'has-left-shadow': hasLeftShadow,
+          'has-right-shadow': hasRightShadow,
+        },
+      ]"
+    >
+      <div 
+        ref="tableResponsiveRef" 
+        class="vs-table-wrapper"
+        :class="{'vs-sticky-header-wrapper': stickyHeader}"
+      >
+        <table ref="tableRef" class="vs-table" :class="tableClass">
           <!-- Table Header -->
           <VsDataTableHeader
+            ref="headerRef"
             :columns="columns"
             :expandable="expandable"
             :is-item-selected-controlled="isItemSelectedControlled"
@@ -44,6 +59,7 @@
 
           <!-- Table Body -->
           <VsDataTableBody
+            ref="bodyRef"
             :loading="loading"
             :loading-text="loadingText"
             :no-data-text="noDataText"
@@ -73,13 +89,21 @@
             </template>
           </VsDataTableBody>
 
+          <!-- Table Footer -->
+          <VsDataTableFooter
+            v-if="showFooter"
+            :columns="columns"
+            :rows="paginatedRows"
+            :expandable="expandable"
+            :is-item-selected-controlled="isItemSelectedControlled"
+          />
         </table>
       </div>
     </div>
 
     <!-- Pagination and Info -->
-    <div v-if="showFooter" class="vs-table-footer">
-      <div class="vs-footer-left">
+    <div v-if="showPagination" class="vs-table-pagination">
+      <div class="vs-pagination-left">
         <!-- Rows per page -->
         <VsRowsPerPage v-model="rowsPerPage" @rows-per-page-changed="handleRowsPerPage" />
         <!-- Divider -->
@@ -114,20 +138,26 @@ import {
   onUnmounted,
   onBeforeMount,
   shallowRef,
-  watch
+  watch,
+  ref,
+  nextTick,
 } from 'vue'
 import VsPagination from '@/components/VsPagination.vue'
-import VsSearch from '@/components/VsSearch.vue'
 import VsRowsPerPage from './VsRowsPerPage.vue'
 import VsDataTableHeader from './VsDataTableHeader.vue'
 import VsDataTableBody from '@/components/VsDataTableBody.vue'
 import VsDataTableToolbar from '@/components/VsDataTableToolbar.vue'
+import VsDataTableFooter from '@/components/VsDataTableFooter.vue'
 
 // Import types and composables
 import type { DataTableProps, DataTableEmits } from '@/types/datatable'
 import { useDataTable } from '@/composables/useDataTable'
 import { useDataTableSelection } from '@/composables/useDataTableSelection'
-import { getValue, getRowKey, isRowSelected, calculateTotalColumns } from '@/utils/datatable'
+import { getValue, getRowKey, isRowSelected, calculateTotalColumns, getFlatColumns } from '@/utils/datatable'
+import { useStickyColumns } from '@/composables/useStickyColumns'
+import { useStickyHeader } from '@/composables/useStickyHeader'
+import { useStickyFooter } from '@/composables/useStickyFooter'
+import { useStickyResizeSync } from '@/composables/useStickyResizeSync'
 
 // Props and Emits
 const props = withDefaults(defineProps<DataTableProps>(), {
@@ -148,6 +178,9 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   maxVisiblePages: 5,
   rowsPerPage: 10,
   rowKey: 'id',
+  stickyHeader: false,
+  stickyFooter: false,
+  showPagination: true
 })
 
 const internalRows = shallowRef(props.rows)
@@ -165,6 +198,8 @@ const emit = defineEmits<DataTableEmits>()
 // Component setup
 const attrs = useAttrs()
 const hasRowClick = computed(() => !!attrs['onRowClick'])
+const headerRef = ref()
+const bodyRef = ref()
 
 // Use composables
 const {
@@ -186,7 +221,16 @@ const {
   filters,
   setFilter,
   clearFilter,
-} = useDataTable({ ...props, rows: internalRows.value }, emit)
+  tableRef,
+  tableContainer,
+  tableResponsiveRef,
+  refresh,
+  cleanup,
+} = useDataTable(
+  { ...props, rows: internalRows.value }, 
+  emit, 
+  { header: props.stickyHeader, footer: props.stickyFooter }
+)
 
 const {
   selectedItems,
@@ -202,15 +246,59 @@ const totalColumns = computed(() =>
   calculateTotalColumns(props.columns, isItemSelectedControlled.value, props.expandable)
 )
 
+// const hasLeftShadow = ref(false)
+// const hasRightShadow = ref(false)  
+// const refreshSticky = () => {}
+
+// Use sticky columns on the main table
+const { hasLeftShadow, hasRightShadow, refreshSticky } = useStickyColumns(
+  tableRef,
+  computed(() => props.columns)
+)
+
+useStickyResizeSync(tableRef, refreshSticky)
+
+
+// Refresh sticky when rows change (for dynamic content)
+watch(
+  () => paginatedRows.value,
+  () => {
+    nextTick(() => {
+      refreshSticky()
+    })
+  },
+  { deep: true }
+)
+
+// Refresh sticky when columns change
+watch(
+  () => props.columns,
+  () => {
+    nextTick(() => {
+      refreshSticky()
+    })
+  },
+  { deep: true }
+)
+
 // Expose
 defineExpose({
   toggleRowExpansion,
   setRowLoading,
+  refreshSticky,
 })
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async () => {
+  setTimeout(() => {
+    refreshSticky()
+  }, 100)
+
+  await nextTick()
+  refresh()
+
   emit('tableMounted')
+
   try {
     emit('dataLoaded', props.rows)
   } catch (err) {
@@ -236,19 +324,13 @@ onBeforeMount(() => {
   overflow: var(--vs-table-wrapper-overflow);
 }
 
-.vs-table-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--vs-spacing-sm) 0;
+.vs-table tfoot {
+  border-top: 1px solid var(--vs-border-color, #ddd);
+  background-color: var(--vs-table-footer-bg, var(--vs-table-header-bg, #fff));
 }
 
 .vs-table-info {
   color: var(--vs-secondary);
   font-size: var(--vs-font-size-md);
-}
-
-.vs-search-container {
-  margin-bottom: var(--vs-spacing-sm);
 }
 </style>

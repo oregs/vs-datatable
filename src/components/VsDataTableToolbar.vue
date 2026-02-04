@@ -57,4 +57,8 @@ const onInput = (val: string) => {
   align-items: center;
   gap: var(--vs-spacing-sm, 0.75rem);
 }
+
+.vs-search-container {
+  margin-bottom: var(--vs-spacing-sm);
+}
 </style>

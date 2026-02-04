@@ -11,8 +11,13 @@ import type { ColumnFilter } from '@/types/datatable'
  * @param path - The path to the value (e.g., 'user.profile.name')
  * @returns The value at the path or empty string
  */
-export function getValue(obj: any, path: string): any {
-  return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
+// export function getValue(obj: any, path: string): any {
+//   return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? ''
+// }
+
+export const getValue = (row: any, field?: string) => {
+  if (!field) return '' // ✅ Prevent undefined field error
+  return field.split('.').reduce((acc, key) => acc && acc[key], row)
 }
 
 /**
@@ -56,9 +61,29 @@ export function isRowSelected(
  * @param hasCheckbox - Whether checkbox column is present
  * @returns Total number of columns
  */
-export function calculateTotalColumns(columns: Column[], hasCheckbox: boolean, hasExtendable: boolean): number {
-  return columns.length + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
+export function calculateTotalColumns(
+  columns: Column[],
+  hasCheckbox: boolean,
+  hasExtendable: boolean
+): number {
+  const countLeafColumns = (cols: Column[]): number => {
+    return cols.reduce((count, col) => {
+      if (col.children && col.children.length > 0) {
+        // Only count child columns, not the parent
+        return count + countLeafColumns(col.children)
+      }
+      return count + 1
+    }, 0)
+  }
+
+  const totalColumns = countLeafColumns(columns)
+
+  return totalColumns + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
 }
+
+// export function calculateTotalColumns(columns: Column[], hasCheckbox: boolean, hasExtendable: boolean): number {
+//   return columns.length + (hasCheckbox ? 1 : 0) + (hasExtendable ? 1 : 0)
+// }
 
 /**
  * Sort array of objects by multiple criteria
@@ -262,4 +287,25 @@ export function serializeFilters(filters: Record<string, ColumnFilter>) {
   }
 
   return params
+}
+
+/**
+ * Flattens grouped columns into a single-level array.
+ * Handles nested `children` columns gracefully.
+ */
+export function getFlatColumns(columns: Column[] = []): Column[] {
+  const result: Column[] = []
+
+  const flatten = (cols: Column[]) => {
+    cols.forEach((col) => {
+      if (Array.isArray(col.children) && col.children.length) {
+        flatten(col.children)
+      } else {
+        result.push(col)
+      }
+    })
+  }
+
+  flatten(columns)
+  return result
 }
