@@ -1,14 +1,22 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-    "compilerOptions": {
-      "composite": true,
-      "declaration": true,
-      "declarationMap": true,
-      "noEmit": false,                  // ✅ emit JS
-      "allowImportingTsExtensions": false, // must be false
-      "outDir": "dist",
-      "paths": { "@/*": ["./src/*"] }
-    },  
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue","plugins/export", "src/**/*.json"],
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "target": "esnext",
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "plugins/*": ["./plugins/*"]
+    }
+  },
+  "include": ["env.d.ts", "playground/**/*", "playground/**/*.json", "src/**/*", "plugins/**/*"],
   "exclude": ["src/**/__tests__/*"]
 }

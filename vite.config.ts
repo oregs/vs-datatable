@@ -5,14 +5,11 @@ import vue from '@vitejs/plugin-vue'
 import { libInjectCss } from 'vite-plugin-lib-inject-css'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    libInjectCss()
-  ],
+  plugins: [vue(), libInjectCss()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      'plugins': fileURLToPath(new URL('./plugins', import.meta.url))
+      'plugins': fileURLToPath(new URL('./plugins', import.meta.url)),
     },
   },
   build: {

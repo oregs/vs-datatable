@@ -16,14 +16,13 @@ interface UseStickyTableOptions {
 }
 
 export function useDataTable(
-  props: any, 
-  emit: any, 
+  props: any,
+  emit: any,
   options: UseStickyTableOptions = {},
-  internalRows?: Ref<any[]>
+  internalRows?: Ref<any[]>,
 ) {
-
   // const rowsRef = isRef(props.rows) ? props.rows : shallowRef(props.rows)
-   const rowsRef = internalRows || (isRef(props.rows) ? props.rows : shallowRef(props.rows))
+  const rowsRef = internalRows || (isRef(props.rows) ? props.rows : shallowRef(props.rows))
 
   // --- Pagination
   const page = ref<number>(1)
@@ -44,10 +43,10 @@ export function useDataTable(
     getFlatColumns(unref(props.columns)),
     {
       serverMode: !!props.serverOptions,
-      onServerFilter(activeFilters) {
+      onServerFilter(activeFilters: Record<string, any>) {
         emit('filterChange', activeFilters)
       },
-    }
+    },
   )
 
   // --- Sort
@@ -62,7 +61,7 @@ export function useDataTable(
     emit,
     page,
     rowsPerPage,
-    computed(() => processedRows.value)
+    computed(() => processedRows.value),
   )
 
   // --- Row Per Page
@@ -73,7 +72,6 @@ export function useDataTable(
 
   const headerControl = useStickyHeader(tableRef, { enabled: header, maxHeight })
   const footerControl = useStickyFooter(tableRef, { enabled: footer, maxHeight })
-
 
   // --- Processed rows: apply filters, search, then sort
   const filteredAndSearched = computed(() => {
@@ -89,21 +87,21 @@ export function useDataTable(
 
   const processedRows = computed(() => {
     let resultRows = filteredAndSearched.value
-    
+
     // In server mode, don't apply client-side operations
     if (!props.serverOptions) {
       // Apply search filter
       if (searchQuery.value) {
         resultRows = filterRowsByQuery(resultRows, searchQuery.value)
       }
-      
+
       // Apply sorting
       if (activeSort.value.length) {
         resultRows = sortArray(resultRows, activeSort.value)
       }
     }
-    
-    resultRows = resultRows.map((row, index) => ({
+
+    resultRows = resultRows.map((row: any, index: number) => ({
       ...row,
       isExpanded: isRowExpanded(row, index),
     }))
@@ -120,7 +118,7 @@ export function useDataTable(
     if (props.serverOptions) {
       return processedRows.value // Server already paginated
     }
-    
+
     // Client mode: paginate locally
     return paginateRows(processedRows.value, page.value, rowsPerPage.value)
   })

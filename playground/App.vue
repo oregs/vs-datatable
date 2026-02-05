@@ -108,12 +108,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, watch } from 'vue'
-import { VsDataTable } from './index'
-import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from './index'
+import { VsDataTable } from '@/index'
+import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from '@/types/index.ts'
 // import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
 // import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
-import orders from '@/data/orders.json'
+import orders from './data/orders.json'
 
 /**
  * ----------------------------------------------------------------
@@ -199,13 +199,13 @@ const columns = ref<any[]>([
     sortable: true,
     filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' },
   },
-  { 
-    label: 'Tax', 
-    field: 'tax', 
+  {
+    label: 'Tax',
+    field: 'tax',
     sortable: true,
     footerValue: (rows: Row[]) => rows.reduce((sum, r) => sum + Number(r.tax || 0), 0),
     footerFormatter: (val: number) => val.toFixed(2),
-  }
+  },
 ])
 
 const onPageUpdated = (newPage: number) => {
@@ -302,7 +302,7 @@ async function fetchData(options: any) {
     const { page, rowsPerPage } = options
 
     // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     // TOTAL DATA (mock database)
     const allRows = orders.rows
@@ -324,7 +324,6 @@ async function fetchData(options: any) {
     loading.value = false
   }
 }
-
 
 onMounted(() => {
   fetchData(serverOptions.value)
