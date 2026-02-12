@@ -77,9 +77,11 @@ export function useDataTable(
   const filteredAndSearched = computed(() => {
     let result = filteredData.value
 
-    // Apply search
-    if (searchQuery.value) {
-      result = filterRowsByQuery(result, searchQuery.value)
+    if (!props.serverOptions) {
+      // Apply search
+      if (searchQuery.value) {
+        result = filterRowsByQuery(result, searchQuery.value)
+      }
     }
 
     return result
