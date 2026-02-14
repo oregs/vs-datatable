@@ -17,12 +17,12 @@
       "@/*": ["src/*"],
       "plugins/*": ["plugins/*"]
     },
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node"]
   },
   "references": [
     { "path": "./tsconfig.node.json" },
-    { "path": "./tsconfig.app.json" }
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.build.json" }
   ],
-  "include": ["src", "plugins"],
   "exclude": ["node_modules", "dist", "eslint.config.ts", "vitest.config.ts"]
 }

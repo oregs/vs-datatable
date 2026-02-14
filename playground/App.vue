@@ -72,11 +72,11 @@
       <h2>Server-side Pagination</h2>
       <VsDataTable
         :columns="columns"
-        :rows="rows"
+        :rows="serverRows"
         :server-options="serverOptions"
         :server-items-length="serverItemsLength"
         :loading="loading"
-        @update:server-options="handleServerOptionsChange"
+        @update:server-options="fetchData"
         @sort-changed="handleServerSortChange"
         @row-click="handleSercerRowClick"
         @rows-per-page-changed="handleServerRowsPerPage"
@@ -107,13 +107,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { VsDataTable } from './index'
-import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from './index'
+import { ref, onMounted, reactive, watch } from 'vue'
+import { VsDataTable } from '@/index'
+import type { ExpandEventPayload, CollapseEventPayload, ColumnFilter, Row } from '@/types/index.ts'
 // import  VsDataTableExportDropDown from 'plugins/export/VsDataTableExportDropdown.vue'
 // import DemoLayout from '@/views/DemoLayout.vue'
 import { filterFns } from '@/utils/filterFns'
-import orders from '@/data/orders.json'
+import orders from './data/orders.json'
 
 /**
  * ----------------------------------------------------------------
@@ -199,13 +199,13 @@ const columns = ref<any[]>([
     sortable: true,
     filter: { type: 'custom', custom: 'StatusFilterSlot', filterKey: 'statusFilter' },
   },
-  { 
-    label: 'Tax', 
-    field: 'tax', 
+  {
+    label: 'Tax',
+    field: 'tax',
     sortable: true,
     footerValue: (rows: Row[]) => rows.reduce((sum, r) => sum + Number(r.tax || 0), 0),
     footerFormatter: (val: number) => val.toFixed(2),
-  }
+  },
 ])
 
 const onPageUpdated = (newPage: number) => {
@@ -256,10 +256,11 @@ function onCollapseRow({ row, index, rowId }: CollapseEventPayload) {
  * SERVER OPTIONS
  *--------------------
  */
-const serverItemsLength = ref(20)
+const serverRows = ref<any[]>([])
+const serverItemsLength = ref(0)
 const serverOptions = ref({
   page: 1,
-  rowsPerPage: 25,
+  rowsPerPage: 10,
   sort: [],
 })
 
@@ -269,7 +270,7 @@ const handleSercerRowClick = (row: any, index: number) => {
 
 const handleServerOptionsChange = (options: any) => {
   console.log('Server options changed:', options)
-  serverOptions.value = options
+  // serverOptions.value = options
 }
 
 const handleServerSortChange = ({ sort }: { sort: any[] }) => {
@@ -294,8 +295,40 @@ async function onServerFilterChange(activeFilters: Record<string, ColumnFilter>)
   // rows.value = response.data
 }
 
+async function fetchData(options: any) {
+  loading.value = true
+
+  try {
+    const { page, rowsPerPage } = options
+
+    // Simulate API latency
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // TOTAL DATA (mock database)
+    const allRows = orders.rows
+
+    // SERVER-SIDE pagination logic
+    const start = (page - 1) * rowsPerPage
+    const end = start + rowsPerPage
+    const paginatedRows = allRows.slice(start, end)
+
+    // Only send current page rows to datatable
+    serverRows.value = paginatedRows
+
+    // Send total count separately (VERY important)
+    serverItemsLength.value = allRows.length
+    // serverOptions.value = options
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
 onMounted(() => {
-  // ✅ Custom Status Filter
+  fetchData(serverOptions.value)
+
+  // Custom Status Filter
   filterFns.statusFilter = (row, field, filter) => {
     if (!filter.value?.length) return true
     return filter.value.includes(row[field])

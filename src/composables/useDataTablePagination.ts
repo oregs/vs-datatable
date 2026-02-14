@@ -2,7 +2,7 @@
  * DataTable Pagination Composable
  */
 
-import { type Ref, ref, computed } from 'vue'
+import { type Ref, ref, computed, watch } from 'vue'
 import type { PaginationHelpers, RecordRange } from '@/types/datatable'
 import { calculateRecordRange } from '@/utils/datatable'
 
@@ -25,6 +25,7 @@ export function useDataTablePagination<
   const totalRecords = computed<number>({
     get: () => (props.serverItemsLength !== undefined ? props.serverItemsLength : processedRows.value.length),
     set: (newValue: number) => {
+      console.log('serverItemsLength: ', newValue)
       if (props.serverItemsLength !== undefined) {
         emit('update:serverItemsLength', newValue)
       }

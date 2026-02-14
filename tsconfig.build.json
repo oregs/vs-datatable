@@ -1,10 +1,25 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist", "eslint.config.ts", "vitest.config.ts"],
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "eslint.config.ts", 
+    "vitest.config.ts",
+    "src/App.vue",
+    "src/main.ts",
+    "playground/**/*",
+    "**/__tests__/**"
+  ],
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "dist"
   },
-  "include": ["src"]
+  "include": [
+    "src/index.ts",
+    "src/components/**/*",
+    "src/composables/**/*",
+    "src/utils/**/*",
+    "src/types/**/*"
+  ]
 }

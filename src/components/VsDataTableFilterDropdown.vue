@@ -5,8 +5,8 @@
     class="vs-column-filter"
     @click.stop="toggleDropdown"
     :class="{
-      'is-active': hasValue(localFilter),
-      'in-active': !hasValue(localFilter),
+      'is-active': isFilterActive,
+      'in-active': !isFilterActive,
     }"
   >
     <svg
@@ -302,7 +302,12 @@ watch(
   { immediate: true }
 )
 
-// Local filter state
+// Active state: based on applied filter (modelValue), so icon stays active until Clear is clicked
+const isFilterActive = computed(() =>
+  hasValue(props.modelValue ?? initFilter(props.type))
+)
+
+// Local filter state (working copy inside dropdown)
 const localFilter = ref<ColumnFilter>(initFilter(props.type, props.modelValue))
 
 watch(
