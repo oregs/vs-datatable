@@ -144,6 +144,7 @@ const columns = ref<any[]>([
     sortable: true,
     filter: { type: 'text' },
     footerValue: 'Total',
+    sticky: 'left',
   },
   { label: 'Email', field: 'email', sortable: true, filter: { type: 'text' } },
   { label: 'Phone', field: 'phone', sortable: true },
@@ -168,6 +169,7 @@ const columns = ref<any[]>([
   },
   {
     label: 'Sales Data',
+    sticky: 'right',
     children: [
       {
         label: 'Price',
