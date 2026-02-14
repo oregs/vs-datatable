@@ -304,6 +304,10 @@ export function useStickyColumns(
     if (!bodyRows.length) return
 
     const bodyCells = getBodyCells(bodyRows)
+    // Skip when body shows "no data" row (single cell) - prevents glitch when column filter has no results
+    const isNoDataRow = bodyCells.length === 1 || bodyRows[0]?.querySelector('.vs-no-data') != null
+    if (isNoDataRow) return
+
     const fieldToIndex = createFieldToIndexMap(bodyCells)
     const stickyIndexes = getStickyIndexes(bodyCells, fieldToIndex, columns.value)
 

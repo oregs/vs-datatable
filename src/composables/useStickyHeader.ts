@@ -65,18 +65,22 @@ export function useStickyHeader(
   const adjustHeaderWidth = () => {
     const tableEl = tableRef.value
     if (!tableEl) return
-  
+
     const thead = tableEl.querySelector('thead') as HTMLElement
     const tbody = tableEl.querySelector('tbody') as HTMLElement
     if (!thead || !tbody) return
-  
+
     const headerRows = Array.from(thead.querySelectorAll('tr'))
     const bodyRow = tbody.querySelector('tr')
     if (!bodyRow) return
-  
+
     const bodyCells = Array.from(bodyRow.querySelectorAll('td')) as HTMLElement[]
     if (!bodyCells.length) return
-  
+
+    // Skip when body shows "no data" row (single cell with colspan) - prevents layout glitch
+    const isNoDataRow = bodyCells.length === 1 || bodyRow.querySelector('.vs-no-data') != null
+    if (isNoDataRow) return
+
     // Map the leaf <th> elements (no colspan)
     const leafHeaderCells: HTMLElement[] = []
     headerRows.forEach(row => {

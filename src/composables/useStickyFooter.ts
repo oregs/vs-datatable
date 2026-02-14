@@ -59,6 +59,13 @@ export function useStickyFooter(
         return
       }
 
+      // Skip when body shows "no data" row (single cell) - prevents layout glitch
+      const isNoDataRow = bodyCells.length === 1 || bodyRow.querySelector('.vs-no-data') != null
+      if (isNoDataRow) {
+        isAdjusting = false
+        return
+      }
+
       let bodyIndex = 0
       footerCells.forEach((fCell) => {
         const colspan = parseInt(fCell.getAttribute('colspan') || '1', 10)
